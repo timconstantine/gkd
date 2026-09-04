@@ -11,6 +11,9 @@ on:
       - '*.md'
       - '.github/**'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     if: ${{ !startsWith(github.event.head_commit.message, 'chore:') && !startsWith(github.event.head_commit.message, 'chore(') }}
@@ -46,3 +49,19 @@ jobs:
         with:
           name: outputs
           path: gkd-app/build/outputs
+
+      # Publishes (or overwrites, if it already exists) a single "latest-build"
+      # release carrying whichever build just succeeded, so README.md can link
+      # to one stable URL instead of a specific run/artifact that expires.
+      - name: Publish latest build
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest-build
+          name: Latest build
+          body: |
+            Automatically published by [Build-Apk](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) — not a vetted release, just the most recent build to pass CI.
+
+            - Branch: `${{ github.ref_name }}`
+            - Commit: ${{ github.sha }}
+          prerelease: true
+          files: gkd-app/build/outputs/apk/gkd/debug/*.apk

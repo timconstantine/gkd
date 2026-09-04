@@ -4,6 +4,14 @@
 <a href="https://gkd.li/"><img src="https://e.gkd.li/2a0a7787-f2dd-4529-a885-93f3b8c857c3" alt="GKD.LI" width="40%" /></a>
 </p>
 
+This is a fork of the upstream [gkd-kit/gkd](https://github.com/gkd-kit/gkd) project, with a full English translation of the app and the [snapshot-inspector web tool](https://github.com/gkd-kit/inspect), plus a few app-side additions on top: a native in-app snapshot inspector and selector library, a guided step-by-step rule builder (start a screen capture, fill in a friendly form — no rule syntax required), and a curated English-language rule set installed by default. See [subscriptions/README.md](subscriptions/README.md) and [subscriptions/CONTRIBUTING.md](subscriptions/CONTRIBUTING.md) for details.
+
+### Latest build
+
+[![Latest build](https://img.shields.io/github/v/release/timconstantine/gkd?include_prereleases&label=latest%20build&sort=date)](https://github.com/timconstantine/gkd/releases/tag/latest-build)
+
+Grab the newest APK from **[github.com/timconstantine/gkd/releases/tag/latest-build](https://github.com/timconstantine/gkd/releases/tag/latest-build)** — this link always points to whatever build most recently passed CI (unsigned debug build, republished automatically after every successful [Build-Apk](.github/workflows/Build-Apk.yml) run).
+
 An Android app for custom screen tapping, built on [advanced selectors](https://gkd.li/guide/selector) + [subscription rules](https://gkd.li/guide/subscription) + [snapshot inspection](https://github.com/gkd-kit/inspect)
 
 Using custom rules, when a specified condition is met on a specified screen (e.g. specific text is present on screen), it taps a specific node or position, or performs another action
@@ -22,6 +30,10 @@ Using custom rules, when a specified condition is met on a specified screen (e.g
 
 ## Installation
 
+For this fork's build (English UI, extra features, default rule set), see [Latest build](#latest-build) above.
+
+The badges below install the official upstream app instead — same core engine, original (untranslated) UI, none of this fork's additions:
+
 <a href="https://gkd.li/guide/"><img src="https://e.gkd.li/f23b704d-d781-494b-9719-393f95683b89" alt="Download from GKD.LI" width="32%" /></a><a href="https://play.google.com/store/apps/details?id=li.songe.gkd"><img src="https://e.gkd.li/f63fabeb-0342-4961-a46d-cac61b0f8856" alt="Download from Google Play" width="32%" /></a><a href="https://github.com/gkd-kit/gkd/releases"><img src="https://e.gkd.li/c1ef2bb9-7472-46d5-9806-81b4c37e5b4d" alt="Download from GitHub releases" width="32%" /></a>
 
 If you run into issues, please check the [FAQ](https://gkd.li/guide/faq) first
@@ -35,7 +47,7 @@ If you run into issues, please check the [FAQ](https://gkd.li/guide/faq) first
 
 ## Subscriptions
 
-GKD **does not provide any rules by default** — you need to add local rules yourself, or obtain remote rules via a subscription link
+Upstream GKD **does not provide any rules by default**. This fork does: it installs [`english-ui-rules`](subscriptions/english-ui-rules.gkd.json5) automatically on first run (see [subscriptions/README.md](subscriptions/README.md)) — you can disable or remove it like any other subscription. Beyond that, you can add local rules yourself, or obtain remote rules via a subscription link
 
 You can also use [subscription-template](https://github.com/gkd-kit/subscription-template) to quickly build your own remote subscription
 
