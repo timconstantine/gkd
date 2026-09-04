@@ -95,7 +95,7 @@
         {
           key: 0,
           anyMatches: [
-            '[clickable=true][visibleToUser=true][text.length<20][text="Not Now" || text="Later" || text="Remind Me Later" || text="Skip This Version" || text="No Thanks" || text="Maybe Later" || text="Ignore" || text="Update Later"]',
+            '[clickable=true][visibleToUser=true][text.length<20][text="Not Now" || text="Later" || text="Remind Me Later" || text="Skip This Version" || text="No Thanks" || text="Maybe Later" || text="Update Later"]',
           ],
         },
       ],
@@ -123,7 +123,7 @@
         {
           key: 0,
           anyMatches: [
-            '[clickable=true][visibleToUser=true][text.length<20][text="Not Now" || text="No Thanks" || text="Skip" || text="Maybe Later" || text="Not Right Now"]',
+            '[clickable=true][visibleToUser=true][text.length<20][text="Not Now" || text="No Thanks" || text="Maybe Later" || text="Not Right Now"]',
           ],
         },
       ],
@@ -151,7 +151,7 @@
         {
           key: 0,
           anyMatches: [
-            '[clickable=true][visibleToUser=true][text.length<20][text="Accept All" || text="Accept all" || text="I Agree" || text="I agree" || text="Agree" || text="Got It" || text="Got it" || text="OK, Got It" || text="Accept"]',
+            '[clickable=true][visibleToUser=true][text.length<20][text="Accept All" || text="Accept all" || text="I Agree" || text="I agree" || text="Agree" || text="Got It" || text="Got it" || text="OK, Got It"]',
           ],
         },
       ],
@@ -166,7 +166,7 @@
           key: 0,
           name: 'Skip tutorial/onboarding',
           anyMatches: [
-            '[clickable=true][visibleToUser=true][text.length<20][text="Skip" || text="Skip Tutorial" || text="Skip Intro" || text="Skip Walkthrough" || text="Skip Tour"]',
+            '[clickable=true][visibleToUser=true][text.length<20][text="Skip Tutorial" || text="Skip Intro" || text="Skip Walkthrough" || text="Skip Tour"]',
           ],
         },
         {
