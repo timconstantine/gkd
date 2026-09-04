@@ -24,7 +24,7 @@
 {
   id: 20260904,
   name: 'English UI Auto-Skip Rules (unofficial)',
-  version: 2,
+  version: 3,
   author: 'timconstantine',
   checkUpdateUrl: 'https://raw.githubusercontent.com/timconstantine/gkd/main/subscriptions/english-ui-rules.gkd.json5',
   supportUri: 'https://github.com/timconstantine/gkd/issues',
@@ -58,7 +58,7 @@
             '[text="Submit" || text="Bookmark" || text="NEXT" || text*="I agree" || text*="Terms of Service" || text*="Privacy Policy"][visibleToUser=true]',
           ],
           anyMatches: [
-            '[clickable=true][visibleToUser=true][width<500 && height<300][text.length<16][(text="Skip" || text="SKIP" || text="Skip Ad" || text="Skip Ads" || text="Skip AD" || text^="Skip " || text~="(?i).*skip\\s*\\d+\\s*s?$") && text!*="video" && text!*="Skip to"]',
+            '[clickable=true][visibleToUser=true][width<500 && height<300][text.length<16][(text="Skip" || text="SKIP" || text="Skip Ad" || text="Skip Ads" || text="Skip AD" || text^="Skip ") && text!*="video" && text!*="Skip to"]',
           ],
         },
         {
