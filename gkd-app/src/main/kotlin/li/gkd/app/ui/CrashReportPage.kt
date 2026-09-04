@@ -57,7 +57,7 @@ fun CrashReportPage() {
                 },
                 title = {
                     Text(
-                        text = "崩溃记录",
+                        text = "Crash reports",
                         modifier = Modifier.noRippleClickable(onClick = throttle(pageScrollState::resetScroll))
                     )
                 },
@@ -70,13 +70,13 @@ fun CrashReportPage() {
                     TextButton(
                         onClick = throttle { mainVm.openUrl(ISSUES_URL) },
                     ) {
-                        Text(text = "问题反馈")
+                        Text(text = "Report an issue")
                     }
                     Spacer(modifier = Modifier.width(itemHorizontalPadding))
                     TextButton(
                         onClick = { mainVm.shareLog.show() },
                     ) {
-                        Text(text = "导出日志")
+                        Text(text = "Export logs")
                     }
                     Spacer(modifier = Modifier.width(itemHorizontalPadding))
                 }

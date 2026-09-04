@@ -36,7 +36,7 @@ sealed interface SubscriptionResult {
     val message: String?
 
     data object Busy : SubscriptionResult {
-        override val message = "正在处理订阅，请稍后重试"
+        override val message = "The subscription is being processed, please try again later"
     }
 
     data class Success(override val message: String?) : SubscriptionResult
@@ -95,7 +95,7 @@ object SubscriptionStore {
                     saveLocked(
                         subscription = RawSubscription(
                             id = LOCAL_SUBS_ID,
-                            name = "本地订阅",
+                            name = "Local subscription",
                             version = 0,
                         ),
                         newItem = item,
@@ -113,7 +113,7 @@ object SubscriptionStore {
 
     suspend fun awaitSnapshot(): SubscriptionSnapshot {
         return when (val state = snapshotFlow.first { it !is Loadable.Loading }) {
-            Loadable.Loading -> error("订阅尚未加载")
+            Loadable.Loading -> error("The subscription hasn't loaded yet")
             is Loadable.Failure -> throw state.cause
             is Loadable.Ready -> state.value
         }
@@ -122,7 +122,7 @@ object SubscriptionStore {
     suspend fun awaitSubscription(id: Long): RawSubscription {
         val snapshot = awaitSnapshot()
         return snapshot.subscriptions[id]
-            ?: throw (snapshot.loadErrors[id] ?: IllegalStateException("订阅不存在: $id"))
+            ?: throw (snapshot.loadErrors[id] ?: IllegalStateException("Subscription does not exist: $id"))
     }
 
     suspend fun save(subscription: RawSubscription) = withContext(Dispatchers.IO) {
@@ -141,7 +141,7 @@ object SubscriptionStore {
         defaultItem: SubsItem,
     ) = withContext(Dispatchers.IO) {
         require(subscription.id == defaultItem.id) {
-            "订阅与订阅项id不一致: ${subscription.id} != ${defaultItem.id}"
+            "Subscription and subscription item id mismatch: ${subscription.id} != ${defaultItem.id}"
         }
         updateMutex.withStateLock {
             val currentItem = Db.subsItemDao.queryAll().find { it.id == subscription.id }
@@ -166,9 +166,9 @@ object SubscriptionStore {
         updateMutex.withStateLock {
             val snapshot = requireSnapshot(id)
             val current = snapshot.subscriptions[id]
-                ?: throw (snapshot.loadErrors[id] ?: IllegalStateException("订阅不存在: $id"))
+                ?: throw (snapshot.loadErrors[id] ?: IllegalStateException("Subscription does not exist: $id"))
             val next = transform(current)
-            require(next.id == id) { "订阅id不可修改: $id -> ${next.id}" }
+            require(next.id == id) { "Subscription id cannot be changed: $id -> ${next.id}" }
             if (next == current) return@withStateLock
             try {
                 saveLocked(next)
@@ -198,7 +198,7 @@ object SubscriptionStore {
                     }
                 } catch (e: Exception) {
                     result = SubscriptionResult.Failure(
-                        "删除订阅数据失败\n${e.message}".trimEnd(),
+                        "Failed to delete subscription data\n${e.message}".trimEnd(),
                         e,
                     )
                     return@withStateLock
@@ -221,16 +221,16 @@ object SubscriptionStore {
                     fileError = runCatching {
                         val file = subsFolder.resolve("$id.json")
                         AtomicFile(file).delete()
-                        if (file.exists()) throw IOException("无法删除 ${file.name}")
+                        if (file.exists()) throw IOException("Failed to delete ${file.name}")
                     }.exceptionOrNull()
                 }
                 LogUtils.d("deleteSubscription", subscriptionIds)
                 val error = fileError
                 result = if (error == null) {
-                    SubscriptionResult.Success("删除成功")
+                    SubscriptionResult.Success("Deleted successfully")
                 } else {
                     SubscriptionResult.Failure(
-                        "订阅数据已删除，但文件清理失败\n${error.message}".trimEnd(),
+                        "Subscription data was deleted, but file cleanup failed\n${error.message}".trimEnd(),
                         error,
                     )
                 }
@@ -255,7 +255,7 @@ object SubscriptionStore {
         updateMutex.withStateLock {
             val items = Db.subsItemDao.queryAll()
             if (items.any { it.updateUrl == url && it.id != oldItem?.id }) {
-                result = failure("已有相同链接订阅")
+                result = failure("A subscription with the same link already exists")
                 return@withStateLock
             }
             val text = try {
@@ -264,7 +264,7 @@ object SubscriptionStore {
                 e.printStackTrace()
                 LogUtils.d(e)
                 result = failure(
-                    "下载订阅文件失败\n${e.message}".trimEnd(),
+                    "Failed to download subscription file\n${e.message}".trimEnd(),
                     e,
                 )
                 return@withStateLock
@@ -275,22 +275,22 @@ object SubscriptionStore {
                 e.printStackTrace()
                 LogUtils.d(e)
                 result = failure(
-                    "解析订阅文件失败\n${e.message}".trimEnd(),
+                    "Failed to parse subscription file\n${e.message}".trimEnd(),
                     e,
                 )
                 return@withStateLock
             }
             if (oldItem == null && items.any { it.id == subscription.id }) {
-                result = failure("订阅已存在")
+                result = failure("Subscription already exists")
                 return@withStateLock
             }
             if (oldItem != null && oldItem.id != subscription.id) {
-                result = failure("订阅id不对应")
+                result = failure("Subscription id does not match")
                 return@withStateLock
             }
             if (subscription.id < 0) {
                 result = failure(
-                    "订阅id不可为${subscription.id}\n负数id为内部使用",
+                    "Subscription id cannot be ${subscription.id}\nNegative ids are reserved for internal use",
                 )
                 return@withStateLock
             }
@@ -308,13 +308,13 @@ object SubscriptionStore {
             } catch (e: Exception) {
                 setUpdateError(oldItem?.id ?: subscription.id, e)
                 result = SubscriptionResult.Failure(
-                    "保存订阅文件失败\n${e.message}".trimEnd(),
+                    "Failed to save subscription file\n${e.message}".trimEnd(),
                     e,
                 )
                 return@withStateLock
             }
             result = SubscriptionResult.Success(
-                if (oldItem == null) "成功添加订阅" else "成功修改订阅",
+                if (oldItem == null) "Subscription added successfully" else "Subscription updated successfully",
             )
         }
         result
@@ -347,10 +347,10 @@ object SubscriptionStore {
             )
             val entries = buildSubsEntries(items, snapshot.subscriptions)
             if (entries.any { !it.subsItem.isLocal } && !NetworkUtils.isAvailable()) {
-                result = SubscriptionResult.Failure("网络不可用")
+                result = SubscriptionResult.Failure("Network unavailable")
                 return@withStateLock
             }
-            LogUtils.d("开始检测更新")
+            LogUtils.d("Starting update check")
             var successCount = 0
             entries.filter { !it.subsItem.isLocal }.forEach { entry ->
                 try {
@@ -363,13 +363,13 @@ object SubscriptionStore {
                     }
                 } catch (e: Exception) {
                     setUpdateError(entry.subsItem.id, e)
-                    LogUtils.d("检测更新失败", e.message)
+                    LogUtils.d("Update check failed", e.message)
                 }
             }
             result = SubscriptionResult.Success(
-                if (successCount > 0) "更新 $successCount 条订阅" else "暂无更新",
+                if (successCount > 0) "Updated $successCount subscription(s)" else "No updates available",
             )
-            LogUtils.d("结束检测更新")
+            LogUtils.d("Finished update check")
         }
         result
     }
@@ -428,7 +428,7 @@ object SubscriptionStore {
             loadErrors = snapshot.loadErrors.toMutableMap().apply { remove(id) },
             updateErrors = snapshot.updateErrors.toMutableMap().apply { remove(id) },
         ))
-        LogUtils.d("更新订阅文件:id=$id,name=${nextSubscription.name}")
+        LogUtils.d("Updated subscription file: id=$id, name=${nextSubscription.name}")
     }
 
     private fun writeAtomic(file: File, bytes: ByteArray) {
@@ -448,17 +448,17 @@ object SubscriptionStore {
         val file = subsFolder.resolve("$id.json")
         if (!file.exists()) {
             return when (id) {
-                LOCAL_SUBS_ID -> RawSubscription(id = id, name = "本地订阅", version = 0)
-                LOCAL_HTTP_SUBS_ID -> RawSubscription(id = id, name = "内存订阅", version = 0)
-                else -> error("订阅文件不存在")
+                LOCAL_SUBS_ID -> RawSubscription(id = id, name = "Local subscription", version = 0)
+                LOCAL_HTTP_SUBS_ID -> RawSubscription(id = id, name = "In-memory subscription", version = 0)
+                else -> error("Subscription file does not exist")
             }
         }
         val subscription = try {
             RawSubscription.parse(file.readText(), json5 = false)
         } catch (e: Exception) {
-            throw Exception("订阅文件解析失败", e)
+            throw Exception("Failed to parse subscription file", e)
         }
-        if (subscription.id != id) error("订阅文件id不一致")
+        if (subscription.id != id) error("Subscription file id mismatch")
         return subscription
     }
 
@@ -501,7 +501,7 @@ object SubscriptionStore {
 
     private fun requireSnapshot(id: Long): SubscriptionSnapshot {
         return when (val state = snapshotFlow.value) {
-            Loadable.Loading -> error("订阅尚未加载: $id")
+            Loadable.Loading -> error("The subscription hasn't loaded yet: $id")
             is Loadable.Failure -> throw state.cause
             is Loadable.Ready -> state.value
         }
@@ -522,7 +522,7 @@ object SubscriptionStore {
         }
         if (obsolete.isEmpty()) return 0
         Db.subsConfigDao.delete(*obsolete.toTypedArray())
-        LogUtils.d("清理已移除规则配置", "subsId=$id, delete=${obsolete.size}")
+        LogUtils.d("Cleaned up removed rule configs", "subsId=$id, delete=${obsolete.size}")
         return obsolete.size
     }
 
@@ -539,26 +539,26 @@ object SubscriptionStore {
                 )
                 if (version.id == current.id && version.version <= current.version) return null
             } catch (e: Exception) {
-                LogUtils.d("快速检测更新失败", item, e.message)
+                LogUtils.d("Quick update check failed", item, e.message)
             }
         }
         val updateUrl = current?.updateUrl ?: itemUpdateUrl
         val text = try {
             client.get(updateUrl).bodyAsText()
         } catch (e: Exception) {
-            throw Exception("请求更新链接失败", e)
+            throw Exception("Failed to request update link", e)
         }
         val subscription = try {
             RawSubscription.parse(text)
         } catch (e: Exception) {
-            throw Exception("解析文本失败", e)
+            throw Exception("Failed to parse text", e)
         }
         if (subscription.id != item.id) {
-            error("新id=${subscription.id}不匹配旧id=${item.id}")
+            error("New id=${subscription.id} does not match old id=${item.id}")
         }
         if (current != null && subscription.version <= current.version) {
             LogUtils.d(
-                "版本号不满足条件:id=${item.id}",
+                "Version does not satisfy the condition: id=${item.id}",
                 "${current.version} -> ${subscription.version}",
             )
             return null

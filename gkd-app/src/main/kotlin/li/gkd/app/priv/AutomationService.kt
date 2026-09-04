@@ -70,7 +70,7 @@ class AutomationService private constructor(
         uiAutomation.toHidden.connect(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
         uiAutomation.setOnAccessibilityEventListener(listener)
         connected = true
-        toast("自动化已启动")
+        toast("Automation started")
         updateEnableAutomator(true)
         ruleEngine.onA11yConnected()
     }
@@ -92,9 +92,9 @@ class AutomationService private constructor(
             connected = false
             if (wasConnected) {
                 if (tempShutdownFlag) {
-                    toast("自动化局部关闭")
+                    toast("Automation partially disabled")
                 } else {
-                    toast("自动化已关闭")
+                    toast("Automation disabled")
                     updateEnableAutomator(false)
                 }
             }
@@ -126,7 +126,7 @@ class AutomationService private constructor(
         }
 
         fun showOccupiedWarning(silent: Boolean = false) {
-            toast("自动化服务被其他应用占用")
+            toast("The automation service is occupied by another app")
             if (!silent) {
                 uiAutomationOccupiedFlow.value = true
             }
@@ -146,7 +146,7 @@ class AutomationService private constructor(
                         return@synchronized
                     }
                 } catch (e: Exception) {
-                    toast("自动化状态检测失败：${e.message}")
+                    toast("Failed to detect automation state: ${e.message}")
                     LogUtils.d("detect automation state failed", e)
                     return@synchronized
                 }
@@ -165,7 +165,7 @@ class AutomationService private constructor(
                     }
                 } catch (e: Exception) {
                     instance.shutdown(true)
-                    toast("自动化启动失败：${e.message}")
+                    toast("Failed to start automation: ${e.message}")
                     LogUtils.d(e)
                 }
             }
@@ -178,8 +178,8 @@ val uiAutomationOccupiedFlow = MutableStateFlow(false)
 
 private val remoteCallbackThreadField by lazy {
     if (AndroidTarget.P) {
-        // UiAutomation 在 CONNECTING 阶段同步失败时，disconnect() 会在进入自身的
-        // finally 前直接抛错，因此需要通过内部字段兜底关闭其回调线程。
+        // When UiAutomation fails synchronously during the CONNECTING phase, disconnect() throws
+        // directly before reaching its own finally block, so we need this internal field as a fallback to shut down its callback thread.
         @SuppressLint("SoonBlockedPrivateApi")
         UiAutomation::class.java.getDeclaredField("mRemoteCallbackThread").apply {
             isAccessible = true

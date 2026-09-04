@@ -100,7 +100,7 @@ private fun subsManageStatePage(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = error?.message ?: if (error == null) "加载中..." else "数据加载失败",
+                text = error?.message ?: if (error == null) "Loading..." else "Failed to load data",
                 color = if (error == null) {
                     LocalContentColor.current
                 } else {
@@ -127,7 +127,7 @@ private fun useLoadedSubsManagePage(
 
     val refreshing = state.refreshing
     val pullToRefreshState = rememberPullToRefreshState()
-    // 多选仅属于当前订阅 Tab 的临时交互状态，切换 Tab 后按设计清空，不要改为可保存状态。
+    // Multi-select is transient interaction state scoped to the current subscription tab; by design it clears when switching tabs — don't make it persistent.
     val selectionState = rememberMultiSelectionState<Long>()
     val selectedIds = selectionState.selectedKeys
     val isSelectedMode = selectionState.active
@@ -147,16 +147,16 @@ private fun useLoadedSubsManagePage(
     if (settingsDialogVisible) {
         SettingsDialog(
             onDismissRequest = { vm.setSettingsDialogVisible(false) },
-            title = "订阅设置",
+            title = "Subscription settings",
         ) {
             TextMenu(
-                title = "更新订阅",
+                title = "Update subscriptions",
                 option = UpdateTimeOption.objects.findOption(store.updateSubsInterval),
                 onOptionChange = { vm.setUpdateInterval(it.value) },
             )
             TextSwitch(
-                title = "耗电警告",
-                subtitle = "启用多条订阅时弹窗确认",
+                title = "Power drain warning",
+                subtitle = "Show a confirmation dialog when enabling multiple subscriptions",
                 checked = store.subsPowerWarn,
                 onCheckedChange = throttle(fn = vm::setPowerWarningEnabled),
             )
@@ -165,12 +165,12 @@ private fun useLoadedSubsManagePage(
 
     powerWarningItem?.let { item ->
         AppAlertDialog(
-            title = { Text(text = "耗电警告") },
+            title = { Text(text = "Power drain warning") },
             text = {
                 Column {
-                    Text(text = "启用多个远程订阅可能导致执行大量重复规则, 这可能造成规则执行卡顿以及多余耗电\n\n请认真考虑后再确认开启！！！\n")
+                    Text(text = "Enabling multiple remote subscriptions may run a large number of duplicate rules, which can cause rule execution stutter and extra battery drain\n\nPlease consider carefully before confirming!!!\n")
                     Text(
-                        text = "查看耗电说明",
+                        text = "View the power drain explanation",
                         modifier = Modifier.clickable(onClick = throttle {
                             vm.dismissPowerWarning()
                             mainVm.navigatePage(WebViewRoute(initUrl = ShortUrlSet.URL6))
@@ -188,12 +188,12 @@ private fun useLoadedSubsManagePage(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    Text(text = "仍然启用")
+                    Text(text = "Enable anyway")
                 }
             },
             dismissButton = {
                 TextButton(onClick = vm::dismissPowerWarning) {
-                    Text(text = "取消")
+                    Text(text = "Cancel")
                 }
             },
         )
@@ -211,7 +211,7 @@ private fun useLoadedSubsManagePage(
                 if (isSelectedMode) {
                     PerfIconButton(
                         imageVector = PerfIcon.Close,
-                        contentDescription = "取消选择",
+                        contentDescription = "Cancel selection",
                         onClick = selectionState::clear,
                     )
                 }
@@ -240,16 +240,16 @@ private fun useLoadedSubsManagePage(
                                 selectedIds
                             }
                             if (canDeleteIds.isNotEmpty()) {
-                                val text = "确定删除所选 ${canDeleteIds.size} 个订阅?".let { s ->
-                                    if (selectedIds.contains(LOCAL_SUBS_ID)) "$s\n\n注: 不包含本地订阅" else s
+                                val text = "Delete the ${canDeleteIds.size} selected subscription(s)?".let { s ->
+                                    if (selectedIds.contains(LOCAL_SUBS_ID)) "$s\n\nNote: the local subscription is not included" else s
                                 }
                                 PerfIconButton(
                                     imageVector = PerfIcon.Delete,
-                                    contentDescription = "删除选中订阅",
+                                    contentDescription = "Delete selected subscriptions",
                                     onClick = {
                                         scope.launchTry {
                                             if (!mainVm.dialogRequests.confirm(
-                                                title = "删除订阅",
+                                                title = "Delete subscription",
                                                 text = text,
                                                 error = true,
                                             )) return@launchTry
@@ -272,8 +272,8 @@ private fun useLoadedSubsManagePage(
                             ) {
                                 PerfIconButton(
                                     imageVector = PerfIcon.Eco,
-                                    contentDescription = "缓慢查询规则列表",
-                                    onClickLabel = "查看列表",
+                                    contentDescription = "Slow-query rule list",
+                                    onClickLabel = "View the list",
                                     onClick = throttle {
                                         mainVm.navigatePage(SlowGroupRoute)
                                     })
@@ -287,14 +287,14 @@ private fun useLoadedSubsManagePage(
                                         LocalContentColor.current
                                     }
                                 ),
-                                contentDescription = "规则匹配" + if (store.enableMatch) "已启用" else "已禁用",
-                                onClickLabel = "切换开关",
+                                contentDescription = "Rule matching " + if (store.enableMatch) "enabled" else "disabled",
+                                onClickLabel = "Toggle",
                                 onClick = throttle(vm::toggleMatching),
                             )
                             PerfIconButton(
                                 id = R.drawable.ic_page_info,
-                                contentDescription = "订阅设置",
-                                onClickLabel = "打开设置弹窗",
+                                contentDescription = "Subscription settings",
+                                onClickLabel = "Open the settings dialog",
                                 onClick = {
                                     vm.setSettingsDialogVisible(true)
                                 })
@@ -303,10 +303,10 @@ private fun useLoadedSubsManagePage(
                 }
                 PerfIconButton(
                     imageVector = PerfIcon.MoreVert,
-                    contentDescription = "更多操作",
+                    contentDescription = "More actions",
                     onClick = {
                         if (refreshing) {
-                            toast("正在刷新订阅，请稍后操作")
+                            toast("The subscription is being refreshed, please try again later")
                         } else {
                             expanded = true
                         }
@@ -322,7 +322,7 @@ private fun useLoadedSubsManagePage(
                             if (isSelectedMode) {
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = "全选")
+                                        Text(text = "Select all")
                                     },
                                     onClick = {
                                         expanded = false
@@ -331,7 +331,7 @@ private fun useLoadedSubsManagePage(
                                 )
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = "反选")
+                                        Text(text = "Invert selection")
                                     },
                                     onClick = {
                                         expanded = false
@@ -340,7 +340,7 @@ private fun useLoadedSubsManagePage(
                                 )
                             } else {
                                 DropdownMenuItem(
-                                    text = { Text(text = "添加应用规则") },
+                                    text = { Text(text = "Add app rule") },
                                     onClick = throttle {
                                         expanded = false
                                         mainVm.navigatePage(
@@ -354,7 +354,7 @@ private fun useLoadedSubsManagePage(
                                     },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(text = "添加全局规则") },
+                                    text = { Text(text = "Add global rule") },
                                     onClick = throttle {
                                         expanded = false
                                         mainVm.navigatePage(
@@ -375,12 +375,12 @@ private fun useLoadedSubsManagePage(
         },
         floatingActionButton = {
             AnimationFloatingActionButton(
-                contentDescription = "添加订阅",
-                onClickLabel = "打开添加订阅弹窗",
+                contentDescription = "Add subscription",
+                onClickLabel = "Open the add subscription dialog",
                 visible = !isSelectedMode,
                 onClick = {
                     if (refreshing) {
-                        toast("正在刷新订阅,请稍后操作")
+                        toast("The subscription is being refreshed, please try again later")
                     } else {
                         scope.launchTry {
                             val url = mainVm.subsLinkDialog.request() ?: return@launchTry

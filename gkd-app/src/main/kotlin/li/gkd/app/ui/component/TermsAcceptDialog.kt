@@ -29,7 +29,7 @@ fun TermsAcceptDialog() {
     val modifier = Modifier.fillMaxWidth()
     val stepDataList = remember {
         arrayOf(
-            "使用声明" to @Composable {
+            "Usage statement" to @Composable {
                 val linkStyles = TextLinkStyles(
                     style = SpanStyle(
                         fontWeight = FontWeight.Bold,
@@ -39,32 +39,32 @@ fun TermsAcceptDialog() {
                 Text(
                     modifier = modifier,
                     text = buildAnnotatedString {
-                        append("感谢使用 GKD！您需要阅读并同意「")
+                        append("Thanks for using GKD! You need to read and agree to the ")
                         withLink(
                             LinkAnnotation.Url(
                                 ShortUrlSet.URL12,
                                 linkStyles
                             )
                         ) {
-                            append("用户协议")
+                            append("Terms of Use")
                         }
-                        append("」和「")
+                        append(" and ")
                         withLink(
                             LinkAnnotation.Url(
                                 ShortUrlSet.URL11,
                                 linkStyles
                             )
                         ) {
-                            append("隐私政策")
+                            append("Privacy Policy")
                         }
-                        append("」才能继续使用, 请仔细阅读相关内容")
+                        append(" to continue using the app. Please read them carefully")
                     },
                 )
             },
-            "关于无障碍" to @Composable {
+            "About accessibility" to @Composable {
                 Text(
                     modifier = modifier,
-                    text = "GKD 请求使用系统「无障碍 API」获取屏幕信息, 以此基于用户自定义订阅规则执行自动化操作",
+                    text = "GKD requests the system \"Accessibility API\" to read on-screen information, in order to perform automated actions based on your custom subscription rules",
                 )
             }
         )
@@ -81,14 +81,14 @@ fun TermsAcceptDialog() {
             TextButton(onClick = throttle {
                 mainVm.acceptTermsStep(stepDataList.lastIndex)
             }) {
-                Text(text = "同意")
+                Text(text = "Agree")
             }
         },
         dismissButton = {
             TextButton(onClick = throttle {
                 context.finish()
             }) {
-                Text(text = "不同意")
+                Text(text = "Disagree")
             }
         }
     )

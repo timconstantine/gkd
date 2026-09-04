@@ -82,21 +82,21 @@ private fun AdvancedContent() {
 
     if (showHttpSettingsDialog) {
         SettingsDialog(
-            title = "HTTP 设置",
+            title = "HTTP settings",
             onDismissRequest = { vm.setHttpSettingsDialogVisible(false) },
         ) {
             SettingItem(
-                title = "服务端口",
+                title = "Service port",
                 subtitle = store.httpServerPort.toString(),
                 imageVector = PerfIcon.Edit,
-                onClickLabel = "编辑服务端口",
+                onClickLabel = "Edit service port",
                 onClick = {
                     vm.setEditPortDialogVisible(true)
                 },
             )
             TextSwitch(
-                title = "清除订阅",
-                subtitle = "关闭服务时删除内存订阅",
+                title = "Clear subscription",
+                subtitle = "Delete the in-memory subscription when the service stops",
                 checked = store.autoClearMemorySubs,
                 onCheckedChange = vm::setAutoClearMemorySubs,
             )
@@ -127,7 +127,7 @@ private fun AdvancedContent() {
                         onClick = mainVm::popPage,
                     )
                 },
-                title = { Text(text = "高级设置") },
+                title = { Text(text = "Advanced settings") },
             )
         },
     ) { contentPadding ->
@@ -155,40 +155,40 @@ private fun AdvancedContent() {
                 onAddressClick = mainVm::openUrl,
             )
             Text(
-                text = "快照",
+                text = "Snapshot",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             SettingItem(
-                title = "快照记录",
-                subtitle = "应用界面节点信息及截图",
+                title = "Snapshot records",
+                subtitle = "Screen node info and screenshots",
                 onClick = { mainVm.navigatePage(SnapshotPageRoute) },
             )
             TextSwitch(
-                title = "快照按钮",
-                subtitle = "显示按钮点击保存快照",
+                title = "Snapshot button",
+                subtitle = "Show a button to tap-capture a snapshot",
                 checked = buttonServiceRunning,
                 onCheckedChange = scope.launchAsFn { enabled ->
                     ButtonService.setEnabled(mainVm, enabled)
                 },
             )
             SettingItem(
-                title = "快照设置",
-                subtitle = "触发方式、截图处理与导出",
+                title = "Snapshot settings",
+                subtitle = "Trigger method, screenshot processing, and export",
                 onClick = { mainVm.navigatePage(SnapshotSettingsRoute) },
             )
 
             Text(
-                text = "上传",
+                text = "Upload",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             SettingItem(
                 title = "GitHub Cookie",
-                subtitle = "生成快照/日志链接",
-                suffix = "获取教程",
+                subtitle = "Generate a snapshot/log link",
+                suffix = "Get instructions",
                 suffixUnderline = true,
                 onSuffixClick = mainVm.githubUpload::openCookieHelp,
                 imageVector = PerfIcon.Edit,
@@ -196,32 +196,32 @@ private fun AdvancedContent() {
             )
 
             Text(
-                text = "日志",
+                text = "Logs",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             SettingItem(
-                title = "界面日志",
-                subtitle = "界面切换日志",
+                title = "Activity log",
+                subtitle = "Activity switch log",
                 onClick = { mainVm.navigatePage(ActivityLogRoute) },
             )
             TextSwitch(
-                title = "界面服务",
-                subtitle = "显示当前界面信息",
+                title = "Activity logging service",
+                subtitle = "Show the current screen's info",
                 checked = activityServiceRunning,
                 onCheckedChange = scope.launchAsFn { enabled ->
                     ActivityService.setEnabled(mainVm, enabled)
                 },
             )
             SettingItem(
-                title = "事件日志",
-                subtitle = "无障碍事件日志",
+                title = "Event log",
+                subtitle = "Accessibility event log",
                 onClick = { mainVm.navigatePage(A11yEventLogRoute) },
             )
             TextSwitch(
-                title = "事件服务",
-                subtitle = "显示无障碍事件",
+                title = "Event logging service",
+                subtitle = "Show accessibility events",
                 checked = eventServiceRunning,
                 onCheckedChange = scope.launchAsFn { enabled ->
                     EventService.setEnabled(mainVm, enabled)
@@ -253,7 +253,7 @@ private fun HttpServiceItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    onClickLabel = "查看${type}访问地址",
+                    onClickLabel = "View the $type access address",
                     onClick = throttle { onAddressClick("http://${host}:${port}") },
                 )
                 .padding(vertical = 2.dp),
@@ -269,7 +269,7 @@ private fun HttpServiceItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    onClickLabel = "切换HTTP 服务状态",
+                    onClickLabel = "Toggle HTTP service state",
                     onClick = { onRunningChange(!running) },
                 )
                 .padding(
@@ -282,16 +282,16 @@ private fun HttpServiceItem(
             TextSwitch(
                 modifier = Modifier.fillMaxWidth(),
                 paddingDisabled = true,
-                title = "HTTP 服务",
-                subtitle = "通过浏览器连接调试",
+                title = "HTTP service",
+                subtitle = "Connect and debug via a browser",
                 suffixIcon = {
                     PerfCustomIconButton(
                         size = 32.dp,
                         iconSize = 20.dp,
-                        onClickLabel = "打开HTTP设置弹窗",
+                        onClickLabel = "Open the HTTP settings dialog",
                         onClick = onSettingsClick,
                         id = R.drawable.ic_page_info,
-                        contentDescription = "HTTP设置",
+                        contentDescription = "HTTP settings",
                         tint = if (settingsSelected) {
                             MaterialTheme.colorScheme.primary
                         } else {
@@ -313,9 +313,9 @@ private fun HttpServiceItem(
                     bottom = 4.dp,
                 ),
             ) {
-                addressItem("127.0.0.1", "本机")
+                addressItem("127.0.0.1", "This device")
                 localNetworkIps.forEach { host ->
-                    addressItem(host, "局域网")
+                    addressItem(host, "Local network")
                 }
             }
         }
@@ -331,11 +331,11 @@ private fun EditHttpPortDialog(
     var value by remember { mutableStateOf(currentPort.toString()) }
     AppAlertDialog(
         properties = DialogProperties(dismissOnClickOutside = false),
-        title = { Text(text = "服务端口") },
+        title = { Text(text = "Service port") },
         text = {
             OutlinedTextField(
                 value = value,
-                placeholder = { Text(text = "请输入 1000-65535 的整数") },
+                placeholder = { Text(text = "Enter an integer between 1000 and 65535") },
                 onValueChange = { value = it.filter(Char::isDigit).take(5) },
                 singleLine = true,
                 modifier = Modifier
@@ -357,12 +357,12 @@ private fun EditHttpPortDialog(
                 enabled = value.isNotEmpty(),
                 onClick = { onConfirm(value) },
             ) {
-                Text(text = "确认")
+                Text(text = "Confirm")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(text = "取消")
+                Text(text = "Cancel")
             }
         },
     )

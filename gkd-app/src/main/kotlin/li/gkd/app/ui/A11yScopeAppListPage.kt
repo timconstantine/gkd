@@ -81,8 +81,8 @@ fun A11yScopeAppListPage() {
         context.imeController.requestHide()
         if (vm.textChanged) {
             if (!mainVm.dialogRequests.confirm(
-                title = "提示",
-                text = "当前内容未保存，是否放弃编辑？",
+                title = "Notice",
+                text = "The current content is unsaved. Discard changes?",
             )) return@launchAsFn
         }
         vm.setEditable(false)
@@ -100,8 +100,8 @@ fun A11yScopeAppListPage() {
                                 if (vm.textChanged) {
                                     context.imeController.requestHide()
                                     if (!mainVm.dialogRequests.confirm(
-                                        title = "提示",
-                                        text = "当前内容未保存，是否放弃编辑？",
+                                        title = "Notice",
+                                        text = "The current content is unsaved. Discard changes?",
                                     )) return@launchAsFn
                                 }
                                 vm.setEditable(false)
@@ -125,7 +125,7 @@ fun A11yScopeAppListPage() {
                         AppBarTextField(
                             value = searchStr,
                             onValueChange = vm::setSearchStr,
-                            hint = "请输入应用名称/ID",
+                            hint = "Enter app name/ID",
                             modifier = if (firstShowSearchBar) Modifier else Modifier.autoFocus(),
                         )
                     } else {
@@ -137,7 +137,7 @@ fun A11yScopeAppListPage() {
                             )
                         Text(
                             modifier = titleModifier,
-                            text = "局部无障碍",
+                            text = "Partial accessibility",
                         )
                     }
                 },
@@ -175,7 +175,7 @@ fun A11yScopeAppListPage() {
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false }
                                     ) {
-                                        MenuGroupCard(inTop = true, title = "排序") {
+                                        MenuGroupCard(inTop = true, title = "Sort") {
                                             AppSortOption.objects.forEach { option ->
                                                 MenuItemRadioButton(
                                                     text = option.label,
@@ -184,7 +184,7 @@ fun A11yScopeAppListPage() {
                                                 )
                                             }
                                         }
-                                        MenuGroupCard(inTop = true, title = "筛选") {
+                                        MenuGroupCard(inTop = true, title = "Filter") {
                                             AppGroupOption.normalObjects.forEach { option ->
                                                 val newValue = option.invert(store.a11yScopeAppGroupType)
                                                 MenuItemCheckbox(
@@ -205,12 +205,12 @@ fun A11yScopeAppListPage() {
         floatingActionButton = {
             AnimationFloatingActionButton(
                 visible = !editable && scrollBehavior.isFullVisible,
-                onClickLabel = "进入文本编辑模式",
+                onClickLabel = "Enter text edit mode",
                 onClick = {
                     vm.setEditable(true)
                 },
                 imageVector = PerfIcon.Edit,
-                contentDescription = "编辑文本"
+                contentDescription = "Edit text"
             )
         },
     ) { contentPadding ->
@@ -220,7 +220,7 @@ fun A11yScopeAppListPage() {
                 text = editText,
                 onTextChange = vm::setText,
                 immediateFocus = true,
-                placeholderText = "请输入应用ID列表\n示例:\ncom.android.systemui\ncom.android.settings",
+                placeholderText = "Enter a list of app IDs\nExample:\ncom.android.systemui\ncom.android.settings",
                 indicatorSize = vm.indicatorSizeFlow.collectAsStateWithLifecycle().value,
             )
         } else {
@@ -244,7 +244,7 @@ fun A11yScopeAppListPage() {
                 item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                     Spacer(modifier = Modifier.height(EmptyHeight))
                     if (appInfos.isEmpty() && searchStr.isNotEmpty()) {
-                        EmptyText(text = "暂无搜索结果")
+                        EmptyText(text = "No search results")
                         Spacer(modifier = Modifier.height(EmptyHeight / 2))
                     }
                 }

@@ -50,7 +50,7 @@ object NotificationDispatcher {
             )
             builder
                 .setDeleteIntent(stopIntent)
-                .addAction(0, "停止", stopIntent)
+                .addAction(0, "Stop", stopIntent)
         }
         return builder.build()
     }
@@ -80,8 +80,8 @@ object NotificationDispatcher {
             return false
         }
         return try {
-            // 系统自动重启 startRequested 的 Service 时不会经过应用侧的启动检查，
-            // 且权限可能在检查后发生变化，因此这里仍需兜底 SecurityException。
+            // When the system auto-restarts a startRequested Service, it doesn't go through the app-side start check,
+            // and permissions may change after that check, so we still need a fallback for SecurityException here.
             ServiceCompat.startForeground(
                 service,
                 notification.id,
@@ -91,7 +91,7 @@ object NotificationDispatcher {
             true
         } catch (e: SecurityException) {
             service.canStartForeground()
-            LogUtils.d("前台服务启动失败", service.javaClass.name, e)
+            LogUtils.d("Failed to start foreground service", service.javaClass.name, e)
             service.stopSelf()
             false
         }

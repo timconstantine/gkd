@@ -245,9 +245,9 @@ class PermissionRequests(
                         return@withLock false
                     }
                     val prompt = PermissionPrompt(
-                        title = "正在申请「${permissionState.name}」",
+                        title = "Requesting \"${permissionState.name}\"",
                         message = checkNotNull(permissionState.purpose) {
-                            "${permissionState.name} 缺少权限请求说明"
+                            "${permissionState.name} is missing a permission request explanation"
                         },
                     )
                     awaitHostCommand(
@@ -285,7 +285,7 @@ class PermissionRequests(
     private suspend fun awaitHostCommand(command: HostCommand) {
         suspendCancellableCoroutine { continuation ->
             synchronized(this) {
-                check(hostCommandFlow.value == null) { "已有权限平台请求正在执行" }
+                check(hostCommandFlow.value == null) { "A permission platform request is already in progress" }
                 hostCommandContinuation = continuation
                 hostCommandFlow.value = PendingHostCommand(command = command)
             }
@@ -512,7 +512,7 @@ private data class PermissionDialogState(
     val title: String,
     val message: String,
     val confirmText: String,
-    val dismissText: String = "取消",
+    val dismissText: String = "Cancel",
     val onConfirm: () -> Unit,
     val onDismiss: () -> Unit,
 )
@@ -574,7 +574,7 @@ private class PermissionRequestCoordinator {
         val resolution = permissionState.resolution ?: return false
         return suspendCancellableCoroutine { continuation ->
             val id = showDialog(
-                title = "权限请求",
+                title = "Permission request",
                 message = listOfNotNull(
                     permissionState.purpose,
                     resolution.message,

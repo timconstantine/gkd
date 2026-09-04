@@ -135,7 +135,7 @@ sealed class ActionPerformer(val action: String) {
             val p = locationProps.position?.calc(rect)
             val x = p?.first ?: ((rect.right + rect.left) / 2f)
             val y = p?.second ?: ((rect.bottom + rect.top) / 2f)
-            // 某些系统的 ViewConfiguration.getLongPressTimeout() 返回 300 , 这将导致触发普通的 click 事件
+            // On some systems, ViewConfiguration.getLongPressTimeout() returns 300, which triggers a regular click event instead
             if (!ScreenUtils.inScreen(x, y)) {
                 return ActionResult(
                     action = action,

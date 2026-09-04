@@ -87,7 +87,7 @@ data class PostedNotification(
 object NotificationCatalog {
     fun status(
         title: String = META.appName,
-        text: String? = "无障碍正在运行",
+        text: String? = "Accessibility service is running",
         uri: String? = null,
     ) = ForegroundNotification(
         key = ForegroundNotificationKey.Status,
@@ -98,31 +98,31 @@ object NotificationCatalog {
 
     fun screenshot() = ForegroundNotification(
         key = ForegroundNotificationKey.Screenshot,
-        title = "截屏服务正在运行",
-        text = "保存快照时截取屏幕",
+        title = "Screenshot service is running",
+        text = "Captures the screen when saving a snapshot",
         uri = "gkd://page/1",
         stopService = ScreenshotService::class,
     )
 
     fun button() = ForegroundNotification(
         key = ForegroundNotificationKey.Button,
-        title = "快照按钮服务正在运行",
-        text = "点击按钮捕获快照",
+        title = "Snapshot button service is running",
+        text = "Tap the button to capture a snapshot",
         uri = "gkd://page/1",
         stopService = ButtonService::class,
     )
 
     fun http() = ForegroundNotification(
         key = ForegroundNotificationKey.Http,
-        title = "HTTP服务正在运行",
+        title = "HTTP service is running",
         uri = "gkd://page/1",
         stopService = HttpService::class,
     )
 
     fun expose() = ForegroundNotification(
         key = ForegroundNotificationKey.Expose,
-        title = "运行外部调用任务中",
-        text = "任务完成后自动关闭",
+        title = "Running an external invocation task",
+        text = "Closes automatically when the task completes",
     )
 
     fun snapshotSaved(
@@ -132,18 +132,18 @@ object NotificationCatalog {
         savedToDownloads: Boolean,
     ) = PostedNotification(
         key = PostedNotificationKey.SnapshotSaved,
-        title = "快照已保存 · $appName",
+        title = "Snapshot saved · $appName",
         text = buildList {
             activityId?.let(::add)
             screenshotStatus.detailText()?.let(::add)
-            if (savedToDownloads) add("已保存至下载")
+            if (savedToDownloads) add("Saved to Downloads")
         }.joinToString(separator = " · ").takeIf { it.isNotEmpty() },
         uri = "gkd://page/2",
     )
 
     fun activity(text: String? = null) = ForegroundNotification(
         key = ForegroundNotificationKey.Activity,
-        title = "记录服务正在运行",
+        title = "Activity logging service is running",
         text = text,
         uri = "gkd://page/1",
         stopService = ActivityService::class,
@@ -151,14 +151,14 @@ object NotificationCatalog {
 
     fun event() = ForegroundNotification(
         key = ForegroundNotificationKey.Event,
-        title = "事件服务正在运行",
+        title = "Event logging service is running",
         uri = "gkd://page/1",
         stopService = EventService::class,
     )
 
     fun track() = ForegroundNotification(
         key = ForegroundNotificationKey.Track,
-        title = "轨迹服务正在运行",
+        title = "Trace service is running",
         uri = "gkd://page?tab=3",
         stopService = TrackService::class,
     )

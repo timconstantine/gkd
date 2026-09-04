@@ -54,7 +54,7 @@ fun MainActivity.fixSomeProblems() {
 }
 
 private fun Activity.fixTransparentNavigationBar() {
-    // 修复在浅色主题下导航栏背景不透明的问题
+    // Fix the navigation bar background not being transparent in light theme
     if (AndroidTarget.Q) {
         window.isNavigationBarContrastEnforced = false
     } else {

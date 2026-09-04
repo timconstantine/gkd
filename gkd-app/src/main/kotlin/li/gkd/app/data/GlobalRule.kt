@@ -26,7 +26,7 @@ class GlobalRule(
     val apps = mutableMapOf<String, GlobalApp>().apply {
         (rule.apps ?: group.apps ?: emptyList()).filter { a ->
             // https://github.com/gkd-kit/gkd/issues/619
-            appInfoCache.isEmpty() || appInfoCache.containsKey(a.id) // 过滤掉未安装应用
+            appInfoCache.isEmpty() || appInfoCache.containsKey(a.id) // Filter out apps that aren't installed
         }.forEach { a ->
             val enable = a.enable ?: appInfoCache[a.id]?.let { appInfo ->
                 if (a.versionCode?.match(appInfo.versionCode) == false) {
@@ -55,16 +55,16 @@ class GlobalRule(
     private val enableApps = apps.filter { e -> e.value.enable }
 
     /**
-     * 内置禁用>用户配置>规则自带
-     * 范围越精确优先级越高
+     * Built-in disable > user config > rule's own default
+     * The more precise the scope, the higher the priority
      */
     override fun matchActivity(appId: String, activityId: String?): Boolean {
-        // 规则自带禁用
+        // Disabled by the rule itself
         if (excludeAppIds.contains(appId) || groupExcludeAppIds.contains(appId)) {
             return false
         }
 
-        // 用户自定义禁用
+        // Disabled by the user
         if (excludeData.excludeAppIds.contains(appId)) {
             return false
         }
@@ -74,13 +74,13 @@ class GlobalRule(
         if (excludeData.includeAppIds.contains(appId)) {
             activityId ?: return true
             val app = enableApps[appId] ?: return true
-            // 规则自带页面的禁用
+            // Page-level disable that's part of the rule itself
             return !app.excludeActivityIds.any { e -> e.startsWith(activityId) }
         }
 
-        // 范围比较
+        // Scope comparison
         val app = enableApps[appId]
-        if (app != null) { // 规则自定义启用
+        if (app != null) { // Enabled by the rule's own custom config
             activityId ?: return true
             return app.activityIds.isEmpty() || app.activityIds.any { e -> e.startsWith(activityId) }
         } else {

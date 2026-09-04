@@ -151,7 +151,7 @@ class SubsSheetState {
                         Column(
                             modifier = childModifier.clearAndSetSemantics {
                                 contentDescription =
-                                    "作者：${subscription.author ?: "未知"}, 版本号：v${subscription.version}, 更新时间：${subsItem.mtimeStr}"
+                                    "Author: ${subscription.author ?: "Unknown"}, version: v${subscription.version}, updated: ${subsItem.mtimeStr}"
                             }
                         ) {
                             Row(
@@ -160,7 +160,7 @@ class SubsSheetState {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Text(
-                                    text = "作者",
+                                    text = "Author",
                                     style = MaterialTheme.typography.labelLarge,
                                 )
                                 Text(
@@ -180,7 +180,7 @@ class SubsSheetState {
                             ) {
                                 if (!subsItem.isLocal) {
                                     Text(
-                                        text = subscription.author ?: "未知",
+                                        text = subscription.author ?: "Unknown",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.let {
                                             if (subscription.author == null) {
@@ -210,7 +210,7 @@ class SubsSheetState {
                         if (subscription.globalGroups.isNotEmpty() || subsItem.isLocal) {
                             Row(
                                 modifier = Modifier
-                                    .clickable(onClickLabel = "查看全局规则列表", onClick = throttle {
+                                    .clickable(onClickLabel = "View the global rule list", onClick = throttle {
                                         closeImmediately()
                                         mainVm.navigatePage(SubsGlobalGroupListRoute(subsItem.id))
                                     })
@@ -222,11 +222,11 @@ class SubsSheetState {
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = "全局规则",
+                                        text = "Global rules",
                                         style = MaterialTheme.typography.labelLarge,
                                     )
                                     Text(
-                                        text = if (subscription.globalGroups.isNotEmpty()) "共 ${subscription.globalGroups.size} 全局规则" else "暂无",
+                                        text = if (subscription.globalGroups.isNotEmpty()) "${subscription.globalGroups.size} global rule(s)" else "None yet",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.let {
                                             if (subscription.globalGroups.isEmpty()) {
@@ -245,7 +245,7 @@ class SubsSheetState {
                         if (subscription.appGroups.isNotEmpty() || subsItem.isLocal) {
                             Row(
                                 modifier = Modifier
-                                    .clickable(onClickLabel = "查看应用规则列表", onClick = throttle {
+                                    .clickable(onClickLabel = "View the app rule list", onClick = throttle {
                                         closeImmediately()
                                         mainVm.navigatePage(SubsAppListRoute(subsItem.id))
                                     })
@@ -257,11 +257,11 @@ class SubsSheetState {
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = "应用规则",
+                                        text = "App rules",
                                         style = MaterialTheme.typography.labelLarge,
                                     )
                                     Text(
-                                        text = if (subscription.appGroups.isNotEmpty()) "共 ${subscription.apps.size} 应用 ${subscription.appGroups.size} 规则" else "暂无",
+                                        text = if (subscription.appGroups.isNotEmpty()) "${subscription.apps.size} app(s), ${subscription.appGroups.size} rule(s)" else "None yet",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.let {
                                             if (subscription.appGroups.isEmpty()) {
@@ -281,7 +281,7 @@ class SubsSheetState {
                         if (subscription.categories.isNotEmpty() || subsItem.isLocal) {
                             Row(
                                 modifier = Modifier
-                                    .clickable(onClickLabel = "查看规则类别列表", onClick = throttle {
+                                    .clickable(onClickLabel = "View the rule category list", onClick = throttle {
                                         closeImmediately()
                                         mainVm.navigatePage(SubsCategoryRoute(subsItem.id))
                                     })
@@ -293,11 +293,11 @@ class SubsSheetState {
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = "规则类别",
+                                        text = "Rule categories",
                                         style = MaterialTheme.typography.labelLarge,
                                     )
                                     Text(
-                                        text = if (subscription.categories.isNotEmpty()) "共 ${subscription.categories.size} 类别" else "暂无",
+                                        text = if (subscription.categories.isNotEmpty()) "${subscription.categories.size} categor${if (subscription.categories.size == 1) "y" else "ies"}" else "None yet",
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.let {
                                             if (subscription.categories.isEmpty()) {
@@ -317,9 +317,9 @@ class SubsSheetState {
                         if (!subsItem.isLocal && updateUrl != null) {
                             Row(
                                 modifier = Modifier
-                                    .clickable(onClickLabel = "编辑订阅链接", onClick = throttle {
+                                    .clickable(onClickLabel = "Edit subscription link", onClick = throttle {
                                         if (vm.isBusy) {
-                                            toast("正在刷新订阅,请稍后操作")
+                                            toast("The subscription is being refreshed, please try again later")
                                             return@throttle
                                         }
                                         scope.launchTry {
@@ -339,7 +339,7 @@ class SubsSheetState {
                                     modifier = Modifier.weight(1f),
                                 ) {
                                     Text(
-                                        text = "订阅链接",
+                                        text = "Subscription link",
                                         style = MaterialTheme.typography.labelLarge,
                                     )
                                     Text(
@@ -350,7 +350,7 @@ class SubsSheetState {
                                         overflow = TextOverflow.MiddleEllipsis,
                                         modifier = Modifier
                                             .clearAndSetSemantics {}
-                                            .clickable(onClickLabel = "查看订阅链接", onClick = {
+                                            .clickable(onClickLabel = "View subscription link", onClick = {
                                                 mainVm.openUrl(updateUrl)
                                             })
                                     )
@@ -374,7 +374,7 @@ class SubsSheetState {
                                 CircularProgressIndicator()
                             } else {
                                 Text(
-                                    text = "文件加载错误或不存在",
+                                    text = "Failed to load the file, or it doesn't exist",
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.error,
                                 )
@@ -383,7 +383,7 @@ class SubsSheetState {
                                         vm.refresh().message?.let { toast(it) }
                                     }
                                 }) {
-                                    Text(text = "重新加载")
+                                    Text(text = "Reload")
                                 }
                             }
                         }
@@ -411,8 +411,8 @@ class SubsSheetState {
                                 onClick = throttle {
                                     scope.launchTry {
                                         if (!mainVm.dialogRequests.confirm(
-                                            title = "删除订阅",
-                                            text = "确定删除 ${subscription?.name ?: subsItem.id} ?",
+                                            title = "Delete subscription",
+                                            text = "Delete ${subscription?.name ?: subsItem.id}?",
                                             error = true,
                                         )) return@launchTry
                                         val result = vm.deleteSubscriptionItem(subsItem.id)

@@ -47,7 +47,7 @@ data class RawSubscription(
     val categories: List<RawCategory> = emptyList(),
     val apps: List<RawApp> = emptyList(),
 ) {
-    // 重写 equals 和 hashCode 便于 compose 重组比较
+    // Override equals and hashCode to make Compose recomposition comparisons easier
     override fun equals(other: Any?): Boolean {
         return other === this
     }
@@ -132,7 +132,7 @@ data class RawSubscription(
         if (!c.desc.isNullOrBlank()) return c.desc
         val groupSize = categoryGroupsMap[categoryKey]?.size ?: 0
         val appSize = categoryAppsMap[categoryKey]?.size ?: 0
-        if (groupSize > 0) return "${appSize}应用/${groupSize}规则"
+        if (groupSize > 0) return "${appSize} apps/${groupSize} rules"
         return null
     }
 
@@ -178,7 +178,7 @@ data class RawSubscription(
         val globalGroupSize = globalGroups.size
         if (appGroupsSize + globalGroupSize > 0) {
             if (globalGroupSize > 0) {
-                "${globalGroupSize}全局" + if (appGroupsSize > 0) {
+                "${globalGroupSize} global" + if (appGroupsSize > 0) {
                     "/"
                 } else {
                     ""
@@ -186,12 +186,12 @@ data class RawSubscription(
             } else {
                 ""
             } + if (appGroupsSize > 0) {
-                "${appsSize}应用/${appGroupsSize}规则"
+                "${appsSize} apps/${appGroupsSize} rules"
             } else {
                 ""
             }
         } else {
-            "暂无规则"
+            "No rules yet"
         }
     }
 
@@ -299,7 +299,7 @@ data class RawSubscription(
                     return x to y
                 }
             } catch (e: Exception) {
-                // 可能存在 1/0 导致错误
+                // Division by zero may cause an error
                 e.printStackTrace()
                 LogUtils.d("Position.calc", e)
                 toast(e.message ?: e.stackTraceToString())
@@ -610,21 +610,21 @@ data class RawSubscription(
                 val selector = when (val result = Selector.compile(source)) {
                     is SelectorCompileResult.Success -> result.value
                     is SelectorCompileResult.Failure -> {
-                        LogUtils.d("非法选择器", source, result.error.toString())
-                        return "非法选择器\n$source\n${result.error.message}"
+                        LogUtils.d("Invalid selector", source, result.error.toString())
+                        return "Invalid selector\n$source\n${result.error.message}"
                     }
                 }
                 when (val result = selector.validateType(selectorTypeModel)) {
                     is SelectorTypeResult.Success -> cacheMap[source] = result.value
                     is SelectorTypeResult.Failure -> {
-                        LogUtils.d("非法选择器", source, result.error.toString())
-                        return "非法选择器\n$source\n${result.error.message}"
+                        LogUtils.d("Invalid selector", source, result.error.toString())
+                        return "Invalid selector\n$source\n${result.error.message}"
                     }
                 }
             }
             rules.forEach { r ->
                 if (r.position?.isValid == false) {
-                    return "非法位置:${r.position}"
+                    return "Invalid position: ${r.position}"
                 }
             }
             return null
@@ -660,7 +660,7 @@ data class RawSubscription(
                 try {
                     ExpressionBuilder(value).variables(*preFillExpVars).build().apply {
                         preFillExpVars.forEach { v ->
-                            // 预填充作 validate
+                            // Pre-fill for validation
                             setVariable(v, 0.0)
                         }
                     }.let { e ->

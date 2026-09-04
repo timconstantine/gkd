@@ -120,8 +120,8 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                 context.imeController.requestHide()
                 if (vm.hasUnsavedChanges) {
                     if (!mainVm.dialogRequests.confirm(
-                        title = "提示",
-                        text = "当前内容未保存，是否放弃编辑？",
+                        title = "Notice",
+                        text = "The current content is unsaved. Discard changes?",
                     )) return@launchTry
                 }
                 vm.setEditable(false)
@@ -161,13 +161,13 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                                 onValueChange = { newValue ->
                                     vm.setSearchText(newValue.trim())
                                 },
-                                hint = "请输入应用名称/ID",
+                                hint = "Enter app name/ID",
                                 modifier = Modifier.autoFocus(),
                             )
                         } else {
                             TowLineText(
                                 title = group.name,
-                                subtitle = "编辑禁用",
+                                subtitle = "Edit exclusions",
                                 modifier = Modifier.noRippleClickable(onClick = pageScrollState::resetScroll)
                             )
                         }
@@ -182,9 +182,9 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                                     onClick = throttle {
                                         scope.launchTry {
                                             if (vm.saveExcludeText()) {
-                                                toast("更新成功")
+                                                toast("Updated successfully")
                                             } else {
-                                                toast("未修改")
+                                                toast("No changes")
                                             }
                                             context.imeController.requestHide()
                                             vm.setEditable(false)
@@ -224,7 +224,7 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false }
                                         ) {
-                                            MenuGroupCard(inTop = true, title = "排序") {
+                                            MenuGroupCard(inTop = true, title = "Sort") {
                                                 AppSortOption.objects.forEach { option ->
                                                     MenuItemRadioButton(
                                                         text = option.label,
@@ -233,7 +233,7 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                                                     )
                                                 }
                                             }
-                                            MenuGroupCard(title = "分组") {
+                                            MenuGroupCard(title = "Group by") {
                                                 AppGroupOption.normalObjects.forEach { option ->
                                                     val newValue = option.invert(store.subsExcludeAppGroupType)
                                                     MenuItemCheckbox(
@@ -244,14 +244,14 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                                                     )
                                                 }
                                             }
-                                            MenuGroupCard(title = "筛选") {
+                                            MenuGroupCard(title = "Filter") {
                                                 MenuItemCheckbox(
-                                                    text = "内置禁用",
+                                                    text = "Built-in disabled",
                                                     checked = store.subsExcludeShowInnerDisabledApp,
                                                     onClick = vm::toggleShowInnerDisabledApps,
                                                 )
                                                 MenuItemCheckbox(
-                                                    text = "白名单",
+                                                    text = "Allowlist",
                                                     checked = store.subsExcludeShowBlockApp,
                                                     onClick = vm::toggleShowBlockApps,
                                                 )
@@ -270,7 +270,7 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                         vm.setEditable(!editable)
                     },
                     imageVector = PerfIcon.Edit,
-                    contentDescription = "编辑禁用名单"
+                    contentDescription = "Edit exclusion list"
                 )
             }
         ) { contentPadding ->
@@ -352,7 +352,7 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
                     item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                         Spacer(modifier = Modifier.height(EmptyHeight))
                         if (showAppInfos.isEmpty() && searchStr.isNotEmpty()) {
-                            EmptyText(text = if (showAllApps) "暂无搜索结果" else "暂无搜索结果，或修改筛选")
+                            EmptyText(text = if (showAllApps) "No search results" else "No search results, or adjust the filter")
                             Spacer(modifier = Modifier.height(EmptyHeight / 2))
                         }
                     }
@@ -362,9 +362,9 @@ fun SubsGlobalGroupExcludePage(route: SubsGlobalGroupExcludeRoute) {
     }
 }
 
-// null - 内置禁用
-// true - 启用
-// false - 禁用
+// null - built-in disabled
+// true - enabled
+// false - disabled
 fun getGlobalGroupChecked(
     subscription: RawSubscription,
     excludeData: ExcludeData,
@@ -386,11 +386,11 @@ fun getGlobalGroupChecked(
 }
 
 private val tipText = """
-以换行或英文逗号分割每条禁用
-示例1-禁用单个页面
+Separate each exclusion with a newline or comma
+Example 1 - disable a single page
 appId/activityId
-示例2-禁用整个应用(移除/)
+Example 2 - disable the whole app (remove the /)
 appId
-示例3-开启此应用(前置!)
+Example 3 - enable this app (prefix with !)
 !appId
 """.trimIndent()

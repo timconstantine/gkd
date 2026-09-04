@@ -132,10 +132,10 @@ class SubsCategoryGroupVm(
     }
 
     suspend fun toggleCategoryEnabled(): String {
-        val state = uiState.value.value ?: error("订阅尚未加载")
+        val state = uiState.value.value ?: error("The subscription hasn't loaded yet")
         val rawSubscription = subscription.requireValue()
         val category = state.category
-        val configs = state.configs.value ?: error("类别配置尚未加载")
+        val configs = state.configs.value ?: error("The category config hasn't loaded yet")
         val categoryConfig = configs.categoryConfig
         val newValue = when (li.gkd.app.util.getCategoryEnable(category, categoryConfig)) {
             false -> null
@@ -154,7 +154,7 @@ class SubsCategoryGroupVm(
     }
 
     suspend fun resetAllRuleSwitches(): Int {
-        val state = uiState.value.value ?: error("订阅尚未加载")
+        val state = uiState.value.value ?: error("The subscription hasn't loaded yet")
         val rawSubscription = subscription.requireValue()
         return Db.subsConfigDao.batchResetAppGroupEnable(
             rawSubscription.id,
@@ -178,7 +178,7 @@ class SubsCategoryGroupVm(
         val changed = subscription.update { current ->
             val category = current.getSafeCategory(route.categoryKey)
             if (current.categories.any { it.key != category.key && it.name == name }) {
-                error("不可添加同名类别")
+                error("Cannot add a category with the same name")
             }
             if (category.name == name && (category.desc ?: "") == description) {
                 current
@@ -187,11 +187,11 @@ class SubsCategoryGroupVm(
                     val updated = updateCategory(category.key) {
                         copy(name = name, desc = description)
                     }
-                    if (!updated) error("类别已不存在")
+                    if (!updated) error("The category no longer exists")
                 }
             }
         }
-        return if (changed) "更新成功" else "未修改"
+        return if (changed) "Updated successfully" else "No changes"
     }
 
     suspend fun deleteCategory() {

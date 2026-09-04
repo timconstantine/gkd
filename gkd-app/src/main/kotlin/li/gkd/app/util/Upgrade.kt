@@ -83,11 +83,11 @@ class UpdateStatus(val scope: CoroutineScope) {
         checkUpdatingMutex.whenUnLock {
             lastCheckTime = System.currentTimeMillis()
             if (!NetworkUtils.isAvailable()) {
-                error("网络不可用")
+                error("Network unavailable")
             }
             val newVersion = client.get(UPDATE_URL).body<NewVersion>()
             if (newVersion.versionCode <= META.versionCode) {
-                if (manual) toast("暂无更新")
+                if (manual) toast("No updates available")
                 return@launchTry
             }
             if (!manual && ignoreVersionListFlow.value.contains(newVersion.versionCode)) return@launchTry
@@ -114,7 +114,7 @@ class UpdateStatus(val scope: CoroutineScope) {
                                     bytesSentTotal.toFloat() / (newVersion.fileSize)
                                 )
                             } else if (downloadStatus is LoadStatus.Failure) {
-                                // 提前终止下载
+                                // Abort the download early
                                 downloadJob?.cancel()
                             }
                         }
@@ -153,7 +153,7 @@ class UpdateStatus(val scope: CoroutineScope) {
             val scrollState = rememberScrollState()
             AppAlertDialog(
                 title = {
-                    Text(text = "新版本")
+                    Text(text = "New version")
                 },
                 text = {
                     Text(
@@ -170,12 +170,12 @@ class UpdateStatus(val scope: CoroutineScope) {
                         newVersionFlow.value = null
                         startDownload(newVersionVal)
                     }) {
-                        Text(text = "下载更新")
+                        Text(text = "Download update")
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { newVersionFlow.value = null }) {
-                        Text(text = "取消")
+                        Text(text = "Cancel")
                     }
                     if (!lastManual) {
                         TextButton(onClick = {
@@ -183,9 +183,9 @@ class UpdateStatus(val scope: CoroutineScope) {
                             ignoreVersionListFlow.update {
                                 it + newVersionVal.versionCode
                             }
-                            toast("已忽略此版本")
+                            toast("This version has been ignored")
                         }) {
-                            Text(text = "忽略")
+                            Text(text = "Ignore")
                         }
                     }
                 },
@@ -196,7 +196,7 @@ class UpdateStatus(val scope: CoroutineScope) {
             when (downloadStatusVal) {
                 is LoadStatus.Loading -> {
                     AppAlertDialog(
-                        title = { Text(text = "下载中") },
+                        title = { Text(text = "Downloading") },
                         text = {
                             LinearProgressIndicator(
                                 progress = { downloadStatusVal.progress },
@@ -206,10 +206,10 @@ class UpdateStatus(val scope: CoroutineScope) {
                         confirmButton = {
                             TextButton(onClick = {
                                 downloadStatusFlow.value = LoadStatus.Failure(
-                                    Exception("终止下载")
+                                    Exception("Download aborted")
                                 )
                             }) {
-                                Text(text = "终止下载")
+                                Text(text = "Abort download")
                             }
                         },
                     )
@@ -217,7 +217,7 @@ class UpdateStatus(val scope: CoroutineScope) {
 
                 is LoadStatus.Failure -> {
                     AppAlertDialog(
-                        title = { Text(text = "下载失败") },
+                        title = { Text(text = "Download failed") },
                         text = {
                             Text(text = downloadStatusVal.exception.let {
                                 it.message ?: it.toString()
@@ -228,7 +228,7 @@ class UpdateStatus(val scope: CoroutineScope) {
                             TextButton(onClick = {
                                 downloadStatusFlow.value = null
                             }) {
-                                Text(text = "关闭")
+                                Text(text = "Close")
                             }
                         },
                     )
@@ -236,23 +236,23 @@ class UpdateStatus(val scope: CoroutineScope) {
 
                 is LoadStatus.Success -> {
                     AppAlertDialog(
-                        title = { Text(text = "下载完毕") },
+                        title = { Text(text = "Download complete") },
                         text = {
-                            Text(text = "可继续选择安装新版本")
+                            Text(text = "You can now choose to install the new version")
                         },
                         onDismissRequest = {},
                         dismissButton = {
                             TextButton(onClick = {
                                 downloadStatusFlow.value = null
                             }) {
-                                Text(text = "关闭")
+                                Text(text = "Close")
                             }
                         },
                         confirmButton = {
                             TextButton(onClick = throttle {
                                 installApk(downloadStatusVal.result)
                             }) {
-                                Text(text = "安装")
+                                Text(text = "Install")
                             }
                         })
                 }

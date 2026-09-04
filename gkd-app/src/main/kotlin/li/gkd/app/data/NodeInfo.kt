@@ -50,7 +50,7 @@ private fun getChildren(node: AccessibilityNodeInfo) = sequence {
 
 private const val MAX_KEEP_SIZE = 5000
 
-// 先获取所有节点构建树结构, 然后再判断 idQf/textQf 如果存在一个能同时 idQf 和 textQf 的节点, 则认为 idQf 和 textQf 等价
+// First gather all nodes to build the tree structure, then determine idQf/textQf: if a node exists that satisfies both idQf and textQf, treat idQf and textQf as equivalent
 fun info2nodeList(root: AccessibilityNodeInfo?): List<NodeInfo> {
     if (root == null) {
         return emptyList()
@@ -76,9 +76,9 @@ fun info2nodeList(root: AccessibilityNodeInfo?): List<NodeInfo> {
             }
             if (times > MAX_KEEP_SIZE) {
                 // https://github.com/gkd-kit/gkd/issues/28
-                toast("节点数量至多保留$MAX_KEEP_SIZE,丢弃后续节点")
+                toast("At most $MAX_KEEP_SIZE nodes are kept; discarding the rest")
                 LogUtils.d(
-                    "节点数量过多",
+                    "Too many nodes",
                     root.packageName,
                     topActivityFlow.value.activityId,
                 )
@@ -205,8 +205,8 @@ fun info2nodeList(root: AccessibilityNodeInfo?): List<NodeInfo> {
 
     LogUtils.d(
         topActivityFlow.value,
-        "快照节点数量:${nodes.size}, 总耗时:${collectTime + qfTime}ms",
-        "收集节点耗时:${collectTime}ms, 收集 fastQuery 耗时:${qfTime}ms",
+        "Snapshot node count: ${nodes.size}, total time: ${collectTime + qfTime}ms",
+        "Node collection time: ${collectTime}ms, fastQuery collection time: ${qfTime}ms",
     )
 
     return nodes.map { n ->

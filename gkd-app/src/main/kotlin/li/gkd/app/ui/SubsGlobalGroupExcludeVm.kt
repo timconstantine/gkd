@@ -60,7 +60,7 @@ class SubsGlobalGroupExcludeVm(
         initialValue = ::buildCurrentUiState,
     ) { rawSubscription ->
         val group = rawSubscription.globalGroups.find { it.key == route.groupKey }
-            ?: error("全局规则不存在: ${route.groupKey}")
+            ?: error("Global rule does not exist: ${route.groupKey}")
         val configState = subsConfigFlow.map { config ->
             Loadable.Ready(
                 SubsGlobalGroupExcludeConfig(
@@ -98,7 +98,7 @@ class SubsGlobalGroupExcludeVm(
         rawSubscription: RawSubscription,
     ): SubsGlobalGroupExcludeUiState {
         val group = rawSubscription.globalGroups.find { it.key == route.groupKey }
-            ?: error("全局规则不存在: ${route.groupKey}")
+            ?: error("Global rule does not exist: ${route.groupKey}")
         return buildUiState(
             rawSubscription = rawSubscription,
             config = Loadable.Loading,
@@ -120,7 +120,7 @@ class SubsGlobalGroupExcludeVm(
     ) = SubsGlobalGroupExcludeUiState(
         subscription = rawSubscription,
         group = rawSubscription.globalGroups.find { it.key == route.groupKey }
-            ?: error("全局规则不存在: ${route.groupKey}"),
+            ?: error("Global rule does not exist: ${route.groupKey}"),
         config = config,
         showAppInfos = showAppInfos,
         showAllApps = showAllApps,
@@ -202,7 +202,7 @@ class SubsGlobalGroupExcludeVm(
     suspend fun saveExcludeText(): Boolean {
         val newExclude = changedValue ?: return false
         val currentConfig = uiState.value.value?.config?.value
-            ?: error("订阅配置尚未加载")
+            ?: error("The subscription config hasn't loaded yet")
         val subsConfig = (currentConfig.subsConfig ?: SubsConfig(
             type = SubsConfig.GlobalGroupType,
             subsId = route.subsItemId,
@@ -213,8 +213,8 @@ class SubsGlobalGroupExcludeVm(
     }
 
     suspend fun setAppChecked(appId: String, checked: Boolean) {
-        val state = uiState.value.value ?: error("订阅尚未加载")
-        val config = state.config.value ?: error("订阅配置尚未加载")
+        val state = uiState.value.value ?: error("The subscription hasn't loaded yet")
+        val config = state.config.value ?: error("The subscription config hasn't loaded yet")
         val excludeData = config.excludeData
         val subsConfig = (config.subsConfig ?: SubsConfig(
             type = SubsConfig.GlobalGroupType,

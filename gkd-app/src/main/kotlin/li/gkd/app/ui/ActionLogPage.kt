@@ -98,7 +98,7 @@ fun ActionLogPage(route: ActionLogRoute) {
                 )
             },
             title = {
-                val title = "触发记录"
+                val title = "Trigger log"
                 val titleModifier = Modifier.noRippleClickable {
                     pageScrollState.resetScroll()
                 }
@@ -129,19 +129,19 @@ fun ActionLogPage(route: ActionLogRoute) {
                         onClick = throttle {
                             scope.launchTry {
                                 val text = if (subsId != null) {
-                                    "确定删除当前订阅所有触发记录?"
+                                    "Delete all trigger log entries for the current subscription?"
                                 } else if (appId != null) {
-                                    "确定删除当前应用所有触发记录?"
+                                    "Delete all trigger log entries for the current app?"
                                 } else {
-                                    "确定删除所有触发记录?"
+                                    "Delete all trigger log entries?"
                                 }
                                 if (!mainVm.dialogRequests.confirm(
-                                    title = "删除记录",
+                                    title = "Delete log",
                                     text = text,
                                     error = true,
                                 )) return@launchTry
                                 vm.deleteLogs()
-                                toast("删除成功")
+                                toast("Deleted successfully")
                             }
                         },
                     )
@@ -178,7 +178,7 @@ fun ActionLogPage(route: ActionLogRoute) {
             item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                 Spacer(modifier = Modifier.height(EmptyHeight))
                 if (list.itemCount == 0 && list.loadState.refresh !is LoadState.Loading) {
-                    EmptyText(text = "暂无数据")
+                    EmptyText(text = "No data yet")
                 }
             }
         }
@@ -208,13 +208,13 @@ fun ActionLogPage(route: ActionLogRoute) {
             onToggleGlobalAppExclusion = {
                 scope.launchTry {
                     vm.toggleGlobalAppExclusion()
-                    toast("更新成功")
+                    toast("Updated successfully")
                 }
             },
             onToggleActivityExclusion = {
                 scope.launchTry {
                     vm.toggleActivityExclusion()
-                    toast("更新成功")
+                    toast("Updated successfully")
                 }
             },
         )
@@ -387,7 +387,7 @@ private fun ActionLogDialog(
             shape = RoundedCornerShape(16.dp),
         ) {
             ItemText(
-                text = "查看规则",
+                text = "View rule",
                 onClick = onOpenRule,
             )
             HorizontalDivider()
@@ -396,7 +396,7 @@ private fun ActionLogDialog(
                 val appChecked = state.globalAppChecked
                 if (appChecked != null) {
                     ItemText(
-                        text = if (appChecked) "在此应用禁用" else "移除在此应用的禁用",
+                        text = if (appChecked) "Disable for this app" else "Remove the exclusion for this app",
                         onClick = onToggleGlobalAppExclusion,
                     )
                     HorizontalDivider()
@@ -405,7 +405,7 @@ private fun ActionLogDialog(
 
             if (actionLog.activityId != null) {
                 ItemText(
-                    text = if (state.activityDisabled) "移除在此页面的禁用" else "在此页面禁用",
+                    text = if (state.activityDisabled) "Remove the exclusion for this page" else "Disable for this page",
                     onClick = onToggleActivityExclusion,
                 )
                 HorizontalDivider()

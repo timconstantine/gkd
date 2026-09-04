@@ -61,7 +61,7 @@ fun RuleGroupDialog(
     }
     AppAlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(text = "规则详情") },
+        title = { Text(text = "Rule details") },
         text = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -80,7 +80,7 @@ fun RuleGroupDialog(
                         contentPadding = contentPadding,
                         textStyle = MaterialTheme.typography.bodySmall,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textContentDescription = "规则内容",
+                        textContentDescription = "Rule content",
                     )
                 } else {
                     CopyableText(
@@ -90,7 +90,7 @@ fun RuleGroupDialog(
                         contentPadding = contentPadding,
                         textStyle = MaterialTheme.typography.bodySmall,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textContentDescription = "规则内容",
+                        textContentDescription = "Rule content",
                     )
                 }
                 Text(
@@ -131,7 +131,7 @@ fun RuleGroupDialog(
                 }
                 PerfIconButton(
                     imageVector = PerfIcon.Block,
-                    onClickLabel = "编辑规则排除名单",
+                    onClickLabel = "Edit the rule exclusion list",
                     onClick = throttle(onClickEditExclude),
                 )
                 AnimatedVisibility(
@@ -139,7 +139,7 @@ fun RuleGroupDialog(
                 ) {
                     PerfIconButton(
                         imageVector = ResetSettings,
-                        onClickLabel = "重置开关状态至默认值",
+                        onClickLabel = "Reset toggle state to default",
                         onClick = throttle(onClickResetSwitch ?: {}),
                     )
                 }
@@ -154,7 +154,7 @@ fun RuleGroupDialog(
     )
 }
 
-// 规则组示例图需要保留“图片属于哪个子规则”的上下文，预览页才能显示更具体的标题。
+// Rule group example images need to retain the context of "which sub-rule the image belongs to" so the preview page can show a more specific title.
 private fun buildRuleGroupPreviewItems(group: RawSubscription.RawGroupProps): List<ImagePreviewItem> {
     val uriTitlesMap = linkedMapOf<String, LinkedHashSet<String>>()
 

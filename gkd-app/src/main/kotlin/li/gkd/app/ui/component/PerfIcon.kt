@@ -144,22 +144,22 @@ fun PerfIconButton(
 }
 
 fun getIconDefaultDesc(imageVector: ImageVector): String? = when (imageVector) {
-    PerfIcon.Add -> "添加"
-    PerfIcon.Edit -> "编辑"
-    PerfIcon.Save -> "保存"
-    PerfIcon.Delete -> "删除"
-    PerfIcon.Share -> "分享"
-    PerfIcon.Settings -> "设置"
-    PerfIcon.Close -> "关闭"
-    PerfIcon.ArrowBack -> "返回"
-    PerfIcon.HelpOutline -> "帮助"
-    PerfIcon.ToggleOff -> "关闭"
-    PerfIcon.ToggleOn -> "开启"
-    PerfIcon.History -> "历史记录"
-    PerfIcon.Sort -> "排序筛选"
-    PerfIcon.OpenInNew -> "新页面打开"
-    PerfIcon.ContentCopy -> "复制文本"
-    PerfIcon.MoreVert -> "更多操作"
+    PerfIcon.Add -> "Add"
+    PerfIcon.Edit -> "Edit"
+    PerfIcon.Save -> "Save"
+    PerfIcon.Delete -> "Delete"
+    PerfIcon.Share -> "Share"
+    PerfIcon.Settings -> "Settings"
+    PerfIcon.Close -> "Close"
+    PerfIcon.ArrowBack -> "Back"
+    PerfIcon.HelpOutline -> "Help"
+    PerfIcon.ToggleOff -> "Off"
+    PerfIcon.ToggleOn -> "On"
+    PerfIcon.History -> "History"
+    PerfIcon.Sort -> "Sort/filter"
+    PerfIcon.OpenInNew -> "Open in a new page"
+    PerfIcon.ContentCopy -> "Copy text"
+    PerfIcon.MoreVert -> "More actions"
     else -> null
 }
 

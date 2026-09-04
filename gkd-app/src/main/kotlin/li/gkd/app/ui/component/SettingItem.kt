@@ -34,7 +34,7 @@ fun SettingItem(
                 if (onClick != null) {
                     it.clickable(
                         onClick = throttle(fn = onClick),
-                        onClickLabel = onClickLabel ?: "进入${title}页面"
+                        onClickLabel = onClickLabel ?: "Open the $title page"
                     )
                 } else {
                     it

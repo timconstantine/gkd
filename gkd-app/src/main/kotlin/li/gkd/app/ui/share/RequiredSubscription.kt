@@ -41,7 +41,7 @@ class RequiredSubscription(
             Loadable.Failure(
                 snapshot.loadErrors[id]
                     ?: snapshot.updateErrors[id]
-                    ?: IllegalStateException("订阅不存在: $id"),
+                    ?: IllegalStateException("Subscription does not exist: $id"),
             )
         }
     }
@@ -55,7 +55,7 @@ class RequiredSubscription(
 
     fun requireValue(): RawSubscription {
         return when (val current = state.value) {
-            Loadable.Loading -> error("订阅尚未加载: $id")
+            Loadable.Loading -> error("The subscription hasn't loaded yet: $id")
             is Loadable.Failure -> throw current.cause
             is Loadable.Ready -> current.value.value
         }

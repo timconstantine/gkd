@@ -56,16 +56,16 @@ class SubsLinkDialogState(
     private fun submit(request: SubsLinkDialogRequest) {
         val value = request.value
         if (!URLUtil.isNetworkUrl(value)) {
-            toast("非法链接")
+            toast("Invalid link")
             return
         }
         if (request.initialValue.isNotEmpty() && request.initialValue == value) {
-            toast("未修改")
+            toast("No changes")
             complete(null)
             return
         }
         if (value in request.existingUrls) {
-            toast("已有相同链接订阅")
+            toast("A subscription with the same link already exists")
             return
         }
         complete(value)
@@ -120,14 +120,14 @@ class SubsLinkDialogState(
                     ) {
                         Text(
                             text = if (currentRequest.initialValue.isNotEmpty()) {
-                                "修改订阅"
+                                "Edit subscription"
                             } else {
-                                "添加订阅"
+                                "Add subscription"
                             },
                         )
                         PerfIconButton(
                             imageVector = PerfIcon.HelpOutline,
-                            contentDescription = "订阅帮助",
+                            contentDescription = "Subscription help",
                             onClick = throttle(::openHelp),
                         )
                     }
@@ -141,7 +141,7 @@ class SubsLinkDialogState(
                             .fillMaxWidth()
                             .autoFocus(),
                         placeholder = {
-                            Text(text = "请输入订阅链接")
+                            Text(text = "Enter a subscription link")
                         },
                         isError = currentRequest.value.isNotEmpty() &&
                                 !URLUtil.isNetworkUrl(currentRequest.value),
@@ -155,12 +155,12 @@ class SubsLinkDialogState(
                             submit(currentRequest)
                         },
                     ) {
-                        Text(text = "确定")
+                        Text(text = "Confirm")
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = ::cancel) {
-                        Text(text = "取消")
+                        Text(text = "Cancel")
                     }
                 },
             )

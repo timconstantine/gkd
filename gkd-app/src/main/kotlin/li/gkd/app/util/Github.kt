@@ -80,7 +80,7 @@ suspend fun uploadFileToGithub(
         }))
     }
     if (policiesRawResp.status == HttpStatusCode.Unauthorized) {
-        throw GithubCookieException("检测到 cookie 失效, 请更换")
+        throw GithubCookieException("The cookie has expired, please replace it")
     }
     val policiesResp = policiesRawResp.body<UploadPoliciesAssetsResponse>()
 

@@ -100,7 +100,7 @@ private class ShareContext {
                         val newV = PermissionStates.drawOverlays.updateAndGet()
                         canDrawOverlays = newV
                         if (!newV && oldV) {
-                            toast("当前界面拒绝显示悬浮窗")
+                            toast("The current screen rejects showing the overlay window")
                             break
                         }
                         delay(500.milliseconds)

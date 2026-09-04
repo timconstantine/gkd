@@ -112,17 +112,17 @@ fun buildLogFile(): File {
     tempDir.resolve("permission.txt").also {
         val p1 = PermissionStates.all.filter { s -> s.value }
         if (p1.isNotEmpty()) {
-            it.appendText("已授权\n" + p1.joinToString("\n") { s -> s.name })
+            it.appendText("Granted\n" + p1.joinToString("\n") { s -> s.name })
             it.appendText("\n\n")
         }
         val p2 = PermissionStates.all.filter { s -> !s.value }
         if (p2.isNotEmpty()) {
-            it.appendText("未授权\n" + p2.joinToString("\n") { s -> s.name })
+            it.appendText("Not granted\n" + p2.joinToString("\n") { s -> s.name })
             it.appendText("\n\n")
         }
         if (appListAuthAbnormalFlow.value) {
-            it.appendText("其它\n")
-            it.appendText("读取应用列表权限异常")
+            it.appendText("Other\n")
+            it.appendText("Abnormal 'read app list' permission")
         }
         it.appendText("\n")
         files.add(it)

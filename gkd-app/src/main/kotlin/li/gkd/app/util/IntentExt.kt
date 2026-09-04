@@ -19,7 +19,7 @@ fun Context.tryStartActivity(intent: Intent) {
     } catch (e: Exception) {
         e.printStackTrace()
         LogUtils.d("tryStartActivity", e)
-        toast("跳转失败\n" + (e.message ?: e.stackTraceToString()))
+        toast("Navigation failed\n" + (e.message ?: e.stackTraceToString()))
     }
 }
 
@@ -28,7 +28,7 @@ fun openWeChatScaner() {
         putExtra("LauncherUI.From.Scaner.Shortcut", true)
     }
     if (intent == null) {
-        toast("请检查微信是否安装或禁用")
+        toast("Please check whether WeChat is installed or disabled")
         return
     }
     app.tryStartActivity(intent)
@@ -53,7 +53,7 @@ fun openUri(uri: String) {
         uri.toUri()
     } catch (e: Exception) {
         e.printStackTrace()
-        toast("非法链接")
+        toast("Invalid link")
         return
     }
     openUri(u)
@@ -79,7 +79,7 @@ fun <T : Service> startForegroundServiceByClass(clazz: KClass<T>) {
     } catch (e: Throwable) {
         LogUtils.d(e)
         val prefix = if (isActivityVisible) "" else "${META.appName}: "
-        toast("${prefix}启动服务失败: ${e.message}", forced = true)
+        toast("${prefix}Failed to start service: ${e.message}", forced = true)
     }
 }
 

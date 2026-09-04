@@ -77,12 +77,12 @@ fun SubsItemCard(
             .padding(16.dp, 4.dp)
             .semantics {
                 stateDescription = if (isSelectedMode) {
-                    if (isSelected) "已选中" else "未选中"
+                    if (isSelected) "Selected" else "Not selected"
                 } else {
-                    if (subsItem.enable) "已启用" else "已禁用"
+                    if (subsItem.enable) "Enabled" else "Disabled"
                 }
-                this.onClick(label = "查看订阅详情", action = null)
-                this.onLongClick(label = "进入多选模式", action = null)
+                this.onClick(label = "View subscription details", action = null)
+                this.onLongClick(label = "Enter multi-select mode", action = null)
             },
         shape = MaterialTheme.shapes.small,
         interactionSource = interactionSource,
@@ -101,7 +101,7 @@ fun SubsItemCard(
                 if (subscription != null) {
                     Text(
                         modifier = Modifier.semantics {
-                            contentDescription = "订阅顺序：$index, 订阅名称 ${subscription.name}"
+                            contentDescription = "Subscription order: $index, name: ${subscription.name}"
                         },
                         text = "$index. ${subscription.name}",
                         maxLines = 1,
@@ -125,7 +125,7 @@ fun SubsItemCard(
                             if (subscription.author != null) {
                                 Text(
                                     modifier = Modifier.semantics {
-                                        contentDescription = "作者 ${subscription.author}"
+                                        contentDescription = "Author ${subscription.author}"
                                     },
                                     text = subscription.author,
                                     style = MaterialTheme.typography.labelSmall,
@@ -133,7 +133,7 @@ fun SubsItemCard(
                             }
                             Text(
                                 modifier = Modifier.semantics {
-                                    contentDescription = "订阅版本号 ${subscription.version}"
+                                    contentDescription = "Subscription version ${subscription.version}"
                                 },
                                 text = "v" + (subscription.version.toString()),
                                 style = MaterialTheme.typography.labelSmall,
@@ -149,7 +149,7 @@ fun SubsItemCard(
                         val timeStr = formatTimeAgo(subsItem.mtime)
                         Text(
                             modifier = Modifier.semantics {
-                                contentDescription = "更新时间 $timeStr"
+                                contentDescription = "Updated $timeStr"
                             },
                             text = timeStr,
                             style = MaterialTheme.typography.labelSmall,
@@ -170,14 +170,14 @@ fun SubsItemCard(
                     }
                     Text(
                         text = loadError?.message
-                            ?: if (refreshing) "加载中..." else "文件不存在",
+                            ?: if (refreshing) "Loading..." else "File does not exist",
                         style = MaterialTheme.typography.bodyMedium,
                         color = color
                     )
                 }
                 if (refreshError != null) {
                     Text(
-                        text = "更新错误: ${refreshError.message}",
+                        text = "Update error: ${refreshError.message}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )

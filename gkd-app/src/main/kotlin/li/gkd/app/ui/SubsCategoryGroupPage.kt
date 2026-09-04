@@ -124,14 +124,14 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                 val resetAll: () -> Unit = {
                     scope.launchTry {
                         if (!mainVm.dialogRequests.confirm(
-                            title = "重置开关",
-                            text = "重置当前类别下所有规则开关为默认值？\n重置后规则可由类别批量控制开关",
+                            title = "Reset toggles",
+                            text = "Reset all rule toggles under this category to their default values?\nAfter resetting, rules can be batch-controlled by the category",
                         )) return@launchTry
                         val updatedSize = vm.resetAllRuleSwitches()
                         if (updatedSize > 0) {
-                            toast("重置 $updatedSize 规则")
+                            toast("Reset $updatedSize rule(s)")
                         } else {
-                            toast("无可重置规则")
+                            toast("No rules to reset")
                         }
                     }
                 }
@@ -149,7 +149,7 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                             if (groupSize > 0) {
                                 DropdownMenuItem(
                                     leadingIcon = { PerfIcon(imageVector = ResetSettings) },
-                                    text = { Text(text = "重置") },
+                                    text = { Text(text = "Reset") },
                                     onClick = throttle {
                                         expanded = false
                                         resetAll()
@@ -158,7 +158,7 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                             }
                             DropdownMenuItem(
                                 leadingIcon = { PerfIcon(imageVector = PerfIcon.Edit) },
-                                text = { Text(text = "编辑") },
+                                text = { Text(text = "Edit") },
                                 onClick = {
                                     expanded = false
                                     vm.setEditCategoryDialogVisible(true)
@@ -166,7 +166,7 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                             )
                             DropdownMenuItem(
                                 leadingIcon = { PerfIcon(imageVector = PerfIcon.Delete) },
-                                text = { Text(text = "删除") },
+                                text = { Text(text = "Delete") },
                                 colors = MenuDefaults.itemColors(
                                     textColor = MaterialTheme.colorScheme.error,
                                     leadingIconColor = MaterialTheme.colorScheme.error,
@@ -175,12 +175,12 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                                     expanded = false
                                     scope.launchTry {
                                         if (!mainVm.dialogRequests.confirm(
-                                            title = "删除类别",
-                                            text = "确定删除 ${category.name} ?",
+                                            title = "Delete category",
+                                            text = "Delete ${category.name}?",
                                             error = true,
                                         )) return@launchTry
                                         vm.deleteCategory()
-                                        toast("删除成功")
+                                        toast("Deleted successfully")
                                         mainVm.popPage()
                                     }
                                 },
@@ -204,7 +204,7 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                     modifier = Modifier.wrapContentSize(Alignment.TopStart)
                 ) {
                     DropdownMenu(expanded = sortExpanded, onDismissRequest = { sortExpanded = false }) {
-                        MenuGroupCard(inTop = true, title = "排序") {
+                        MenuGroupCard(inTop = true, title = "Sort") {
                             AppSortOption.objects.forEach { option ->
                                 MenuItemRadioButton(
                                     text = option.label,
@@ -213,7 +213,7 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                                 )
                             }
                         }
-                        MenuGroupCard(title = "分组") {
+                        MenuGroupCard(title = "Group by") {
                             AppGroupOption.allObjects.forEach { option ->
                                 val newValue = option.invert(store.subsCategoryGroupType)
                                 MenuItemCheckbox(
@@ -224,9 +224,9 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                                 )
                             }
                         }
-                        MenuGroupCard(title = "筛选") {
+                        MenuGroupCard(title = "Filter") {
                             MenuItemCheckbox(
-                                text = "白名单",
+                                text = "Allowlist",
                                 checked = store.subsCategoryShowBlock,
                                 onClick = vm::toggleShowBlockApps,
                             )
@@ -302,7 +302,7 @@ fun SubsCategoryGroupPage(route: SubsCategoryGroupRoute) {
                 item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                     Spacer(modifier = Modifier.height(EmptyHeight))
                     if (apps.isEmpty()) {
-                        EmptyText(text = if (state.showAllApps) "暂无数据" else "暂无数据，或修改筛选")
+                        EmptyText(text = if (state.showAllApps) "No data yet" else "No data yet, or adjust the filter")
                         Spacer(modifier = Modifier.height(EmptyHeight))
                     }
                 }

@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         if (!SystemDownloads.save(file)) return
-        toast("已保存 ${file.name} 到下载")
+        toast("Saved ${file.name} to Downloads")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

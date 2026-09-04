@@ -117,8 +117,8 @@ fun RuleGroupCard(
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
-                onClickLabel = "打开规则详情弹窗",
-                onLongClickLabel = "进入多选模式"
+                onClickLabel = "Open the rule details dialog",
+                onLongClickLabel = "Enter multi-select mode"
             ),
         shape = MaterialTheme.shapes.extraSmall,
         colors = CardDefaults.cardColors(
@@ -168,7 +168,7 @@ fun RuleGroupCard(
                         }
                     } else {
                         Text(
-                            text = group.errorDesc ?: "未知错误",
+                            text = group.errorDesc ?: "Unknown error",
                             modifier = Modifier.fillMaxWidth(),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error
@@ -212,7 +212,7 @@ fun RuleGroupCard(
             if (hasExcludeActivity) {
                 PerfIcon(
                     imageVector = PerfIcon.Block,
-                    contentDescription = "此规则已排除部分页面",
+                    contentDescription = "This rule has excluded some pages",
                     tint = if (isSelectedMode) {
                         LocalContentColor.current.copy(alpha = 0.5f)
                     } else {
@@ -263,17 +263,17 @@ fun BatchActionButtonGroup(
 ) {
     PerfIconButton(
         imageVector = PerfIcon.ToggleOff,
-        contentDescription = "批量关闭规则",
+        contentDescription = "Batch disable rules",
         onClick = throttle(onDisable),
     )
     PerfIconButton(
         imageVector = PerfIcon.ToggleOn,
-        contentDescription = "批量打开规则",
+        contentDescription = "Batch enable rules",
         onClick = throttle(onEnable),
     )
     PerfIconButton(
         imageVector = ResetSettings,
-        contentDescription = "批量重置规则开关",
+        contentDescription = "Batch reset rule toggles",
         onClick = throttle(onReset),
     )
 }

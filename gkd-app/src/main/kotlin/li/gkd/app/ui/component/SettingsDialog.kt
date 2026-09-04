@@ -48,7 +48,7 @@ fun SettingsDialog(
                     )
                     PerfIconButton(
                         imageVector = PerfIcon.Close,
-                        contentDescription = "关闭$title",
+                        contentDescription = "Close $title",
                         onClick = onDismissRequest,
                     )
                 }

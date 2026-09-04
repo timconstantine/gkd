@@ -73,7 +73,7 @@ object BackupUtils {
     }
 
     suspend fun importBackUpData(uri: Uri) {
-        toast("导入备份中...")
+        toast("Importing backup...")
         val tempDir = createGkdTempDir()
         try {
             val zipFile = tempDir.resolve("file.zip").apply {
@@ -84,7 +84,7 @@ object BackupUtils {
                 ZipUtils.unzipFile(zipFile, unzipDir)
             } catch (e: Exception) {
                 LogUtils.d("importBackUpData.unzipFile", e)
-                throw IllegalArgumentException("解压失败，非法备份文件", e)
+                throw IllegalArgumentException("Failed to extract: invalid backup file", e)
             }
             zipFile.delete()
 
@@ -107,7 +107,7 @@ object BackupUtils {
             }
             prepared.subscriptions.forEach { SubscriptionStore.save(it) }
             prepared.storeUpdates.forEach { it() }
-            toast("导入成功")
+            toast("Import successful")
             delay(1000)
             SubscriptionStore.refresh()
         } finally {
@@ -137,15 +137,15 @@ object BackupUtils {
                     file.isFile && file.name.endsWith(".json")
                 } ?: emptyArray()).filterNotNull().sortedBy { it.name }.map { file ->
                     val fileId = file.nameWithoutExtension.toLongOrNull()
-                        ?: error("非法订阅文件名: ${file.name}")
+                        ?: error("Invalid subscription file name: ${file.name}")
                     json.decodeFromString<RawSubscription>(file.readText()).also { subscription ->
                         require(subscription.id == fileId) {
-                            "订阅文件id不一致: $fileId != ${subscription.id}"
+                            "Subscription file id mismatch: $fileId != ${subscription.id}"
                         }
                     }
                 }.also { list ->
                     require(list.map { it.id }.distinct().size == list.size) {
-                        "备份中存在重复订阅id"
+                        "The backup contains duplicate subscription ids"
                     }
                 }
             } else {

@@ -99,13 +99,13 @@ fun useDashboardPage(): ScaffoldExt {
                 )
             }, actions = {
                 val (contentDescription, contentColor) = when (privilegeServiceStatus) {
-                    PrivilegeServiceStatus.Connected -> "特权服务，已连接" to MaterialTheme.colorScheme.primary
-                    PrivilegeServiceStatus.Disconnected -> "特权服务，未连接" to MaterialTheme.colorScheme.onSurfaceVariant
-                    PrivilegeServiceStatus.DisconnectedDesired -> "特权服务，连接已中断" to MaterialTheme.colorScheme.error
+                    PrivilegeServiceStatus.Connected -> "Privileged service, connected" to MaterialTheme.colorScheme.primary
+                    PrivilegeServiceStatus.Disconnected -> "Privileged service, not connected" to MaterialTheme.colorScheme.onSurfaceVariant
+                    PrivilegeServiceStatus.DisconnectedDesired -> "Privileged service, connection interrupted" to MaterialTheme.colorScheme.error
                 }
                 PerfIconButton(
                     imageVector = PerfIcon.RocketLaunch,
-                    onClickLabel = "前往特权服务页面",
+                    onClickLabel = "Go to the privileged service page",
                     contentDescription = contentDescription,
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = contentColor,
@@ -132,7 +132,7 @@ fun useDashboardPage(): ScaffoldExt {
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics(mergeDescendants = true) {
-                            this.onClick(label = "前往特权服务页面", action = null)
+                            this.onClick(label = "Go to the privileged service page", action = null)
                         },
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
@@ -150,7 +150,7 @@ fun useDashboardPage(): ScaffoldExt {
                         PerfIcon(imageVector = PerfIcon.WarningAmber)
                         Text(
                             modifier = Modifier.weight(1f),
-                            text = "检测到权限受限，请前往特权服务",
+                            text = "Detected a permission restriction, please go to the privileged service",
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         PerfIcon(imageVector = PerfIcon.KeyboardArrowRight)
@@ -160,17 +160,17 @@ fun useDashboardPage(): ScaffoldExt {
             if (store.useA11y || actualA11yScopeAppList.contains(topAppIdFlow.collectAsStateWithLifecycle().value)) {
                 ServiceStatusCard(
                     subtitle = if (a11yRunning) {
-                        "无障碍正在运行"
+                        "Accessibility is running"
                     } else if (mainVm.a11yServiceEnabledFlow.collectAsStateWithLifecycle().value) {
-                        "无障碍发生故障"
+                        "Accessibility failed"
                     } else if (writeSecureSettings) {
                         if (store.enableAutomator && a11yPartDisabledFlow.collectAsStateWithLifecycle().value) {
-                            "无障碍局部关闭"
+                            "Accessibility partially disabled"
                         } else {
-                            "无障碍已关闭"
+                            "Accessibility disabled"
                         }
                     } else {
-                        "无障碍未授权"
+                        "Accessibility not authorized"
                     },
                     checked = a11yRunning,
                     onCheckedChange = { newEnabled ->
@@ -189,14 +189,14 @@ fun useDashboardPage(): ScaffoldExt {
                 val automation by uiAutomationFlow.collectAsStateWithLifecycle()
                 ServiceStatusCard(
                     subtitle = if (automation != null) {
-                        "自动化正在运行"
+                        "Automation is running"
                     } else if (privilegeContext == null) {
-                        "自动化未授权"
+                        "Automation not authorized"
                     } else {
                         if (store.enableAutomator && a11yPartDisabledFlow.collectAsStateWithLifecycle().value) {
-                            "自动化局部关闭"
+                            "Automation partially disabled"
                         } else {
-                            "自动化已关闭"
+                            "Automation disabled"
                         }
                     },
                     checked = automation != null,
@@ -216,8 +216,8 @@ fun useDashboardPage(): ScaffoldExt {
 
             PageSwitchItemCard(
                 imageVector = PerfIcon.Notifications,
-                title = "常驻通知",
-                subtitle = "显示运行状态及统计数据",
+                title = "Persistent notification",
+                subtitle = "Show the running status and statistics",
                 checked = manageRunning && store.enableStatusService,
                 onCheckedChange = {
                     if (it) {
@@ -246,20 +246,20 @@ fun useDashboardPage(): ScaffoldExt {
 
             if (ActivityService.isRunning.collectAsStateWithLifecycle().value) {
                 PageItemCard(
-                    title = "界面日志",
-                    subtitle = "记录打开的应用及界面",
+                    title = "Activity log",
+                    subtitle = "Record apps and screens opened",
                     imageVector = PerfIcon.Layers,
-                    onClickLabel = "打开界面日志页面",
+                    onClickLabel = "Open the activity log page",
                     onClick = {
                         mainVm.navigatePage(ActivityLogRoute)
                     })
             }
 
             PageItemCard(
-                title = "了解 GKD",
-                subtitle = "查阅规则文档和常见问题",
+                title = "Learn about GKD",
+                subtitle = "Read the rule docs and FAQ",
                 imageVector = PerfIcon.HelpOutline,
-                onClickLabel = "打开 GKD 文档页面",
+                onClickLabel = "Open the GKD docs page",
                 onClick = {
                     mainVm.navigatePage(WebViewRoute(initUrl = HOME_PAGE_URL))
                 })
@@ -320,7 +320,7 @@ private fun PageSwitchItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) {
-                this.onClick(label = "切换$title", action = null)
+                this.onClick(label = "Toggle $title", action = null)
             },
         shape = MaterialTheme.shapes.large,
         colors = surfaceCardColors,
@@ -371,7 +371,7 @@ private fun ServiceStatusCard(
             modifier = Modifier
                 .semantics(mergeDescendants = true) {}
                 .clickable(
-                    onClickLabel = "切换服务状态",
+                    onClickLabel = "Toggle service state",
                     onClick = onStatusClick,
                 ),
         ) {
@@ -379,7 +379,7 @@ private fun ServiceStatusCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "服务状态",
+                    text = "Service status",
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
@@ -405,7 +405,7 @@ private fun ServiceStatusCard(
                 .fillMaxWidth()
                 .semantics(mergeDescendants = true) {}
                 .clickable(
-                    onClickLabel = "前往工作模式页面",
+                    onClickLabel = "Go to the work mode page",
                     onClick = onModeRowClick,
                 )
                 .padding(
@@ -426,7 +426,7 @@ private fun ServiceStatusCard(
             )
             Spacer(modifier = Modifier.width(itemHorizontalPadding))
             Text(
-                text = "工作模式",
+                text = "Work mode",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -490,7 +490,7 @@ private fun TriggerOverviewCard(
                 .fillMaxWidth()
                 .semantics(mergeDescendants = true) {}
                 .clickable(
-                    onClickLabel = "打开触发记录页面",
+                    onClickLabel = "Open the trigger log page",
                     onClick = throttle(onOpenActionLog),
                 )
                 .padding(
@@ -514,11 +514,11 @@ private fun TriggerOverviewCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "触发记录",
+                    text = "Trigger log",
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = "规则误触可定位关闭",
+                    text = "Locate and disable rules that misfire",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -549,7 +549,7 @@ private fun TriggerOverviewCard(
                         .padding(horizontal = 4.dp)
                         .clip(MaterialTheme.shapes.extraSmall)
                         .clickable(
-                            onClickLabel = "前往应用的规则汇总页面",
+                            onClickLabel = "Go to the app's rule summary page",
                             onClick = throttle(onOpenLatestRecord),
                         )
                         .fillMaxWidth()
@@ -560,7 +560,7 @@ private fun TriggerOverviewCard(
                     ) {
                         GroupNameText(
                             modifier = Modifier.fillMaxWidth(),
-                            preText = "最近触发: ",
+                            preText = "Last triggered: ",
                             isGlobal = latestRecordIsGlobal,
                             text = latestRecordDesc,
                             style = MaterialTheme.typography.bodyMedium,

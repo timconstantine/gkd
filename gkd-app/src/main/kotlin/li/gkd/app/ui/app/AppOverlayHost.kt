@@ -52,17 +52,17 @@ private fun AccessRestrictedSettingsDlg() {
     val isPrivilegeServicePage = mainVm.topRoute is PrivilegeServiceRoute
     LaunchedEffect(isPrivilegeServicePage, accessRestrictedSettingsShow) {
         if (isPrivilegeServicePage && accessRestrictedSettingsShow && !a11yRunning) {
-            toast("请重新授权以解除限制")
+            toast("Please re-authorize to lift the restriction")
             accessRestrictedSettingsShowFlow.value = false
         }
     }
     if (accessRestrictedSettingsShow && !isPrivilegeServicePage && !a11yRunning) {
         AppAlertDialog(
             title = {
-                Text(text = "权限受限")
+                Text(text = "Permission restricted")
             },
             text = {
-                Text(text = "当前操作权限「访问受限设置」已被限制，请前往特权服务重新授权")
+                Text(text = "The \"access restricted settings\" permission has been restricted, please re-authorize via the privileged service")
             },
             onDismissRequest = {
                 accessRestrictedSettingsShowFlow.value = false
@@ -72,14 +72,14 @@ private fun AccessRestrictedSettingsDlg() {
                     accessRestrictedSettingsShowFlow.value = false
                     mainVm.navigatePage(PrivilegeServiceRoute)
                 }) {
-                    Text(text = "前往授权")
+                    Text(text = "Go to authorize")
                 }
             },
             dismissButton = {
                 TextButton({
                     accessRestrictedSettingsShowFlow.value = false
                 }) {
-                    Text(text = "关闭")
+                    Text(text = "Close")
                 }
             },
         )
@@ -93,15 +93,15 @@ private fun UiAutomationAlreadyRegisteredDlg() {
             onDismissRequest = {
                 uiAutomationOccupiedFlow.value = false
             },
-            title = { Text(text = "启动失败") },
+            title = { Text(text = "Startup failed") },
             text = {
-                Text(text = "自动化服务启动失败，检测到自动化服务已被其他应用占用，请先关闭已有服务后重试\n\n注：自动化服务只能同时运行一个，请确保没有其他应用或测试框架占用后再启动")
+                Text(text = "Failed to start the automation service: it's already occupied by another app. Please close the existing service and try again\n\nNote: only one automation service can run at a time — make sure no other app or test framework is using it before starting")
             },
             confirmButton = {
                 TextButton(onClick = {
                     uiAutomationOccupiedFlow.value = false
                 }) {
-                    Text(text = "我知道了")
+                    Text(text = "Got it")
                 }
             }
         )

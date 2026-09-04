@@ -30,7 +30,7 @@ object BarUtils {
     @WorkerThread
     fun checkStatusBarVisible(): Boolean? {
         val r = if (AndroidTarget.R) {
-            // 后台/小窗模式下依然可判断
+            // Still detectable in background/small-window mode
             app.windowManager.currentWindowMetrics.windowInsets.getInsets(WindowInsets.Type.statusBars()).top > 0
         } else {
             null

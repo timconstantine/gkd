@@ -11,7 +11,7 @@ const val ISSUES_URL = "${REPOSITORY_URL}/issues"
 
 const val HOME_PAGE_URL = "https://gkd.li"
 
-const val EMPTY_RULE_TIP = "暂无规则"
+const val EMPTY_RULE_TIP = "No rules yet"
 
 object ShortUrlSet {
     const val URL1 = "https://gkd.li?r=1"

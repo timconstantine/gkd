@@ -50,23 +50,23 @@ class StatusService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
             META.appName
         }
         return if (PermissionStates.appOpsRestrictedFlow.value) {
-            Triple(title, "权限受限，请重新授权", "gkd://page/3")
+            Triple(title, "Permission restricted, please re-authorize", "gkd://page/3")
         } else if (privilegeServiceStatus == PrivilegeServiceStatus.DisconnectedDesired) {
-            Triple(title, "特权服务连接已中断，请检查", "gkd://page/4")
+            Triple(title, "Privileged service connection interrupted, please check", "gkd://page/4")
         } else if (!automationRunning && !abRunning) {
             if (currentAppUseA11y) {
                 val text = if (a11yServiceEnabledFlow.value) {
-                    "无障碍发生故障"
+                    "Accessibility failed"
                 } else if (PermissionStates.writeSecureSettings.updateAndGet()) {
                     if (store.enableAutomator && store.enableBlockA11yAppList && a11yPartDisabledFlow.value) {
                         val name =
                             appInfoMapFlow.value[topAppIdFlow.value]?.name ?: topAppIdFlow.value
-                        "局部关闭 · $name"
+                        "Partially disabled · $name"
                     } else {
-                        "无障碍已关闭"
+                        "Accessibility disabled"
                     }
                 } else {
-                    "无障碍未授权"
+                    "Accessibility not authorized"
                 }
                 Triple(title, text, defaultStatusNotification.uri)
             } else {
@@ -74,14 +74,14 @@ class StatusService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
                     if (store.enableAutomator && store.enableBlockA11yAppList && a11yPartDisabledFlow.value) {
                         val name =
                             appInfoMapFlow.value[topAppIdFlow.value]?.name ?: topAppIdFlow.value
-                        "局部关闭 · $name"
+                        "Partially disabled · $name"
                     } else {
-                        "自动化已关闭"
+                        "Automation disabled"
                     }
                 Triple(title, text, defaultStatusNotification.uri)
             }
         } else if (!store.enableMatch) {
-            Triple(title, "暂停规则匹配", "gkd://page?tab=1")
+            Triple(title, "Rule matching paused", "gkd://page?tab=1")
         } else if (store.useCustomNotifText) {
             Triple(
                 title,
@@ -96,7 +96,7 @@ class StatusService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
     init {
         useAliveFlow(isRunning)
         useAliveToast(
-            name = "常驻通知",
+            name = "Persistent notification",
             delayMillis = if (app.justStarted) 1000 else 0,
         )
         onCreated {
@@ -162,8 +162,8 @@ class StatusService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
         private var lastAutoStart = 0L
         fun autoStart() {
             if (System.currentTimeMillis() - lastAutoStart < 1000) return
-            // 重启自动打开通知栏状态服务
-            // 需要已有服务或前台才能自主启动，否则报错 startForegroundService() not allowed due to mAllowStartForeground false
+            // Automatically restart the notification bar status service
+            // Requires an existing service or foreground to self-start; otherwise it errors with startForegroundService() not allowed due to mAllowStartForeground false
             if (needRestart) {
                 start()
                 lastAutoStart = System.currentTimeMillis()

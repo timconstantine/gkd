@@ -20,9 +20,9 @@ import kotlinx.coroutines.withContext
 import li.gkd.app.util.throttle
 import kotlin.coroutines.resume
 
-private const val DEFAULT_MESSAGE_CONFIRM_TEXT = "我知道了"
-private const val DEFAULT_CONFIRM_TEXT = "确定"
-private const val DEFAULT_DISMISS_TEXT = "取消"
+private const val DEFAULT_MESSAGE_CONFIRM_TEXT = "Got it"
+private const val DEFAULT_CONFIRM_TEXT = "Confirm"
+private const val DEFAULT_DISMISS_TEXT = "Cancel"
 
 data class DialogRequest(
     val title: String,

@@ -25,14 +25,14 @@ class AdvancedVm : BaseViewModel() {
     fun saveHttpServerPort(value: String): Boolean {
         val newPort = value.toIntOrNull()
         if (newPort == null || newPort !in 1000..65535) {
-            toast("请输入 1000-65535 的整数")
+            toast("Enter an integer between 1000 and 65535")
             return false
         }
         if (newPort == storeFlow.value.httpServerPort) {
             return true
         }
         storeFlow.update { it.copy(httpServerPort = newPort) }
-        toast("更新成功")
+        toast("Updated successfully")
         return true
     }
 

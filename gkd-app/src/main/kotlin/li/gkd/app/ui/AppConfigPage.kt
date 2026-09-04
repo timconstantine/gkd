@@ -117,20 +117,20 @@ fun AppConfigPage(route: AppConfigRoute) {
     val updateSelected: (Boolean?) -> Unit = { enabled ->
         scope.launchTry {
             val action = when (enabled) {
-                false -> "关闭"
-                true -> "启用"
-                null -> "重置开关至默认值"
+                false -> "Disable"
+                true -> "Enable"
+                null -> "Reset to default"
             }
             if (!mainVm.dialogRequests.confirm(
-                title = "操作提示",
-                text = "是否将所选规则全部${action}?\n\n注: 也可在「订阅-规则类别」操作",
+                title = "Action notice",
+                text = "Apply \"$action\" to all selected rules?\n\nNote: this can also be done under \"Subscription - Rule categories\"",
             )) return@launchTry
             val changedSize = vm.updateSelectedEnabled(selectedDataSet, enabled)
             if (changedSize > 0) {
-                val result = if (enabled == null) "重置" else if (enabled) "已启用" else "已关闭"
-                toast("$result $changedSize 规则")
+                val result = if (enabled == null) "Reset" else if (enabled) "Enabled" else "Disabled"
+                toast("$result $changedSize rule(s)")
             } else {
-                toast(if (enabled == null) "无可重置规则" else "无规则被改变")
+                toast(if (enabled == null) "No rules to reset" else "No rules were changed")
             }
         }
     }
@@ -239,7 +239,7 @@ fun AppConfigPage(route: AppConfigRoute) {
                             if (isSelectedMode) {
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = "全选")
+                                        Text(text = "Select all")
                                     },
                                     onClick = {
                                         expanded = false
@@ -248,7 +248,7 @@ fun AppConfigPage(route: AppConfigRoute) {
                                 )
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = "反选")
+                                        Text(text = "Invert selection")
                                     },
                                     onClick = {
                                         expanded = false
@@ -256,7 +256,7 @@ fun AppConfigPage(route: AppConfigRoute) {
                                     }
                                 )
                             } else {
-                                MenuGroupCard(inTop = true, title = "排序") {
+                                MenuGroupCard(inTop = true, title = "Sort") {
                                     val handleItem: (RuleSortOption) -> Unit =
                                         throttle(vm::setRuleSortType)
                                     RuleSortOption.objects.forEach { s ->
@@ -269,9 +269,9 @@ fun AppConfigPage(route: AppConfigRoute) {
                                         )
                                     }
                                 }
-                                MenuGroupCard(title = "筛选") {
+                                MenuGroupCard(title = "Filter") {
                                     MenuItemCheckbox(
-                                        text = "未启用",
+                                        text = "Not enabled",
                                         checked = store.showDisabledRule,
                                         onClick = vm::toggleShowDisabledRule,
                                     )
@@ -295,7 +295,7 @@ fun AppConfigPage(route: AppConfigRoute) {
                     )
                 },
                 imageVector = PerfIcon.Add,
-                contentDescription = "添加规则"
+                contentDescription = "Add rule"
             )
         },
     ) { contentPadding ->
@@ -409,11 +409,11 @@ fun AppConfigPage(route: AppConfigRoute) {
                 if (groupSize == 0 && !firstLoading) {
                     EmptyText(
                         text = if (loadError != null) {
-                            loadError.message ?: "数据加载失败"
+                            loadError.message ?: "Failed to load data"
                         } else if (store.showDisabledRule) {
-                            "暂无数据"
+                            "No data yet"
                         } else {
-                            "暂无数据，或修改筛选"
+                            "No data yet, or adjust the filter"
                         }
                     )
                 }

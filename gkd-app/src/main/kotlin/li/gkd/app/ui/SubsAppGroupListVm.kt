@@ -61,7 +61,7 @@ class SubsAppGroupListVm(val route: SubsAppGroupListRoute) : BaseViewModel() {
     ) = SubsAppGroupListUiState(
         subscription = rawSubscription,
         app = rawSubscription.apps.find { it.id == route.appId }
-            ?: error("订阅应用不存在: ${route.appId}"),
+            ?: error("Subscription app does not exist: ${route.appId}"),
         configs = configs,
     )
 
@@ -82,7 +82,7 @@ class SubsAppGroupListVm(val route: SubsAppGroupListRoute) : BaseViewModel() {
 
     suspend fun buildSelectedGroupsText(selectedKeys: Set<Int>): String =
         withContext(Dispatchers.Default) {
-            val app = uiState.value.value?.app ?: error("订阅应用尚未加载")
+            val app = uiState.value.value?.app ?: error("The subscription app hasn't loaded yet")
             toJson5String(
                 app.copy(
                     groups = app.groups.filter { it.key in selectedKeys },
@@ -91,7 +91,7 @@ class SubsAppGroupListVm(val route: SubsAppGroupListRoute) : BaseViewModel() {
         }
 
     suspend fun updateSelectedEnabled(selectedKeys: Set<Int>, enabled: Boolean?): Int {
-        val app = uiState.value.value?.app ?: error("订阅应用尚未加载")
+        val app = uiState.value.value?.app ?: error("The subscription app hasn't loaded yet")
         val selectedGroups = app.groups
             .filter { it.key in selectedKeys }
             .map { it.toGroupState(route.subsItemId, route.appId) }

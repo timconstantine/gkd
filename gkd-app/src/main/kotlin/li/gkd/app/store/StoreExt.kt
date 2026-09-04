@@ -83,9 +83,9 @@ fun initStore() = appScope.launchTry(Dispatchers.IO) {
 
 fun switchStoreEnableMatch() {
     if (storeFlow.value.enableMatch) {
-        toast("暂停规则匹配")
+        toast("Rule matching paused")
     } else {
-        toast("开启规则匹配")
+        toast("Rule matching enabled")
     }
     storeFlow.update { it.copy(enableMatch = !it.enableMatch) }
 }

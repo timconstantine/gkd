@@ -82,7 +82,7 @@ fun ActivityLogPage() {
             },
             title = {
                 Text(
-                    text = "界面日志",
+                    text = "Activity log",
                     modifier = Modifier.noRippleClickable(onClick = pageScrollState::resetScroll),
                 )
             },
@@ -93,12 +93,12 @@ fun ActivityLogPage() {
                         onClick = throttle {
                             scope.launchTry {
                                 if (!mainVm.dialogRequests.confirm(
-                                    title = "删除日志",
-                                    text = "确定删除所有界面日志?",
+                                    title = "Delete log",
+                                    text = "Delete all activity log entries?",
                                     error = true,
                                 )) return@launchTry
                                 vm.deleteAll()
-                                toast("删除成功")
+                                toast("Deleted successfully")
                             }
                         }
                     )
@@ -139,7 +139,7 @@ fun ActivityLogPage() {
             item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                 Spacer(modifier = Modifier.height(EmptyHeight))
                 if (logCount == 0 && list.loadState.refresh !is LoadState.Loading) {
-                    EmptyText(text = "暂无数据")
+                    EmptyText(text = "No data yet")
                 }
             }
         }

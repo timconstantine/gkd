@@ -27,7 +27,7 @@ fun <T : Any> SubscriptionPageContent(
     when (val current = state) {
         Loadable.Loading -> SubscriptionStatePage()
         is Loadable.Failure -> SubscriptionStatePage(
-            message = current.cause.message ?: "订阅加载失败",
+            message = current.cause.message ?: "Failed to load the subscription",
         )
 
         is Loadable.Ready -> content(current.value)
@@ -46,7 +46,7 @@ private fun SubscriptionStatePage(message: String? = null) {
                         onClick = mainVm::popPage,
                     )
                 },
-                title = { Text("订阅") },
+                title = { Text("Subscription") },
             )
         },
     ) { contentPadding ->

@@ -42,7 +42,7 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
                 subscription.globalGroups
             }
             groups.find { it.key == groupKey }
-                ?: error("订阅规则不存在: $groupKey")
+                ?: error("Subscription rule does not exist: $groupKey")
         } else {
             null
         }
@@ -60,7 +60,7 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
     }
 
     private fun requireUiState(): UpsertRuleGroupUiState =
-        uiState.value.value ?: error("订阅尚未加载: ${route.subsId}")
+        uiState.value.value ?: error("The subscription hasn't loaded yet: ${route.subsId}")
 
     fun hasTextChanged(): Boolean {
         val state = uiState.value.value ?: return false
@@ -78,15 +78,15 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
         val initialGroup = state.initialGroup
         val text = textFlow.value ?: state.initialText
         if (text.isBlank()) {
-            error("规则不能为空")
+            error("The rule cannot be empty")
         }
         if (text == state.initialText) {
-            toast("规则无变动")
+            toast("No changes to the rule")
             return null
         }
         val input = SubscriptionInputParser.parse(text, groupKey ?: 0)
         if (input.jsonObject == initialGroup?.cacheJsonObject) {
-            toast("规则无变动")
+            toast("No changes to the rule")
             return null
         }
         var addedAppId: String? = null
@@ -94,7 +94,7 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
             if (appId != null) {
                 val newGroup = input.parseAppGroup(appId).copy(key = groupKey)
                 if (newGroup == initialGroup) {
-                    toast("规则无变动")
+                    toast("No changes to the rule")
                     return null
                 }
                 val originalGroup = requireNotNull(
@@ -113,7 +113,7 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
             } else {
                 val newGroup = input.parseGlobalGroup().copy(key = groupKey)
                 if (newGroup == initialGroup) {
-                    toast("规则无变动")
+                    toast("No changes to the rule")
                     return null
                 }
                 val originalGroup = requireNotNull(
@@ -152,9 +152,9 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
             }
         }
         if (isEdit) {
-            toast("更新成功")
+            toast("Updated successfully")
         } else {
-            toast("添加成功")
+            toast("Added successfully")
         }
         return addedAppId
     }
