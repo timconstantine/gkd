@@ -16,7 +16,9 @@ import li.gkd.app.data.ExcludeData
 import li.gkd.app.data.RawSubscription
 import li.gkd.db.SubsConfig
 import li.gkd.app.data.edit
+import li.gkd.app.data.toRuleEditFormOrNull
 import li.gkd.db.Db
+import li.gkd.app.ui.RuleBuilderRoute
 import li.gkd.app.ui.SubsGlobalGroupExcludeRoute
 import li.gkd.app.ui.UpsertRuleGroupRoute
 import li.gkd.app.ui.getGlobalGroupChecked
@@ -361,6 +363,7 @@ class RuleGroupState(
         val showSubs = useSubs(showGroupState?.subsId)
         val showGroup = useSubsGroup(showSubs, showGroupState?.groupKey, showGroupState?.appId)
         if (showGroupState?.groupKey != null && showSubs != null && showGroup != null) {
+            val group = showGroup
             val subsConfigFlow = remember(showGroupState) {
                 showGroupState.querySubsConfigFlow()
             }
@@ -370,18 +373,30 @@ class RuleGroupState(
             }
             RuleGroupDialog(
                 subs = showSubs,
-                group = showGroup,
+                group = group,
                 appId = showGroupState.appId,
                 onDismissRequest = dismissGroupShow,
                 onClickEdit = {
                     dismissGroupShow()
-                    mainVm.navigatePage(
-                        UpsertRuleGroupRoute(
-                            subsId = showGroupState.subsId,
-                            groupKey = showGroupState.groupKey,
-                            appId = showGroupState.appId,
+                    val groupKey = requireNotNull(showGroupState.groupKey)
+                    if (group.toRuleEditFormOrNull(showGroupState.appId) != null) {
+                        mainVm.navigatePage(
+                            RuleBuilderRoute(
+                                subsId = showGroupState.subsId,
+                                appId = showGroupState.appId,
+                                isGlobal = group is RawSubscription.RawGlobalGroup,
+                                groupKey = groupKey,
+                            )
                         )
-                    )
+                    } else {
+                        mainVm.navigatePage(
+                            UpsertRuleGroupRoute(
+                                subsId = showGroupState.subsId,
+                                groupKey = groupKey,
+                                appId = showGroupState.appId,
+                            )
+                        )
+                    }
                 },
                 onClickEditExclude = {
                     openExcludeEditor(showGroupState)

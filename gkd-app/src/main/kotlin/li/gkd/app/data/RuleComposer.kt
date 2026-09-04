@@ -109,3 +109,120 @@ data class RuleFormState(
     val fastQuery: Boolean = false,
     val matchRoot: Boolean = false,
 )
+
+/**
+ * A [RuleFormState] recovered from an existing group, plus the appId a
+ * global rule's activity scope (if any) is actually attached to — read back
+ * from the rule's own `apps` entry rather than whichever page the edit was
+ * opened from, since that's what a save has to reproduce.
+ */
+data class RuleEditForm(
+    val formState: RuleFormState,
+    val appId: String?,
+)
+
+/**
+ * Converts an existing group's single rule into the form [RuleBuilderPage]
+ * can edit, or null if the group uses anything the guided form doesn't have
+ * a control for — more than one rule, alternate/exclude selectors, a
+ * swipe/position action, more than one activity/app scope, priority
+ * windows, and so on. Editing then falls back to the JSON5 editor instead,
+ * so nothing the group actually relies on gets silently dropped on save.
+ *
+ * [contextAppId] is the owning app for an app rule (required there);
+ * ignored for a global rule.
+ */
+fun RawSubscription.RawGroupProps.toRuleEditFormOrNull(contextAppId: String?): RuleEditForm? {
+    if (enable != null) return null
+    if (!scopeKeys.isNullOrEmpty()) return null
+    if (!hasOnlyGuidedFormGroupFields()) return null
+    if (rules.size != 1) return null
+    val rule = rules.single()
+    if (rule.key != null) return null
+    if (!rule.name.isNullOrBlank()) return null
+    if (!rule.preKeys.isNullOrEmpty()) return null
+    if (rule.position != null || rule.swipeArg != null) return null
+    if (!rule.excludeMatches.isNullOrEmpty()) return null
+    if (!rule.excludeAllMatches.isNullOrEmpty()) return null
+    if (!rule.anyMatches.isNullOrEmpty()) return null
+    if (!rule.hasOnlyGuidedFormRuleFields()) return null
+    val matches = rule.matches
+    if (matches == null || matches.size != 1) return null
+    val selector = matches.single()
+    val action = rule.action
+    if (action == "swipe") return null
+
+    var scopedAppId: String? = null
+    var activityId: String? = null
+    when (this) {
+        is RawSubscription.RawGlobalGroup -> {
+            if (!this.apps.isNullOrEmpty()) return null
+            if (this.disableIfAppGroupMatch != null) return null
+            val globalRule = rule as RawSubscription.RawGlobalRule
+            if (globalRule.matchAnyApp != null) return null
+            if (globalRule.matchSystemApp != null) return null
+            if (globalRule.matchLauncher != null) return null
+            val ruleApps = globalRule.apps
+            if (!ruleApps.isNullOrEmpty()) {
+                if (ruleApps.size != 1) return null
+                val app = ruleApps.single()
+                if (app.enable != null) return null
+                if (app.versionCode != null || app.versionName != null) return null
+                if (!app.excludeActivityIds.isNullOrEmpty()) return null
+                val ids = app.activityIds
+                if (ids != null && ids.size > 1) return null
+                scopedAppId = app.id
+                activityId = ids?.singleOrNull()
+            }
+        }
+
+        is RawSubscription.RawAppGroup -> {
+            if (this.versionCode != null || this.versionName != null) return null
+            if (!this.excludeActivityIds.isNullOrEmpty()) return null
+            if (!this.activityIds.isNullOrEmpty()) return null
+            if (this.ignoreGlobalGroupMatch != null) return null
+            val appRule = rule as RawSubscription.RawAppRule
+            if (appRule.versionCode != null || appRule.versionName != null) return null
+            if (!appRule.excludeActivityIds.isNullOrEmpty()) return null
+            val ids = appRule.activityIds
+            if (ids != null && ids.size > 1) return null
+            activityId = ids?.singleOrNull()
+            scopedAppId = contextAppId ?: return null
+        }
+    }
+
+    val formState = RuleFormState(
+        name = name,
+        desc = desc.orEmpty(),
+        selector = selector,
+        action = action ?: "click",
+        scopeToActivity = activityId != null,
+        activityId = activityId,
+        matchDelay = rule.matchDelay?.toString().orEmpty(),
+        matchTime = rule.matchTime?.toString().orEmpty(),
+        actionCd = rule.actionCd?.toString().orEmpty(),
+        actionDelay = rule.actionDelay?.toString().orEmpty(),
+        actionMaximum = rule.actionMaximum?.toString().orEmpty(),
+        resetMatch = rule.resetMatch,
+        fastQuery = rule.fastQuery ?: false,
+        matchRoot = rule.matchRoot ?: false,
+    )
+    return RuleEditForm(formState, scopedAppId)
+}
+
+// Guided-form-produced groups only ever set these fields on the rule, never
+// on the group itself — so a group carrying any of them wasn't (only) built
+// by the guided form, and it isn't safe to fully round-trip through it.
+private fun RawSubscription.RawGroupProps.hasOnlyGuidedFormGroupFields(): Boolean =
+    actionCd == null && actionDelay == null && fastQuery == null && matchRoot == null &&
+        matchDelay == null && matchTime == null && actionMaximum == null && resetMatch == null &&
+        actionCdKey == null && actionMaximumKey == null && order == null && forcedTime == null &&
+        snapshotUrls.isNullOrEmpty() && excludeSnapshotUrls.isNullOrEmpty() && exampleUrls.isNullOrEmpty() &&
+        priorityTime == null && priorityActionMaximum == null
+
+// The remaining RawCommonProps fields the guided form's Advanced section
+// doesn't expose at all (rule-level).
+private fun RawSubscription.RawRuleProps.hasOnlyGuidedFormRuleFields(): Boolean =
+    actionCdKey == null && actionMaximumKey == null && order == null && forcedTime == null &&
+        snapshotUrls.isNullOrEmpty() && excludeSnapshotUrls.isNullOrEmpty() && exampleUrls.isNullOrEmpty() &&
+        priorityTime == null && priorityActionMaximum == null

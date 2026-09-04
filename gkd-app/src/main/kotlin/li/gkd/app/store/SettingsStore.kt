@@ -59,6 +59,7 @@ data class SettingsStore(
     val subsExcludeAppGroupType: Int = appGroupType,
     val showDisabledRule: Boolean = true,
     val defaultCaptureTrigger: Int = CaptureTriggerOption.FloatingButton.value,
+    val installedDefaultSubs: Boolean = false,
 ) {
     val useA11y get() = automatorMode == AutomatorModeOption.A11yMode.value
     val useAutomation get() = automatorMode == AutomatorModeOption.AutomationMode.value

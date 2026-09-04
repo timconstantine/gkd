@@ -9,19 +9,23 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.WindowManager
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.animation.doOnEnd
@@ -111,6 +115,26 @@ private class ShareContext {
     }
 }
 
+@Composable
+private fun TrashDropTarget(active: Boolean) {
+    val alpha = 0.85f
+    Box(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .background(
+                (if (active) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceVariant)
+                    .copy(alpha = alpha),
+            )
+            .size(if (active) 52.dp else 44.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        PerfIcon(
+            imageVector = PerfIcon.Delete,
+            tint = if (active) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
 abstract class OverlayWindowService(
     val positionKey: String,
 ) : LifecycleService(), SavedStateRegistryOwner, OnSimpleLife by DefaultSimpleLifeImpl() {
@@ -170,6 +194,15 @@ abstract class OverlayWindowService(
 
     open fun onLongClickView() {}
 
+    // Opt-in per subclass: shows a trash target at the bottom of the screen
+    // once a drag clearly starts, and dismisses the overlay via
+    // [onDismissView] instead of moving/clicking it when the drag ends over
+    // that target — a way to close the overlay without it having to
+    // interpret the drag as a tap.
+    open val dragToDismissEnabled: Boolean = false
+
+    open fun onDismissView() = stopSelf()
+
     val view by lazy {
         ComposeView(this).apply {
             setViewTreeSavedStateRegistryOwner(this@OverlayWindowService)
@@ -182,6 +215,26 @@ abstract class OverlayWindowService(
                         },
                     ) {
                         ComposeContent()
+                    }
+                }
+            }
+        }
+    }
+
+    // Visible for the whole drag (so its on-screen position/size are always
+    // valid to measure), just invisible until [trashVisible] turns it on —
+    // avoids a race against layout on the very first drag.
+    private var trashVisible by mutableStateOf(false)
+    private var trashHovering by mutableStateOf(false)
+
+    private val trashView by lazy {
+        ComposeView(this).apply {
+            setViewTreeSavedStateRegistryOwner(this@OverlayWindowService)
+            setViewTreeLifecycleOwner(this@OverlayWindowService)
+            setContent {
+                AppTheme(invertedTheme = true) {
+                    Box(modifier = Modifier.graphicsLayer { alpha = if (trashVisible) 1f else 0f }) {
+                        TrashDropTarget(active = trashHovering)
                     }
                 }
             }
@@ -304,6 +357,18 @@ abstract class OverlayWindowService(
                 view.viewTreeObserver.addOnGlobalLayoutListener { launch { resizeFlow.emit(Unit) } }
                 resizeFlow.debounce(100.milliseconds).collect { fixLimitXy() }
             }
+            // A touch-forgiveness margin around the trash target's own
+            // bounds, so the button doesn't need to land pixel-perfectly on
+            // it to count as a drop.
+            val trashForgiveness = 16.dp.px.toInt()
+            val updateTrashHover = {
+                val loc = IntArray(2)
+                trashView.getLocationOnScreen(loc)
+                val buttonCenterX = layoutParams.x + view.width / 2
+                val buttonCenterY = layoutParams.y + view.height / 2
+                trashHovering = buttonCenterX in (loc[0] - trashForgiveness)..(loc[0] + trashView.width + trashForgiveness) &&
+                        buttonCenterY in (loc[1] - trashForgiveness)..(loc[1] + trashView.height + trashForgiveness)
+            }
             var downXy: Pair<Float, Float>? = null
             var longClickJob: kotlinx.coroutines.Job? = null
             @SuppressLint("ClickableViewAccessibility")
@@ -339,22 +404,33 @@ abstract class OverlayWindowService(
                             )
                             positionFlow.value = listOf(layoutParams.x, layoutParams.y)
                             app.windowManager.updateViewLayout(view, layoutParams)
+                            val maxBreakLongOffset = 10
+                            val clearlyDragging = abs(dx) > maxBreakLongOffset || abs(dy) > maxBreakLongOffset
                             longClickJob?.let {
-                                val maxBreakLongOffset = 10
-                                if (abs(dx) > maxBreakLongOffset || abs(dy) > maxBreakLongOffset) {
+                                if (clearlyDragging) {
                                     longClickJob?.cancel()
                                     longClickJob = null
                                 }
+                            }
+                            if (dragToDismissEnabled && clearlyDragging) {
+                                trashVisible = true
+                                updateTrashHover()
                             }
                         }
                         true
                     }
 
                     MotionEvent.ACTION_UP -> {
-                        val gapTime = event.eventTime - event.downTime
-                        if (gapTime <= ViewConfiguration.getTapTimeout()) {
-                            onClickView()
+                        if (dragToDismissEnabled && trashVisible && trashHovering) {
+                            onDismissView()
+                        } else {
+                            val gapTime = event.eventTime - event.downTime
+                            if (gapTime <= ViewConfiguration.getTapTimeout()) {
+                                onClickView()
+                            }
                         }
+                        trashVisible = false
+                        trashHovering = false
                         downXy = null
                         longClickJob = null
                         true
@@ -364,7 +440,28 @@ abstract class OverlayWindowService(
                 }
             }
             app.windowManager.addView(view, layoutParams)
+            if (dragToDismissEnabled) {
+                val trashLayoutParams = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    PixelFormat.TRANSLUCENT
+                ).apply {
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                    y = (48.dp.px).toInt()
+                }
+                app.windowManager.addView(trashView, trashLayoutParams)
+            }
         }
-        onDestroyed { app.windowManager.removeView(view) }
+        onDestroyed {
+            app.windowManager.removeView(view)
+            if (dragToDismissEnabled) {
+                app.windowManager.removeView(trashView)
+            }
+        }
     }
 }

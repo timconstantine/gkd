@@ -21,12 +21,17 @@ import li.gkd.app.util.stopServiceByClass
 class ButtonService : OverlayWindowService(
     positionKey = "button"
 ) {
+    override val dragToDismissEnabled = true
+
     override fun onClickView() {
         if (isOverlayContentHidden) return
         scope.launchTry {
             withAllOverlaysHidden {
                 SnapshotCapture.capture()
             }
+            // A one-shot button: once it's done its job, get out of the way
+            // instead of sitting on screen waiting for another tap.
+            stopSelf()
         }
     }
 

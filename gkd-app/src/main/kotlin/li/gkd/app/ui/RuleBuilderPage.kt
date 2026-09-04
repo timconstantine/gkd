@@ -1,7 +1,6 @@
 package li.gkd.app.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,13 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,33 +39,65 @@ import li.gkd.app.ui.component.TextSwitch
 import li.gkd.app.ui.share.LocalMainViewModel
 import li.gkd.app.ui.style.itemHorizontalPadding
 import li.gkd.app.ui.style.scaffoldPadding
-import li.gkd.app.ui.style.titleItemPadding
 import li.gkd.app.util.launchAsFn
 import li.gkd.app.util.throttle
 
-private data class ActionOption(val value: String, val label: String)
+private data class ActionOption(val value: String, val label: String, val description: String)
 
 // clickCenter/longClickCenter fall back to the node's own bounds when no
 // custom position is set, and swipe needs a start/end drag the guided form
 // doesn't collect — so those two are omitted here; both are still reachable
 // through the JSON5 editor for anyone who needs them.
 private val actionOptions = listOf(
-    ActionOption("click", "Click"),
-    ActionOption("longClick", "Long click"),
-    ActionOption("clickNode", "Click (element only)"),
-    ActionOption("longClickNode", "Long click (element only)"),
-    ActionOption("clickCenter", "Click (screen center point)"),
-    ActionOption("longClickCenter", "Long click (screen center point)"),
-    ActionOption("back", "Press back"),
-    ActionOption("none", "Do nothing (match only)"),
+    ActionOption(
+        "click", "Click",
+        "Taps the element, or its center point if it isn't directly tappable.",
+    ),
+    ActionOption(
+        "longClick", "Long click",
+        "Long-presses the element, or its center point if it isn't directly tappable.",
+    ),
+    ActionOption(
+        "clickNode", "Click (element only)",
+        "Taps the element directly; does nothing if it isn't tappable.",
+    ),
+    ActionOption(
+        "longClickNode", "Long click (element only)",
+        "Long-presses the element directly; does nothing if it isn't tappable.",
+    ),
+    ActionOption(
+        "clickCenter", "Click (center point)",
+        "Taps the exact center point of the matched element's bounds.",
+    ),
+    ActionOption(
+        "longClickCenter", "Long click (center point)",
+        "Long-presses the exact center point of the matched element's bounds.",
+    ),
+    ActionOption(
+        "back", "Press back",
+        "Presses the device back button instead of tapping anything.",
+    ),
+    ActionOption(
+        "none", "Do nothing",
+        "Takes no action — just records that the rule matched.",
+    ),
 )
 
-private data class ResetMatchOption(val value: String?, val label: String)
+private data class ResetMatchOption(val value: String?, val label: String, val description: String)
 
 private val resetMatchOptions = listOf(
-    ResetMatchOption(null, "When the screen changes"),
-    ResetMatchOption("match", "When this rule matches"),
-    ResetMatchOption("app", "When the app changes"),
+    ResetMatchOption(
+        null, "On screen change",
+        "Starts the trigger count over each time you switch to a different screen.",
+    ),
+    ResetMatchOption(
+        "match", "On every match",
+        "Starts the trigger count over every time this rule matches, not just on screen change.",
+    ),
+    ResetMatchOption(
+        "app", "On app change",
+        "Starts the trigger count over only when you leave this app entirely.",
+    ),
 )
 
 @Composable
@@ -88,7 +122,9 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             return@launchAsFn
         }
         errorText = null
-        if (route.isGlobal) {
+        if (vm.isEdit) {
+            mainVm.popPage()
+        } else if (route.isGlobal) {
             mainVm.navigatePage(
                 SubsGlobalGroupListRoute(subsItemId = route.subsId),
                 replaced = true,
@@ -106,7 +142,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             navigationIcon = {
                 PerfIconButton(imageVector = PerfIcon.ArrowBack, onClick = mainVm::popPage)
             },
-            title = { Text(text = "Build a rule") },
+            title = { Text(text = if (vm.isEdit) "Edit rule" else "Build a rule") },
         )
     }) { contentPadding ->
         Column(
@@ -114,7 +150,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 .scaffoldPadding(contentPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = itemHorizontalPadding, vertical = 8.dp),
+                .padding(horizontal = itemHorizontalPadding, vertical = 4.dp),
         ) {
             OutlinedTextField(
                 value = form.name,
@@ -124,14 +160,14 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 supportingText = { Text(text = "Shown in your rule list") },
                 singleLine = true,
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = form.desc,
                 onValueChange = vm::setDesc,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = "Description (optional)") },
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = form.selector,
                 onValueChange = vm::setSelector,
@@ -143,29 +179,17 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 isError = selectorError != null,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Action", style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = "What happens when the selector matches",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                actionOptions.take(2).forEach { option ->
-                    FilterChip(
-                        selected = form.action == option.value,
-                        onClick = { vm.setAction(option.value) },
-                        label = { Text(text = option.label) },
-                    )
-                }
+            SectionLabel(text = "Action")
+            actionOptions.take(2).forEach { option ->
+                OptionRow(
+                    title = option.label,
+                    description = option.description,
+                    selected = form.action == option.value,
+                    onClick = { vm.setAction(option.value) },
+                )
             }
-            Spacer(modifier = Modifier.height(8.dp))
 
-            if (!route.activityId.isNullOrBlank()) {
+            if (!form.activityId.isNullOrBlank()) {
                 TextSwitch(
                     paddingDisabled = true,
                     title = "Only on this screen",
@@ -175,43 +199,28 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = if (advancedExpanded) "Hide advanced options" else "Show advanced options",
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = { advancedExpanded = !advancedExpanded })
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 6.dp),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
             )
 
             if (advancedExpanded) {
-                Text(
-                    text = "Action (more options)",
-                    modifier = Modifier.titleItemPadding(showTop = false),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    actionOptions.drop(2).forEach { option ->
-                        FilterChip(
-                            selected = form.action == option.value,
-                            onClick = { vm.setAction(option.value) },
-                            label = { Text(text = option.label) },
-                        )
-                    }
+                SectionLabel(text = "More actions", showTop = false)
+                actionOptions.drop(2).forEach { option ->
+                    OptionRow(
+                        title = option.label,
+                        description = option.description,
+                        selected = form.action == option.value,
+                        onClick = { vm.setAction(option.value) },
+                    )
                 }
 
-                Text(
-                    text = "Timing",
-                    modifier = Modifier.titleItemPadding(),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                SectionLabel(text = "Timing")
                 NumberField(
                     value = form.matchDelay,
                     onValueChange = vm::setMatchDelay,
@@ -243,31 +252,17 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                     helper = "Stop acting after this many successful triggers",
                 )
 
-                Text(
-                    text = "Reset trigger count",
-                    modifier = Modifier.titleItemPadding(),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    resetMatchOptions.forEach { option ->
-                        FilterChip(
-                            selected = form.resetMatch == option.value,
-                            onClick = { vm.setResetMatch(option.value) },
-                            label = { Text(text = option.label) },
-                        )
-                    }
+                SectionLabel(text = "Reset trigger count")
+                resetMatchOptions.forEach { option ->
+                    OptionRow(
+                        title = option.label,
+                        description = option.description,
+                        selected = form.resetMatch == option.value,
+                        onClick = { vm.setResetMatch(option.value) },
+                    )
                 }
 
-                Text(
-                    text = "Matching",
-                    modifier = Modifier.titleItemPadding(),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                SectionLabel(text = "Matching")
                 TextSwitch(
                     paddingDisabled = true,
                     title = "Fast query",
@@ -286,7 +281,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
 
             val currentError = errorText
             if (currentError != null) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = currentError,
                     color = MaterialTheme.colorScheme.error,
@@ -294,15 +289,62 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Button(
                 onClick = onSave,
                 enabled = canSave,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(text = if (saving) "Saving…" else "Save rule")
+                Text(text = if (saving) "Saving…" else if (vm.isEdit) "Save changes" else "Save rule")
             }
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+// Vertical-only section spacing — the page's own Column already applies
+// horizontal padding, so titleItemPadding()'s matching horizontal padding
+// would just double up here.
+@Composable
+private fun SectionLabel(text: String, showTop: Boolean = true) {
+    Text(
+        text = text,
+        modifier = Modifier.padding(top = if (showTop) 12.dp else 0.dp, bottom = 2.dp),
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
+}
+
+/**
+ * A compact, single-line-title-plus-one-sentence-caption radio row — used
+ * for every "pick one" choice in this form instead of a section header (title
+ * + subtitle + spacer) followed by a separate chip row, so each option's own
+ * description carries the explanation instead of duplicating it above.
+ */
+@Composable
+private fun OptionRow(
+    title: String,
+    description: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.small)
+            .clickable(onClick = throttle(onClick))
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Spacer(modifier = Modifier.width(4.dp))
+        Column {
+            Text(text = title, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -323,5 +365,5 @@ private fun NumberField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
     )
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 }
