@@ -16,10 +16,15 @@
 // disabled by default — enable only the ones you want. Use GKD's snapshot
 // feature to debug a rule against a specific app screen, and please report
 // issues at https://github.com/timconstantine/gkd/issues.
+//
+// MAINTAINERS: bump `version` (below) on every content change. GKD's update
+// check is `remoteVersion <= localVersion => no update` (SubscriptionStore.kt)
+// — an unchanged version number means already-subscribed users never see
+// your edits, no matter how many times this file is pushed.
 {
   id: 20260904,
   name: 'English UI Auto-Skip Rules (unofficial)',
-  version: 1,
+  version: 2,
   author: 'timconstantine',
   checkUpdateUrl: 'https://raw.githubusercontent.com/timconstantine/gkd/main/subscriptions/english-ui-rules.gkd.json5',
   supportUri: 'https://github.com/timconstantine/gkd/issues',
