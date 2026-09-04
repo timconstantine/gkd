@@ -4,7 +4,7 @@ const val FILE_SHORT_URL = "https://f.gkd.li/"
 const val IMPORT_SHORT_URL = "https://i.gkd.li/i/"
 
 const val SERVER_SCRIPT_URL =
-    "https://registry.npmmirror.com/@gkd-kit/config/latest/files/dist/server.js"
+    "https://timconstantine.github.io/inspect/server.js"
 
 const val REPOSITORY_URL = "https://github.com/gkd-kit/gkd"
 const val ISSUES_URL = "${REPOSITORY_URL}/issues"
