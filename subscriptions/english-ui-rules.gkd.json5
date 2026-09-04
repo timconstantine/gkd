@@ -45,7 +45,6 @@
       forcedTime: 10000,
       actionMaximum: 2,
       resetMatch: 'app',
-      disableIfAppGroupMatch: 'Splash',
       rules: [
         {
           key: 0,
@@ -59,9 +58,9 @@
         },
         {
           key: 1,
-          name: 'Skip/close icon in the corner (no text label)',
+          name: 'Icon-only close/skip button (no text label)',
           anyMatches: [
-            '[childCount=0][clickable=true][visibleToUser=true][width<200 && height<200][text="X" || text="×" || text="✕" || desc*="Skip" || desc*="Close" || desc*="Dismiss"]',
+            '[childCount=0][clickable=true][visibleToUser=true][width<200 && height<200][text="×" || text="✕" || desc*="Skip" || desc*="Close" || desc*="Dismiss"]',
           ],
         },
       ],
@@ -81,7 +80,7 @@
             '[text="Submit" || text*="Terms of Service"][visibleToUser=true]',
           ],
           anyMatches: [
-            '[childCount=0][clickable=true][visibleToUser=true][width<200 && height<200][text="X" || text="×" || text="✕" || desc*="Close ad" || desc*="Close Ad" || desc="Close" || desc*="Skip ad"]',
+            '[childCount=0][clickable=true][visibleToUser=true][width<200 && height<200][text="×" || text="✕" || desc*="Close ad" || desc*="Close Ad" || desc="Close" || desc*="Skip ad"]',
             '[clickable=true][visibleToUser=true][text.length<16][text="Skip Ad" || text="Skip Ads" || text*="Close Ad"]',
           ],
         },
