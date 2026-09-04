@@ -48,7 +48,7 @@ class UpsertRuleGroupVm(val route: UpsertRuleGroupRoute) : BaseViewModel() {
         }
         return UpsertRuleGroupUiState(
             initialGroup = initialGroup,
-            initialText = initialGroup?.cacheStr.orEmpty(),
+            initialText = initialGroup?.cacheStr ?: route.initialText.orEmpty(),
         )
     }
 

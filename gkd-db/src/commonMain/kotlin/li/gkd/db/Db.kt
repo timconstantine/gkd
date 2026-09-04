@@ -23,6 +23,7 @@ object Db {
     val appConfigDao get() = database.appConfigDao()
     val appVisitLogDao get() = database.appVisitLogDao()
     val a11yEventLogDao get() = database.a11yEventLogDao()
+    val selectorLibraryDao get() = database.selectorLibraryDao()
 
     suspend fun <T> withTransaction(block: suspend () -> T): T =
         database.withWriteTransaction { block() }

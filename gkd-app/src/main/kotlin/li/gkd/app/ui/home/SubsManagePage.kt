@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import li.gkd.app.R
 import li.gkd.app.store.storeFlow
+import li.gkd.app.ui.SelectorLibraryRoute
 import li.gkd.app.ui.SlowGroupRoute
 import li.gkd.app.ui.UpsertRuleGroupRoute
 import li.gkd.app.ui.WebViewRoute
@@ -365,6 +366,13 @@ private fun useLoadedSubsManagePage(
                                                 forward = true,
                                             )
                                         )
+                                    },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(text = "Selector library") },
+                                    onClick = throttle {
+                                        expanded = false
+                                        mainVm.navigatePage(SelectorLibraryRoute)
                                     },
                                 )
                             }
