@@ -1,5 +1,6 @@
 package li.gkd.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -31,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,6 +112,14 @@ fun SnapshotInspectorPage(route: SnapshotInspectorRoute) {
                     }
                 }
                 LazyColumn(modifier = Modifier.scaffoldPadding(contentPadding).fillMaxSize()) {
+                    item {
+                        Text(
+                            text = "Tap the element you want to build a rule for. The number before each row is how deeply it's nested.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = itemHorizontalPadding, vertical = 8.dp),
+                        )
+                    }
                     items(filteredNodes, key = { it.id }) { node ->
                         NodeRow(node = node, onClick = { vm.selectNode(node) })
                     }
@@ -152,8 +164,16 @@ private fun NodeInfo.shortLabel(): String {
     return text ?: desc ?: vid ?: name ?: "(node #$id)"
 }
 
+// Real screens can nest many levels deep, and indenting by the full depth
+// pushes rows off the right edge of a phone screen — so the indent itself
+// caps out, and the exact depth is always shown as a small number instead
+// (which also stays readable once rows past the cap all line up together).
+private val nodeIndentStep = 8.dp
+private const val NODE_INDENT_MAX_DEPTH = 6
+
 @Composable
 private fun NodeRow(node: NodeInfo, onClick: () -> Unit) {
+    val depth = node.attr.depth
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -161,7 +181,20 @@ private fun NodeRow(node: NodeInfo, onClick: () -> Unit) {
             .padding(horizontal = itemHorizontalPadding, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(modifier = Modifier.width((node.attr.depth * 12).dp))
+        Spacer(modifier = Modifier.width(nodeIndentStep * depth.coerceAtMost(NODE_INDENT_MAX_DEPTH)))
+        Box(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.extraSmall)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 5.dp, vertical = 1.dp),
+        ) {
+            Text(
+                text = depth.toString(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = node.shortLabel(),
@@ -207,12 +240,12 @@ private fun NodeDetailDialog(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
-                    .heightIn(max = 560.dp),
+                    .heightIn(max = 620.dp),
             ) {
                 Text(text = node.shortLabel(), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Tap attributes to build a selector",
+                    text = "Tap attributes below to narrow the selector down to just this element (or ones like it).",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -239,35 +272,46 @@ private fun NodeDetailDialog(
                     isError = selectorError != null,
                     supportingText = selectorError?.let { { Text(text = it) } },
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
+
+                val selectorReady = selectorText.isNotBlank() && selectorError == null
+                Spacer(modifier = Modifier.height(4.dp))
+                DialogActionRow(
+                    title = "Save to library",
+                    description = "Store just this selector so you can reuse it in other rules later.",
+                    enabled = selectorReady,
+                    onClick = throttle { showSaveNameDialog = true },
+                )
+                HorizontalDivider()
+                DialogActionRow(
+                    title = "Copy",
+                    description = "Copy the raw selector text to your clipboard.",
+                    enabled = selectorReady,
+                    onClick = throttle { copyText(selectorText) },
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    enabled = selectorReady,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    TextButton(
-                        enabled = selectorText.isNotBlank() && selectorError == null,
-                        onClick = throttle { copyText(selectorText) },
-                    ) { Text(text = "Copy") }
-                    TextButton(
-                        enabled = selectorText.isNotBlank() && selectorError == null,
-                        onClick = throttle { showSaveNameDialog = true },
-                    ) { Text(text = "Save to library") }
-                    TextButton(
-                        enabled = selectorText.isNotBlank() && selectorError == null,
-                        onClick = throttle {
-                            onDismissRequest()
-                            mainVm.navigatePage(
-                                RuleBuilderRoute(
-                                    subsId = subsId,
-                                    appId = appId,
-                                    activityId = activityId,
-                                    initialSelector = selectorText,
-                                    isGlobal = isGlobal,
-                                ),
-                            )
-                        },
-                    ) { Text(text = "Create rule") }
-                }
+                    onClick = throttle {
+                        onDismissRequest()
+                        mainVm.navigatePage(
+                            RuleBuilderRoute(
+                                subsId = subsId,
+                                appId = appId,
+                                activityId = activityId,
+                                initialSelector = selectorText,
+                                isGlobal = isGlobal,
+                            ),
+                        )
+                    },
+                ) { Text(text = "Create rule") }
+                Text(
+                    text = "Open the guided rule builder pre-filled with this selector — the recommended next step.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
             }
         }
     }
@@ -281,6 +325,39 @@ private fun NodeDetailDialog(
                     showSaveNameDialog = false
                 }
             },
+        )
+    }
+}
+
+/**
+ * A compact secondary-action row (title + one-sentence description) used for
+ * the utility actions in [NodeDetailDialog] — kept visually distinct from the
+ * primary "Create rule" button below them so it's clear which one to reach
+ * for first.
+ */
+@Composable
+private fun DialogActionRow(
+    title: String,
+    description: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    val alpha = if (enabled) 1f else 0.4f
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .let { if (enabled) it.clickable(onClick = onClick) else it }
+            .padding(vertical = 8.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = alpha),
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha),
         )
     }
 }
