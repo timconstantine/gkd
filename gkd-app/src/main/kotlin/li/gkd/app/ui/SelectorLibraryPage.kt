@@ -26,12 +26,12 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import li.gkd.app.ui.component.AppBarTextField
 import li.gkd.app.ui.component.EmptyText
-import li.gkd.app.ui.component.ListPlaceholder
 import li.gkd.app.ui.component.PerfIcon
 import li.gkd.app.ui.component.PerfIconButton
 import li.gkd.app.ui.component.PerfTopAppBar
 import li.gkd.app.ui.component.animateListItem
 import li.gkd.app.ui.share.Loadable
+import li.gkd.app.ui.share.ListPlaceholder
 import li.gkd.app.ui.share.LocalMainViewModel
 import li.gkd.app.ui.style.EmptyHeight
 import li.gkd.app.ui.style.itemHorizontalPadding
@@ -137,9 +137,10 @@ private fun SelectorLibraryCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (item.appId != null) {
+                val appId = item.appId
+                if (appId != null) {
                     Text(
-                        text = item.appId,
+                        text = appId,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.tertiary,
                     )
