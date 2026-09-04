@@ -47,6 +47,7 @@ import li.gkd.app.ui.component.PerfIconButton
 import li.gkd.app.ui.component.PerfTopAppBar
 import li.gkd.app.ui.component.SettingItem
 import li.gkd.app.ui.component.SettingsDialog
+import li.gkd.app.ui.component.TextMenu
 import li.gkd.app.ui.component.TextSwitch
 import li.gkd.app.ui.component.autoFocus
 import li.gkd.app.ui.share.LocalMainViewModel
@@ -55,6 +56,8 @@ import li.gkd.app.ui.style.TABULAR_NUMBERS_FONT_FEATURE
 import li.gkd.app.ui.style.itemHorizontalPadding
 import li.gkd.app.ui.style.itemVerticalPadding
 import li.gkd.app.ui.style.titleItemPadding
+import li.gkd.app.util.CaptureTriggerOption
+import li.gkd.app.util.findOption
 import li.gkd.app.util.launchAsFn
 import li.gkd.app.util.throttle
 
@@ -172,6 +175,11 @@ private fun AdvancedContent() {
                 onCheckedChange = scope.launchAsFn { enabled ->
                     ButtonService.setEnabled(mainVm, enabled)
                 },
+            )
+            TextMenu(
+                title = "Default capture trigger",
+                option = CaptureTriggerOption.objects.findOption(store.defaultCaptureTrigger),
+                onOptionChange = vm::setDefaultCaptureTrigger,
             )
             SettingItem(
                 title = "Snapshot settings",

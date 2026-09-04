@@ -24,6 +24,8 @@ import li.gkd.app.ui.AppConfigPage
 import li.gkd.app.ui.AppConfigRoute
 import li.gkd.app.ui.BlockA11yAppListPage
 import li.gkd.app.ui.BlockA11yAppListRoute
+import li.gkd.app.ui.CaptureWaitPage
+import li.gkd.app.ui.CaptureWaitRoute
 import li.gkd.app.ui.CrashReportPage
 import li.gkd.app.ui.CrashReportRoute
 import li.gkd.app.ui.EditBlockAppListPage
@@ -32,6 +34,8 @@ import li.gkd.app.ui.ImagePreviewPage
 import li.gkd.app.ui.ImagePreviewRoute
 import li.gkd.app.ui.PrivilegeServicePage
 import li.gkd.app.ui.PrivilegeServiceRoute
+import li.gkd.app.ui.RuleBuilderPage
+import li.gkd.app.ui.RuleBuilderRoute
 import li.gkd.app.ui.SelectorLibraryPage
 import li.gkd.app.ui.SelectorLibraryRoute
 import li.gkd.app.ui.SlowGroupPage
@@ -73,6 +77,8 @@ private val mainRouteEntryProvider = entryProvider {
     entry<PrivilegeServiceRoute> { PrivilegeServicePage() }
     entry<SnapshotPageRoute> { SnapshotPage() }
     entry<SnapshotInspectorRoute> { SnapshotInspectorPage(it) }
+    entry<CaptureWaitRoute> { CaptureWaitPage(it) }
+    entry<RuleBuilderRoute> { RuleBuilderPage(it) }
     entry<SelectorLibraryRoute> { SelectorLibraryPage() }
     entry<SnapshotSettingsRoute> { SnapshotSettingsPage() }
     entry<A11YScopeAppListRoute> { A11yScopeAppListPage() }

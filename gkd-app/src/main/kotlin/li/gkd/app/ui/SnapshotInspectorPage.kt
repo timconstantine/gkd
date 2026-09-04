@@ -38,7 +38,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import li.gkd.app.data.NodeInfo
-import li.gkd.app.data.RuleComposer
 import li.gkd.app.ui.component.AppBarTextField
 import li.gkd.app.ui.component.AppDialog
 import li.gkd.app.ui.component.EmptyText
@@ -55,7 +54,11 @@ import li.gkd.app.util.throttle
 import li.gkd.db.LOCAL_SUBS_ID
 
 @Serializable
-data class SnapshotInspectorRoute(val snapshotId: Long) : NavKey
+data class SnapshotInspectorRoute(
+    val snapshotId: Long,
+    val isGlobal: Boolean = false,
+    val subsId: Long = LOCAL_SUBS_ID,
+) : NavKey
 
 @Composable
 fun SnapshotInspectorPage(route: SnapshotInspectorRoute) {
@@ -122,6 +125,8 @@ fun SnapshotInspectorPage(route: SnapshotInspectorRoute) {
                         node = currentSelectedNode,
                         appId = state.appId,
                         activityId = state.activityId,
+                        isGlobal = route.isGlobal,
+                        subsId = route.subsId,
                         onDismissRequest = { vm.selectNode(null) },
                     )
                 }
@@ -181,6 +186,8 @@ private fun NodeDetailDialog(
     node: NodeInfo,
     appId: String,
     activityId: String?,
+    isGlobal: Boolean,
+    subsId: Long,
     onDismissRequest: () -> Unit,
 ) {
     val mainVm = LocalMainViewModel.current
@@ -250,14 +257,12 @@ private fun NodeDetailDialog(
                         onClick = throttle {
                             onDismissRequest()
                             mainVm.navigatePage(
-                                UpsertRuleGroupRoute(
-                                    subsId = LOCAL_SUBS_ID,
-                                    groupKey = null,
+                                RuleBuilderRoute(
+                                    subsId = subsId,
                                     appId = appId,
-                                    initialText = RuleComposer.composeSeededGroupText(
-                                        selector = selectorText,
-                                        activityId = activityId,
-                                    ),
+                                    activityId = activityId,
+                                    initialSelector = selectorText,
+                                    isGlobal = isGlobal,
                                 ),
                             )
                         },

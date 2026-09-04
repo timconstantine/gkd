@@ -43,10 +43,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import li.gkd.app.R
 import li.gkd.app.store.storeFlow
+import li.gkd.app.ui.CaptureWaitRoute
 import li.gkd.app.ui.SelectorLibraryRoute
 import li.gkd.app.ui.SlowGroupRoute
 import li.gkd.app.ui.UpsertRuleGroupRoute
 import li.gkd.app.ui.WebViewRoute
+import li.gkd.app.ui.component.AddRuleEntryDialog
 import li.gkd.app.ui.component.AnimationFloatingActionButton
 import li.gkd.app.ui.component.AppAlertDialog
 import li.gkd.app.ui.component.PerfIcon
@@ -125,6 +127,8 @@ private fun useLoadedSubsManagePage(
     val subItems = state.subItems
     val subsIdToRaw = state.subscriptions
     val scope = vm.scope
+    // null = hidden, false = "Add app rule" was tapped, true = "Add global rule" was tapped
+    var addRuleFor by remember { mutableStateOf<Boolean?>(null) }
 
     val refreshing = state.refreshing
     val pullToRefreshState = rememberPullToRefreshState()
@@ -196,6 +200,25 @@ private fun useLoadedSubsManagePage(
                 TextButton(onClick = vm::dismissPowerWarning) {
                     Text(text = "Cancel")
                 }
+            },
+        )
+    }
+
+    addRuleFor?.let { isGlobal ->
+        AddRuleEntryDialog(
+            onDismissRequest = { addRuleFor = null },
+            onTypeManually = {
+                mainVm.navigatePage(
+                    UpsertRuleGroupRoute(
+                        subsId = LOCAL_SUBS_ID,
+                        groupKey = null,
+                        appId = if (isGlobal) null else "",
+                        forward = true,
+                    )
+                )
+            },
+            onStartCapture = {
+                mainVm.navigatePage(CaptureWaitRoute(isGlobal = isGlobal, subsId = LOCAL_SUBS_ID))
             },
         )
     }
@@ -344,28 +367,14 @@ private fun useLoadedSubsManagePage(
                                     text = { Text(text = "Add app rule") },
                                     onClick = throttle {
                                         expanded = false
-                                        mainVm.navigatePage(
-                                            UpsertRuleGroupRoute(
-                                                subsId = LOCAL_SUBS_ID,
-                                                groupKey = null,
-                                                appId = "",
-                                                forward = true,
-                                            )
-                                        )
+                                        addRuleFor = false
                                     },
                                 )
                                 DropdownMenuItem(
                                     text = { Text(text = "Add global rule") },
                                     onClick = throttle {
                                         expanded = false
-                                        mainVm.navigatePage(
-                                            UpsertRuleGroupRoute(
-                                                subsId = LOCAL_SUBS_ID,
-                                                groupKey = null,
-                                                appId = null,
-                                                forward = true,
-                                            )
-                                        )
+                                        addRuleFor = true
                                     },
                                 )
                                 DropdownMenuItem(

@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import li.gkd.app.MainActivity
 import li.gkd.app.R
 import li.gkd.app.store.storeFlow
+import li.gkd.app.ui.component.AddRuleEntryDialog
 import li.gkd.app.ui.component.AnimatedIconButton
 import li.gkd.app.ui.component.AppBarTextField
 import li.gkd.app.ui.component.EmptyText
@@ -94,6 +95,7 @@ fun SubsAppListPage(route: SubsAppListRoute) {
     val listState = pageScrollState.listState
     pageScrollState.ResetOnChange(apps.map { it.id })
     var expanded by remember { mutableStateOf(false) }
+    var showAddRuleDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -190,16 +192,7 @@ fun SubsAppListPage(route: SubsAppListRoute) {
         },
         floatingActionButton = {
             if (LOCAL_SUBS_IDS.contains(subsItemId)) {
-                FloatingActionButton(onClick = throttle {
-                    mainVm.navigatePage(
-                        UpsertRuleGroupRoute(
-                            subsId = subsItemId,
-                            groupKey = null,
-                            appId = "",
-                            forward = true,
-                        )
-                    )
-                }) {
+                FloatingActionButton(onClick = throttle { showAddRuleDialog = true }) {
                     PerfIcon(
                         imageVector = PerfIcon.Add,
                     )
@@ -245,5 +238,24 @@ fun SubsAppListPage(route: SubsAppListRoute) {
                 }
             }
         }
+    }
+
+    if (showAddRuleDialog) {
+        AddRuleEntryDialog(
+            onDismissRequest = { showAddRuleDialog = false },
+            onTypeManually = {
+                mainVm.navigatePage(
+                    UpsertRuleGroupRoute(
+                        subsId = subsItemId,
+                        groupKey = null,
+                        appId = "",
+                        forward = true,
+                    )
+                )
+            },
+            onStartCapture = {
+                mainVm.navigatePage(CaptureWaitRoute(isGlobal = false, subsId = subsItemId))
+            },
+        )
     }
 }

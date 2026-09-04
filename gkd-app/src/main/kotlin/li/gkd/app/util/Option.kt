@@ -159,3 +159,22 @@ sealed class AutomatorModeOption(
     }
 }
 
+sealed class CaptureTriggerOption(
+    override val value: Int,
+    override val label: String,
+) : Option<Int> {
+    override val options get() = objects
+
+    // General-purpose, app-agnostic triggers only — usable regardless of
+    // which app is currently in the foreground. Screenshot-triggered
+    // capture is deliberately excluded: it needs its own per-app/event
+    // pre-configuration (see SnapshotSettingsVm.setCaptureScreenshot), so
+    // it isn't a generic "capture now" trigger.
+    data object FloatingButton : CaptureTriggerOption(0, "Floating button")
+    data object VolumeKey : CaptureTriggerOption(1, "Volume key")
+
+    companion object {
+        val objects by lazy { listOf(FloatingButton, VolumeKey) }
+    }
+}
+

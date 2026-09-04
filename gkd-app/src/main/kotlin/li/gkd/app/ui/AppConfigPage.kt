@@ -40,6 +40,7 @@ import kotlinx.serialization.Serializable
 import li.gkd.db.ActionLog
 import li.gkd.app.data.RawSubscription
 import li.gkd.app.store.storeFlow
+import li.gkd.app.ui.component.AddRuleEntryDialog
 import li.gkd.app.ui.component.AnimatedBooleanContent
 import li.gkd.app.ui.component.AnimationFloatingActionButton
 import li.gkd.app.ui.component.AppNameText
@@ -110,6 +111,7 @@ fun AppConfigPage(route: AppConfigRoute) {
     LaunchedEffect(allGroupStates) {
         selectionState.retain(allGroupStates)
     }
+    var showAddRuleDialog by remember { mutableStateOf(false) }
     BackHandler(isSelectedMode) {
         selectionState.clear()
     }
@@ -285,15 +287,7 @@ fun AppConfigPage(route: AppConfigRoute) {
         floatingActionButton = {
             AnimationFloatingActionButton(
                 visible = !isSelectedMode,
-                onClick = {
-                    mainVm.navigatePage(
-                        UpsertRuleGroupRoute(
-                            subsId = LOCAL_SUBS_ID,
-                            groupKey = null,
-                            appId = appId
-                        )
-                    )
-                },
+                onClick = { showAddRuleDialog = true },
                 imageVector = PerfIcon.Add,
                 contentDescription = "Add rule"
             )
@@ -419,5 +413,23 @@ fun AppConfigPage(route: AppConfigRoute) {
                 }
             }
         }
+    }
+
+    if (showAddRuleDialog) {
+        AddRuleEntryDialog(
+            onDismissRequest = { showAddRuleDialog = false },
+            onTypeManually = {
+                mainVm.navigatePage(
+                    UpsertRuleGroupRoute(
+                        subsId = LOCAL_SUBS_ID,
+                        groupKey = null,
+                        appId = appId,
+                    )
+                )
+            },
+            onStartCapture = {
+                mainVm.navigatePage(CaptureWaitRoute(isGlobal = false, subsId = LOCAL_SUBS_ID))
+            },
+        )
     }
 }
