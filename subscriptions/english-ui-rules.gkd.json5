@@ -1,0 +1,183 @@
+// English UI Auto-Skip Rules (unofficial GKD subscription)
+//
+// WHY THIS EXISTS
+// Most third-party GKD subscriptions (https://github.com/topics/gkd-subscription)
+// match on-screen Chinese text (e.g. text*="跳过") because they're written for
+// Chinese-only apps like WeChat/Taobao/Xiaohongshu. Translating those strings to
+// English would just break them, since the apps they target still display Chinese
+// text. This file is not a translation — it's a fresh rule set that targets the
+// generic English-language UI text patterns used by international/English apps
+// (skip/close buttons on ads, "rate us" popups, update nags, permission prompts,
+// cookie banners, onboarding skips, etc.).
+//
+// STATUS: best-effort, untested on a real device. These are heuristic text
+// matches, so false positives are possible on any given app. Categories other
+// than "Splash / Open Screen Ads" and "Full-Screen & Interstitial Ads" are
+// disabled by default — enable only the ones you want. Use GKD's snapshot
+// feature to debug a rule against a specific app screen, and please report
+// issues at https://github.com/timconstantine/gkd/issues.
+{
+  id: 20260904,
+  name: 'English UI Auto-Skip Rules (unofficial)',
+  version: 1,
+  author: 'timconstantine',
+  checkUpdateUrl: 'https://raw.githubusercontent.com/timconstantine/gkd/main/subscriptions/english-ui-rules.gkd.json5',
+  supportUri: 'https://github.com/timconstantine/gkd/issues',
+  categories: [
+    { key: 0, name: 'Splash / Open Screen Ads', enable: true },
+    { key: 1, name: 'Full-Screen & Interstitial Ads', enable: true },
+    { key: 2, name: 'App Update Prompts', enable: false },
+    { key: 3, name: 'Rating & Review Prompts', enable: false },
+    { key: 4, name: 'Notification Permission Prompts', enable: false },
+    { key: 5, name: 'System Permission Prompts', enable: false },
+    { key: 6, name: 'Cookie & Privacy Consent', enable: false },
+    { key: 7, name: 'Onboarding, Tutorial & Promo Popups', enable: false },
+  ],
+  globalGroups: [
+    {
+      key: 0,
+      name: 'Splash / Open Screen Ads',
+      desc: 'Tap the "Skip"/"Skip Ad" control shown on an app\'s opening splash-ad screen.',
+      enable: true,
+      order: -10,
+      fastQuery: true,
+      matchTime: 10000,
+      forcedTime: 10000,
+      actionMaximum: 2,
+      resetMatch: 'app',
+      disableIfAppGroupMatch: 'Splash',
+      rules: [
+        {
+          key: 0,
+          name: 'Skip button (text match)',
+          excludeMatches: [
+            '[text="Submit" || text="Bookmark" || text="NEXT" || text*="I agree" || text*="Terms of Service" || text*="Privacy Policy"][visibleToUser=true]',
+          ],
+          anyMatches: [
+            '[clickable=true][visibleToUser=true][width<500 && height<300][text.length<16][(text="Skip" || text="SKIP" || text="Skip Ad" || text="Skip Ads" || text="Skip AD" || text^="Skip " || text~="(?i).*skip\\s*\\d+\\s*s?$") && text!*="video" && text!*="Skip to"]',
+          ],
+        },
+        {
+          key: 1,
+          name: 'Skip/close icon in the corner (no text label)',
+          anyMatches: [
+            '[childCount=0][clickable=true][visibleToUser=true][width<200 && height<200][text="X" || text="×" || text="✕" || desc*="Skip" || desc*="Close" || desc*="Dismiss"]',
+          ],
+        },
+      ],
+    },
+    {
+      key: 1,
+      name: 'Full-Screen & Interstitial Ads',
+      desc: 'Close full-screen ads that pop up while using an app (not the app\'s opening screen).',
+      enable: true,
+      fastQuery: true,
+      actionMaximum: 5,
+      rules: [
+        {
+          key: 0,
+          name: 'Close ad button/icon',
+          excludeMatches: [
+            '[text="Submit" || text*="Terms of Service"][visibleToUser=true]',
+          ],
+          anyMatches: [
+            '[childCount=0][clickable=true][visibleToUser=true][width<200 && height<200][text="X" || text="×" || text="✕" || desc*="Close ad" || desc*="Close Ad" || desc="Close" || desc*="Skip ad"]',
+            '[clickable=true][visibleToUser=true][text.length<16][text="Skip Ad" || text="Skip Ads" || text*="Close Ad"]',
+          ],
+        },
+      ],
+    },
+    {
+      key: 2,
+      name: 'App Update Prompts',
+      desc: 'Dismiss "a new version is available" nag dialogs.',
+      enable: false,
+      rules: [
+        {
+          key: 0,
+          anyMatches: [
+            '[clickable=true][visibleToUser=true][text.length<20][text="Not Now" || text="Later" || text="Remind Me Later" || text="Skip This Version" || text="No Thanks" || text="Maybe Later" || text="Ignore" || text="Update Later"]',
+          ],
+        },
+      ],
+    },
+    {
+      key: 3,
+      name: 'Rating & Review Prompts',
+      desc: 'Dismiss in-app "please rate us" / review-request popups.',
+      enable: false,
+      rules: [
+        {
+          key: 0,
+          anyMatches: [
+            "[clickable=true][visibleToUser=true][text.length<20][text=\"No Thanks\" || text=\"Not Now\" || text=\"Maybe Later\" || text=\"Don't Ask Again\" || text=\"Remind Me Later\" || text=\"Not Interested\" || text=\"No, Thanks\"]",
+          ],
+        },
+      ],
+    },
+    {
+      key: 4,
+      name: 'Notification Permission Prompts',
+      desc: 'Decline an app\'s own custom "turn on notifications?" prompt (not the Android system dialog — see "System Permission Prompts" for that).',
+      enable: false,
+      rules: [
+        {
+          key: 0,
+          anyMatches: [
+            '[clickable=true][visibleToUser=true][text.length<20][text="Not Now" || text="No Thanks" || text="Skip" || text="Maybe Later" || text="Not Right Now"]',
+          ],
+        },
+      ],
+    },
+    {
+      key: 5,
+      name: 'System Permission Prompts',
+      desc: 'OPTIONAL — auto-declines Android\'s own runtime permission dialog ("Allow this app to access..."). Off by default: auto-denying permissions can silently break features you actually want (camera, location, microphone, etc.). Only enable this if you specifically want a device to always deny permission requests, e.g. a locked-down kiosk.',
+      enable: false,
+      rules: [
+        {
+          key: 0,
+          anyMatches: [
+            "[clickable=true][visibleToUser=true][text.length<20][text=\"Don't allow\" || text=\"Don't Allow\" || text=\"Deny\"]",
+          ],
+        },
+      ],
+    },
+    {
+      key: 6,
+      name: 'Cookie & Privacy Consent',
+      desc: 'Accept cookie/privacy-consent banners (in-app browser pages, GDPR-style consent screens). Off by default since accepting consent has privacy implications you should choose knowingly.',
+      enable: false,
+      rules: [
+        {
+          key: 0,
+          anyMatches: [
+            '[clickable=true][visibleToUser=true][text.length<20][text="Accept All" || text="Accept all" || text="I Agree" || text="I agree" || text="Agree" || text="Got It" || text="Got it" || text="OK, Got It" || text="Accept"]',
+          ],
+        },
+      ],
+    },
+    {
+      key: 7,
+      name: 'Onboarding, Tutorial & Promo Popups',
+      desc: 'Skip first-run tutorials/walkthroughs and dismiss promotional popups (special offers, newsletter signup, etc.).',
+      enable: false,
+      rules: [
+        {
+          key: 0,
+          name: 'Skip tutorial/onboarding',
+          anyMatches: [
+            '[clickable=true][visibleToUser=true][text.length<20][text="Skip" || text="Skip Tutorial" || text="Skip Intro" || text="Skip Walkthrough" || text="Skip Tour"]',
+          ],
+        },
+        {
+          key: 1,
+          name: 'Dismiss promo popup',
+          anyMatches: [
+            '[clickable=true][visibleToUser=true][text.length<20][text="No Thanks" || text="Not Interested" || text="Maybe Later" || text="No thanks"]',
+          ],
+        },
+      ],
+    },
+  ],
+}
