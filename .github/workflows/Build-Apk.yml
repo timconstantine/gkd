@@ -50,6 +50,12 @@ jobs:
           name: outputs
           path: gkd-app/build/outputs
 
+      # A fixed filename (rather than the sha-suffixed one the debug build
+      # produces) so re-publishing below replaces this same asset each time
+      # instead of piling up a new differently-named APK on every build.
+      - name: Prepare release asset
+        run: cp gkd-app/build/outputs/apk/gkd/debug/*.apk gkd-latest-build.apk
+
       # Publishes (or overwrites, if it already exists) a single "latest-build"
       # release carrying whichever build just succeeded, so README.md can link
       # to one stable URL instead of a specific run/artifact that expires.
@@ -64,4 +70,4 @@ jobs:
             - Branch: `${{ github.ref_name }}`
             - Commit: ${{ github.sha }}
           prerelease: true
-          files: gkd-app/build/outputs/apk/gkd/debug/*.apk
+          files: gkd-latest-build.apk

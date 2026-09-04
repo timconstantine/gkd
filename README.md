@@ -10,7 +10,7 @@ This is a fork of the upstream [gkd-kit/gkd](https://github.com/gkd-kit/gkd) pro
 
 [![Latest build](https://img.shields.io/github/v/release/timconstantine/gkd?include_prereleases&label=latest%20build&sort=date)](https://github.com/timconstantine/gkd/releases/tag/latest-build)
 
-Grab the newest APK from **[github.com/timconstantine/gkd/releases/tag/latest-build](https://github.com/timconstantine/gkd/releases/tag/latest-build)** — this link always points to whatever build most recently passed CI (unsigned debug build, republished automatically after every successful [Build-Apk](.github/workflows/Build-Apk.yml) run).
+Grab the newest APK from **[github.com/timconstantine/gkd/releases/tag/latest-build](https://github.com/timconstantine/gkd/releases/tag/latest-build)** (or download it directly: [gkd-latest-build.apk](https://github.com/timconstantine/gkd/releases/download/latest-build/gkd-latest-build.apk)) — these links always point to whatever build most recently passed CI (unsigned debug build, republished automatically after every successful [Build-Apk](.github/workflows/Build-Apk.yml) run).
 
 An Android app for custom screen tapping, built on [advanced selectors](https://gkd.li/guide/selector) + [subscription rules](https://gkd.li/guide/subscription) + [snapshot inspection](https://github.com/gkd-kit/inspect)
 
