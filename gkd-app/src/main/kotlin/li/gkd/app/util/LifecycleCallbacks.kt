@@ -55,10 +55,10 @@ interface OnSimpleLife {
         @CallSite loc: String = "",
     ) {
         onCreated {
-            toast("${name}已启动", loc = loc, delayMillis = delayMillis)
+            toast("${name} started", loc = loc, delayMillis = delayMillis)
         }
         onDestroyed {
-            toast("${name}已关闭", loc = loc)
+            toast("${name} stopped", loc = loc)
         }
     }
 

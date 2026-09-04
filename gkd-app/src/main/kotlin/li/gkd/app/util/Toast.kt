@@ -123,7 +123,7 @@ fun showActionToast(rule: ResolvedRule) {
     if (!storeFlow.value.toastWhenClick) return
     runMainPost {
         val t = System.currentTimeMillis()
-        if (t - triggerTime > triggerInterval + 100) { // 100ms 保证二次显示的时候上一次已经完全消失
+        if (t - triggerTime > triggerInterval + 100) { // 100ms ensures the previous one has fully disappeared before showing again
             triggerTime = t
             val text = storeFlow.value.actionToast
                 .replace($$"${1}", rule.rule.name.toString())
@@ -147,8 +147,8 @@ private fun showSystemToast(message: CharSequence) {
     runMainPost(Toast.LENGTH_SHORT.toLong()) { cacheToast = null }
 }
 
-// 1.使用 WeakReference<View> 在某些机型上导致无法取消
-// 2.使用协程 delay + cacheView 也可能导致无法取消
+// 1. Using WeakReference<View> causes it to fail to cancel on some devices
+// 2. Using coroutine delay + cacheView may also cause it to fail to cancel
 // https://github.com/gkd-kit/gkd/issues/697
 // https://github.com/gkd-kit/gkd/issues/698
 private fun showA11yToast(message: CharSequence) {
@@ -193,12 +193,12 @@ private fun showA11yToast(message: CharSequence) {
 
 fun copyText(text: String) {
     app.clipboardManager.setPrimaryClip(ClipData.newPlainText(app.packageName, text))
-    toast("复制成功")
+    toast("Copied")
 }
 
 fun initToast() {
     Toaster.init(app)
     Toaster.setDebugMode(false)
-    Toaster.setInterceptor { false } // 覆盖默认拦截器
+    Toaster.setInterceptor { false } // Override the default interceptor
     setReactiveToastStyle()
 }

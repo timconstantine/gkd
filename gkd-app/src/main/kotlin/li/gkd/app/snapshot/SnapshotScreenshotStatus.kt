@@ -8,7 +8,7 @@ enum class SnapshotScreenshotStatus {
 
     fun detailText(): String? = when (this) {
         Captured -> null
-        Unavailable -> "未获取到屏幕画面"
-        LikelyProtected -> "当前界面可能受截图保护"
+        Unavailable -> "Could not capture the screen"
+        LikelyProtected -> "The current screen may be screenshot-protected"
     }
 }

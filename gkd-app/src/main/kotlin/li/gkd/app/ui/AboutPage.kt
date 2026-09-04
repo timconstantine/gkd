@@ -90,7 +90,7 @@ fun AboutPage() {
                         },
                     )
                 },
-                title = { Text(text = "关于") },
+                title = { Text(text = "About") },
                 actions = {
                     PerfIconButton(
                         imageVector = PerfIcon.Share,
@@ -115,7 +115,7 @@ fun AboutPage() {
                         .clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() },
-                            onClick = throttle { toast("你干嘛~ 哎呦~") }
+                            onClick = throttle { toast("Hey, what was that for~ Ouch~") }
                         )
                         .fillMaxWidth(0.33f)
                         .aspectRatio(1f)
@@ -138,7 +138,7 @@ fun AboutPage() {
 
             SettingItem(
                 imageVector = null,
-                title = "开源代码",
+                title = "Source code",
                 onClick = {
                     mainVm.openUrl(REPOSITORY_URL)
                 },
@@ -146,7 +146,7 @@ fun AboutPage() {
             if (META.isGkdChannel) {
                 SettingItem(
                     imageVector = null,
-                    title = "捐赠支持",
+                    title = "Support the project",
                     onClick = {
                         mainVm.navigateWebPage(ShortUrlSet.URL10)
                     },
@@ -154,14 +154,14 @@ fun AboutPage() {
             }
             SettingItem(
                 imageVector = null,
-                title = "使用协议",
+                title = "Terms of use",
                 onClick = {
                     mainVm.navigateWebPage(ShortUrlSet.URL12)
                 },
             )
             SettingItem(
                 imageVector = null,
-                title = "隐私政策",
+                title = "Privacy policy",
                 onClick = {
                     mainVm.navigateWebPage(ShortUrlSet.URL11)
                 },
@@ -169,7 +169,7 @@ fun AboutPage() {
 
             FeedbackSection()
             SettingItem(
-                title = "导出日志",
+                title = "Export logs",
                 imageVector = PerfIcon.Share,
                 onClick = {
                     mainVm.shareLog.show()
@@ -177,21 +177,21 @@ fun AboutPage() {
             )
             if (mainVm.updateStatus != null) {
                 Text(
-                    text = "更新",
+                    text = "Update",
                     modifier = Modifier.titleItemPadding(),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 TextMenu(
-                    title = "更新渠道",
+                    title = "Update channel",
                     option = updateChannel
                 ) {
                     if (mainVm.updateStatus.checkUpdatingFlow.value) return@TextMenu
                     if (it.value == UpdateChannelOption.Beta.value) {
                         vm.scope.launchTry {
                             if (!mainVm.dialogRequests.confirm(
-                                title = "版本渠道",
-                                text = "测试版本渠道更新快\n但不稳定可能存在较多BUG\n请谨慎使用",
+                                title = "Version channel",
+                                text = "The beta channel updates faster\nbut is less stable and may have more bugs\nplease use with caution",
                             )) return@launchTry
                             vm.setUpdateChannel(it)
                         }
@@ -212,7 +212,7 @@ fun AboutPage() {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "检查更新",
+                        text = "Check for updates",
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     RotatingLoadingIcon(loading = mainVm.updateStatus.checkUpdatingFlow.collectAsStateWithLifecycle().value)
@@ -231,7 +231,7 @@ private fun FeedbackSection() {
     val vm = viewModel<AboutVm>()
     val primaryColor = MaterialTheme.colorScheme.primary
     Text(
-        text = "反馈",
+        text = "Feedback",
         modifier = Modifier.titleItemPadding(),
         style = MaterialTheme.typography.titleSmall,
         color = primaryColor,
@@ -244,21 +244,21 @@ private fun FeedbackSection() {
                         fontWeight = FontWeight.Bold,
                         color = primaryColor,
                     )
-                    append("感谢您愿意花时间反馈，")
+                    append("Thanks for taking the time to give feedback, ")
                     withStyle(style = highlightStyle) {
-                        append("GKD 默认不携带任何规则，只接受应用本体功能相关的反馈")
+                        append("GKD does not ship with any rules by default, and only accepts feedback related to the app itself")
                     }
                     append("\n\n")
-                    append("请先判断是不是第三方规则订阅的问题，如果是，您应该向规则提供者反馈，而不是在此处反馈。")
+                    append("Please first determine whether this is an issue with a third-party rule subscription. If so, you should report it to the rule provider instead of here. ")
                     withStyle(style = highlightStyle) {
-                        append("如果您已经确信是 GKD 应用本体的问题")
+                        append("If you're confident this is an issue with the GKD app itself")
                     }
-                    append("，可点击下方继续反馈")
+                    append(", you can tap below to continue giving feedback")
                 }
                 if (!mainVm.dialogRequests.confirm(
-                    title = "反馈须知",
+                    title = "Feedback notice",
                     text = noticeText,
-                    confirmText = "继续",
+                    confirmText = "Continue",
                     dismissOnRequest = true,
                 )) return@launchAsFn
                 mainVm.openUrl(ISSUES_URL)
@@ -267,7 +267,7 @@ private fun FeedbackSection() {
             .itemPadding()
     ) {
         Text(
-            text = "问题反馈",
+            text = "Report an issue",
             style = MaterialTheme.typography.bodyLarge,
         )
     }

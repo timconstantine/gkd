@@ -87,8 +87,8 @@ fun BlockA11yAppListPage() {
         context.imeController.requestHide()
         if (vm.textChanged) {
             if (!mainVm.dialogRequests.confirm(
-                title = "提示",
-                text = "当前内容未保存，是否放弃编辑？",
+                title = "Notice",
+                text = "The current content is unsaved. Discard changes?",
             )) return@launchAsFn
         }
         vm.setEditable(false)
@@ -106,8 +106,8 @@ fun BlockA11yAppListPage() {
                                 if (vm.textChanged) {
                                     context.imeController.requestHide()
                                     if (!mainVm.dialogRequests.confirm(
-                                        title = "提示",
-                                        text = "当前内容未保存，是否放弃编辑？",
+                                        title = "Notice",
+                                        text = "The current content is unsaved. Discard changes?",
                                     )) return@launchAsFn
                                 }
                                 vm.setEditable(false)
@@ -131,7 +131,7 @@ fun BlockA11yAppListPage() {
                         AppBarTextField(
                             value = searchStr,
                             onValueChange = vm::setSearchStr,
-                            hint = "请输入应用名称/ID",
+                            hint = "Enter app name/ID",
                             modifier = if (firstShowSearchBar) Modifier else Modifier.autoFocus(),
                         )
                     } else {
@@ -143,7 +143,7 @@ fun BlockA11yAppListPage() {
                             )
                         Text(
                             modifier = titleModifier,
-                            text = "无障碍白名单",
+                            text = "Accessibility allowlist",
                         )
                     }
                 },
@@ -164,8 +164,8 @@ fun BlockA11yAppListPage() {
                             Row {
                                 PerfIconButton(
                                     imageVector = if (store.blockA11yAppListFollowMatch) PerfIcon.Lock else LockOpenRight,
-                                    contentDescription = if (store.blockA11yAppListFollowMatch) "已设置为跟随应用白名单" else "已设置为独立无障碍白名单",
-                                    onClickLabel = "切换模式",
+                                    contentDescription = if (store.blockA11yAppListFollowMatch) "Set to follow the app allowlist" else "Set to an independent accessibility allowlist",
+                                    onClickLabel = "Switch mode",
                                     onClick = throttle {
                                         vm.toggleFollowMatchList()
                                     }
@@ -194,7 +194,7 @@ fun BlockA11yAppListPage() {
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false }
                                     ) {
-                                        MenuGroupCard(inTop = true, title = "排序") {
+                                        MenuGroupCard(inTop = true, title = "Sort") {
                                             AppSortOption.objects.forEach { option ->
                                                 MenuItemRadioButton(
                                                     text = option.label,
@@ -203,7 +203,7 @@ fun BlockA11yAppListPage() {
                                                 )
                                             }
                                         }
-                                        MenuGroupCard(inTop = true, title = "筛选") {
+                                        MenuGroupCard(inTop = true, title = "Filter") {
                                             AppGroupOption.normalObjects.forEach { option ->
                                                 val newValue = option.invert(store.a11yAppGroupType)
                                                 MenuItemCheckbox(
@@ -224,12 +224,12 @@ fun BlockA11yAppListPage() {
         floatingActionButton = {
             AnimationFloatingActionButton(
                 visible = !editable && scrollBehavior.isFullVisible && !store.blockA11yAppListFollowMatch,
-                onClickLabel = "进入白名单文本编辑模式",
+                onClickLabel = "Enter allowlist text edit mode",
                 onClick = {
                     vm.setEditable(true)
                 },
                 imageVector = PerfIcon.Edit,
-                contentDescription = "编辑白名单文本"
+                contentDescription = "Edit allowlist text"
             )
         },
     ) { contentPadding ->
@@ -239,7 +239,7 @@ fun BlockA11yAppListPage() {
             ) {
                 Spacer(modifier = Modifier.height(EmptyHeight))
                 Text(
-                    text = "已设置为跟随应用白名单",
+                    text = "Set to follow the app allowlist",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.tertiary,
@@ -251,7 +251,7 @@ fun BlockA11yAppListPage() {
                 text = editText,
                 onTextChange = vm::setText,
                 immediateFocus = true,
-                placeholderText = "请输入应用ID列表\n示例:\ncom.android.systemui\ncom.android.settings",
+                placeholderText = "Enter a list of app IDs\nExample:\ncom.android.systemui\ncom.android.settings",
                 indicatorSize = vm.indicatorSizeFlow.collectAsStateWithLifecycle().value,
             )
         } else {
@@ -274,7 +274,7 @@ fun BlockA11yAppListPage() {
                 item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                     Spacer(modifier = Modifier.height(EmptyHeight))
                     if (appInfos.isEmpty() && searchStr.isNotEmpty()) {
-                        EmptyText(text = "暂无搜索结果")
+                        EmptyText(text = "No search results")
                         Spacer(modifier = Modifier.height(EmptyHeight / 2))
                     }
                 }

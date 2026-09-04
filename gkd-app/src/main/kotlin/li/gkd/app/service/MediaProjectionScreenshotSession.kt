@@ -49,7 +49,7 @@ class MediaProjectionScreenshotSession(
             mediaProjection = null
             if (continuation?.isActive == true) {
                 continuation.resumeWithException(
-                    IllegalStateException("截屏授权已失效")
+                    IllegalStateException("Screenshot authorization has expired")
                 )
             }
             onProjectionStop()
@@ -84,7 +84,7 @@ class MediaProjectionScreenshotSession(
         mediaProjection = null
         if (continuation?.isActive == true) {
             continuation.resumeWithException(
-                IllegalStateException("截屏服务已停止")
+                IllegalStateException("The screenshot service has stopped")
             )
         }
         handlerThread.quitSafely()
@@ -100,7 +100,7 @@ class MediaProjectionScreenshotSession(
         }
         if (!handler.post { startCapture(continuation) } && continuation.isActive) {
             continuation.resumeWithException(
-                IllegalStateException("截屏线程不可用")
+                IllegalStateException("The screenshot thread is unavailable")
             )
         }
     }
@@ -109,13 +109,13 @@ class MediaProjectionScreenshotSession(
         if (!continuation.isActive) return
         if (closed || projectionStopped) {
             continuation.resumeWithException(
-                IllegalStateException("截屏服务不可用")
+                IllegalStateException("The screenshot service is unavailable")
             )
             return
         }
         if (activeContinuation != null) {
             continuation.resumeWithException(
-                IllegalStateException("正在截取屏幕")
+                IllegalStateException("A screen capture is already in progress")
             )
             return
         }
@@ -129,7 +129,7 @@ class MediaProjectionScreenshotSession(
                 app.mediaProjectionManager.getMediaProjection(
                     RESULT_OK,
                     screenshotIntent,
-                ) ?: throw IllegalStateException("获取截屏授权失败")
+                ) ?: throw IllegalStateException("Failed to obtain screenshot authorization")
                 ).also {
                     it.registerCallback(mediaProjectionCallback, handler)
                     mediaProjection = it
@@ -151,7 +151,7 @@ class MediaProjectionScreenshotSession(
                     imageReader.surface,
                     null,
                     handler,
-                ) ?: throw IllegalStateException("创建截屏虚拟显示失败")
+                ) ?: throw IllegalStateException("Failed to create the screenshot virtual display")
             } else {
                 display.resize(captureWidth, captureHeight, captureDpi)
                 display.surface = imageReader.surface
@@ -237,7 +237,7 @@ class MediaProjectionScreenshotSession(
         try {
             virtualDisplay?.surface = null
         } catch (e: Exception) {
-            LogUtils.d("释放截屏 Surface 失败", e)
+            LogUtils.d("Failed to release the screenshot Surface", e)
         }
         activeImageReader?.close()
         activeImageReader = null

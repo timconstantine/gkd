@@ -108,15 +108,15 @@ abstract class A11yService : AccessibilityService(), OnA11yLife by DefaultA11yLi
             if (currentAppUseA11y) {
                 updateEnableAutomator(true)
             } else {
-                toast("当前为自动化模式，无障碍将自动关闭", forced = true)
+                toast("Currently in automation mode; accessibility will turn off automatically", forced = true)
                 runMainPost(1) { shutdown(true) }
             }
         }
         onDestroyed {
             if (tempShutdownFlag) {
-                toast("无障碍局部关闭")
+                toast("Accessibility partially disabled")
             } else {
-                toast("无障碍已关闭")
+                toast("Accessibility disabled")
                 updateEnableAutomator(false)
             }
         }
@@ -137,7 +137,7 @@ abstract class A11yService : AccessibilityService(), OnA11yLife by DefaultA11yLi
         onDestroyed { destroyed = true }
         onA11yConnected {
             connected = true
-            toast("无障碍已启动")
+            toast("Accessibility started")
             if (currentAppUseA11y) {
                 ruleEngine.onA11yConnected()
             }
@@ -145,7 +145,7 @@ abstract class A11yService : AccessibilityService(), OnA11yLife by DefaultA11yLi
         onCreated {
             runMainPost(3000) {
                 if (!(destroyed || connected)) {
-                    toast("无障碍启动超时，请尝试关闭重启", forced = true)
+                    toast("Accessibility start timed out, please try turning it off and back on", forced = true)
                 }
             }
         }
@@ -185,13 +185,13 @@ private fun A11yService.useAliveOverlayView() {
             packageName = context.packageName
         }
         try {
-            // 某些设备 android.view.WindowManager$BadTokenException
+            // android.view.WindowManager$BadTokenException on some devices
             wm.addView(tempView, lp)
             aliveView = tempView
         } catch (e: Throwable) {
             aliveView = null
             LogUtils.d(e)
-            toast("添加无障碍保活失败\n请尝试重启无障碍")
+            toast("Failed to add accessibility keep-alive\nPlease try restarting accessibility")
         }
     }
     onA11yConnected { addA11View() }

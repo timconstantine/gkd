@@ -24,9 +24,9 @@ fun <V, T : Option<V>> Iterable<T>.findOption(value: V): T {
 sealed class AppSortOption(override val value: Int, override val label: String) : Option<Int> {
     override val options get() = objects
 
-    data object ByAppName : AppSortOption(0, "按应用名称")
-    data object ByActionTime : AppSortOption(2, "按最近触发")
-    data object ByUsedTime : AppSortOption(3, "按最近使用")
+    data object ByAppName : AppSortOption(0, "By app name")
+    data object ByActionTime : AppSortOption(2, "By last triggered")
+    data object ByUsedTime : AppSortOption(3, "By last used")
 
     companion object {
         val objects by lazy { listOf(ByAppName, ByUsedTime, ByActionTime) }
@@ -39,10 +39,10 @@ sealed class UpdateTimeOption(
 ) : Option<Long> {
     override val options get() = objects
 
-    data object Pause : UpdateTimeOption(-1, "暂停")
-    data object Everyday : UpdateTimeOption(24 * 60 * 60_000, "每天")
-    data object Every3Days : UpdateTimeOption(24 * 60 * 60_000 * 3, "每3天")
-    data object Every7Days : UpdateTimeOption(24 * 60 * 60_000 * 7, "每7天")
+    data object Pause : UpdateTimeOption(-1, "Paused")
+    data object Everyday : UpdateTimeOption(24 * 60 * 60_000, "Every day")
+    data object Every3Days : UpdateTimeOption(24 * 60 * 60_000 * 3, "Every 3 days")
+    data object Every7Days : UpdateTimeOption(24 * 60 * 60_000 * 7, "Every 7 days")
 
     companion object {
         val objects by lazy { listOf(Pause, Everyday, Every3Days, Every7Days) }
@@ -57,9 +57,9 @@ sealed class DarkThemeOption(
 ) : Option<Boolean?>, OptionIcon, OptionMenuLabel {
     override val options get() = objects
 
-    data object FollowSystem : DarkThemeOption(null, "自动", "自动", PerfIcon.AutoMode)
-    data object AlwaysEnable : DarkThemeOption(true, "启用", "深色", PerfIcon.DarkMode)
-    data object AlwaysDisable : DarkThemeOption(false, "关闭", "浅色", PerfIcon.LightMode)
+    data object FollowSystem : DarkThemeOption(null, "Auto", "Auto", PerfIcon.AutoMode)
+    data object AlwaysEnable : DarkThemeOption(true, "Enabled", "Dark", PerfIcon.DarkMode)
+    data object AlwaysDisable : DarkThemeOption(false, "Disabled", "Light", PerfIcon.LightMode)
 
     companion object {
         val objects by lazy { listOf(FollowSystem, AlwaysEnable, AlwaysDisable) }
@@ -72,9 +72,9 @@ sealed class EnableGroupOption(
 ) : Option<Boolean?> {
     override val options get() = objects
 
-    data object FollowSubs : EnableGroupOption(null, "跟随订阅")
-    data object AllEnable : EnableGroupOption(true, "全部启用")
-    data object AllDisable : EnableGroupOption(false, "全部关闭")
+    data object FollowSubs : EnableGroupOption(null, "Follow subscription")
+    data object AllEnable : EnableGroupOption(true, "Enable all")
+    data object AllDisable : EnableGroupOption(false, "Disable all")
 
     companion object {
         val objects by lazy { listOf(FollowSubs, AllEnable, AllDisable) }
@@ -84,9 +84,9 @@ sealed class EnableGroupOption(
 sealed class RuleSortOption(override val value: Int, override val label: String) : Option<Int> {
     override val options get() = objects
 
-    data object ByDefault : RuleSortOption(0, "按默认顺序")
-    data object ByActionTime : RuleSortOption(1, "按最近触发")
-    data object ByRuleName : RuleSortOption(2, "按规则名称")
+    data object ByDefault : RuleSortOption(0, "By default order")
+    data object ByActionTime : RuleSortOption(1, "By last triggered")
+    data object ByRuleName : RuleSortOption(2, "By rule name")
 
     companion object {
         val objects by lazy { listOf(ByDefault, ByActionTime, ByRuleName) }
@@ -102,13 +102,13 @@ sealed class UpdateChannelOption(
 
     data object Stable : UpdateChannelOption(
         0,
-        "稳定版",
+        "Stable",
         "https://registry.npmmirror.com/@gkd-kit/app/latest/files/index.json"
     )
 
     data object Beta : UpdateChannelOption(
         1,
-        "测试版",
+        "Beta",
         "https://registry.npmmirror.com/@gkd-kit/app-beta/latest/files/index.json"
     )
 
@@ -135,9 +135,9 @@ sealed class AppGroupOption(
 ) : BinaryOption {
     override val options get() = allObjects
 
-    data object SystemGroup : AppGroupOption(1 shl 0, "系统应用")
-    data object UserGroup : AppGroupOption(1 shl 1, "用户应用")
-    data object UnInstalledGroup : AppGroupOption(1 shl 2, "未安装应用")
+    data object SystemGroup : AppGroupOption(1 shl 0, "System apps")
+    data object UserGroup : AppGroupOption(1 shl 1, "User apps")
+    data object UnInstalledGroup : AppGroupOption(1 shl 2, "Not installed")
 
     companion object {
         val normalObjects by lazy { listOf(SystemGroup, UserGroup) }
@@ -151,8 +151,8 @@ sealed class AutomatorModeOption(
 ) : Option<Int> {
     override val options get() = objects
 
-    data object A11yMode : AutomatorModeOption(1, "无障碍")
-    data object AutomationMode : AutomatorModeOption(2, "自动化")
+    data object A11yMode : AutomatorModeOption(1, "Accessibility")
+    data object AutomationMode : AutomatorModeOption(2, "Automation")
 
     companion object {
         val objects by lazy { listOf(A11yMode, AutomationMode) }

@@ -32,7 +32,7 @@ object SystemDownloads {
         val downloadsDirectory =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         if (!downloadsDirectory.exists() && !downloadsDirectory.mkdirs()) {
-            error("创建下载目录失败")
+            error("Failed to create the downloads directory")
         }
         source.copyTo(downloadsDirectory.resolve(source.name), overwrite = true)
     }
@@ -51,11 +51,11 @@ object SystemDownloads {
         }
         val resolver = app.contentResolver
         val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            ?: error("创建下载文件失败")
+            ?: error("Failed to create the download file")
         try {
             resolver.openOutputStream(uri)?.use { output ->
                 source.inputStream().use { input -> input.copyTo(output) }
-            } ?: error("打开下载文件失败")
+            } ?: error("Failed to open the download file")
             values.clear()
             values.put(MediaStore.MediaColumns.IS_PENDING, 0)
             resolver.update(uri, values, null, null)

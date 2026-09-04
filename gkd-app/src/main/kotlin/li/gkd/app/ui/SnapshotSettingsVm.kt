@@ -21,14 +21,14 @@ class SnapshotSettingsVm : BaseViewModel() {
             return true
         }
         if (appId.isNotEmpty() && !appInfoMapFlow.value.contains(appId)) {
-            toast("无效应用ID")
+            toast("Invalid app ID")
             return false
         }
         if (
             eventSelector.isNotEmpty() &&
             Selector.compile(eventSelector) is SelectorCompileResult.Failure
         ) {
-            toast("无效事件选择器")
+            toast("Invalid event selector")
             return false
         }
         storeFlow.update {
@@ -37,7 +37,7 @@ class SnapshotSettingsVm : BaseViewModel() {
                 screenshotEventSelector = eventSelector,
             )
         }
-        toast("更新成功")
+        toast("Updated successfully")
         return true
     }
 
@@ -54,7 +54,7 @@ class SnapshotSettingsVm : BaseViewModel() {
                     store.screenshotEventSelector.isEmpty()
             )
         ) {
-            toast("请配置目标应用和特征事件选择器")
+            toast("Please configure the target app and feature event selector")
         }
     }
 

@@ -106,18 +106,18 @@ fun useSettingsPage(): ScaffoldExt {
 
     if (showToastSettingsDialog) {
         SettingsDialog(
-            title = "提示设置",
+            title = "Toast settings",
             onDismissRequest = { vm.setToastSettingsDialogVisible(false) },
         ) {
             TextSwitch(
-                title = "提示样式",
-                subtitle = "使用系统样式",
-                suffix = "查看限制",
+                title = "Toast style",
+                subtitle = "Use the system style",
+                suffix = "View limitations",
                 onSuffixClick = {
                     actionScope.launchTry {
                         mainVm.dialogRequests.showMessage(
-                            title = "限制说明",
-                            text = "系统 Toast 存在频率限制, 触发过于频繁会被系统强制不显示\n\n如果只使用开屏一类低频率规则可使用系统提示, 否则建议关闭此项使用自定义样式提示",
+                            title = "About the limitation",
+                            text = "The system Toast has a rate limit; triggering it too often will cause the system to force it not to show\n\nIf you only use low-frequency rules like app-open triggers, the system toast is fine — otherwise it's recommended to turn this off and use the custom-style toast",
                         )
                     }
                 },
@@ -125,16 +125,16 @@ fun useSettingsPage(): ScaffoldExt {
                 onCheckedChange = vm::setUseSystemToast,
             )
             TextSwitch(
-                title = "轨迹提示",
-                subtitle = "显示触发位置信息",
+                title = "Trace hint",
+                subtitle = "Show the trigger location info",
                 checked = trackServiceRunning,
                 onCheckedChange = { enabled ->
                     actionScope.launchTry {
                         if (enabled) {
                             if (!mainVm.dialogRequests.confirm(
-                                title = "使用须知",
-                                text = "开启「轨迹提示」后点击或滑动后会在屏幕上使用悬浮窗绘制轨迹(一段时间后消失)，如果新触摸事件恰好在悬浮窗区域内，可能会被目标应用拒绝，从而导致点击或滑动无响应",
-                                confirmText = "继续",
+                                title = "Before you enable this",
+                                text = "After enabling \"trace hint\", a tap or swipe will draw a trace on screen using an overlay window (which disappears after a while). If a new touch event happens to land within the overlay window's area, the target app may reject it, causing the tap or swipe to not respond",
+                                confirmText = "Continue",
                             )) return@launchTry
                             if (
                                 !mainVm.permissionRequests.ensurePermissions(
@@ -166,16 +166,16 @@ fun useSettingsPage(): ScaffoldExt {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(text = "触发提示")
+                    Text(text = "Trigger toast")
                     PerfIconButton(
                         imageVector = PerfIcon.HelpOutline,
-                        contentDescription = "文案规则",
-                        onClickLabel = "打开文案规则弹窗",
+                        contentDescription = "Text rules",
+                        onClickLabel = "Open the text rules dialog",
                         onClick = throttle {
                             actionScope.launchTry {
                                 mainVm.dialogRequests.showMessage(
-                                    title = "文案规则",
-                                    text = $$"触发文案支持变量替换，规则如下\n${1} 子规则名称\n${2} 规则名称\n${3} 触发次数\n\n示例模板\n${1}/${2}/${3}\n\n替换结果\n子规则a/规则A/3",
+                                    title = "Text rules",
+                                    text = $$"The trigger text supports variable substitution, with these rules\n${1} sub-rule name\n${2} rule name\n${3} trigger count\n\nExample template\n${1}/${2}/${3}\n\nSubstituted result\nSub-rule a/Rule A/3",
                                 )
                             }
                         },
@@ -186,7 +186,7 @@ fun useSettingsPage(): ScaffoldExt {
                 OutlinedTextField(
                     value = value,
                     placeholder = {
-                        Text(text = "请输入提示内容")
+                        Text(text = "Enter the toast content")
                     },
                     onValueChange = {
                         value = it.take(maxCharLen)
@@ -207,16 +207,16 @@ fun useSettingsPage(): ScaffoldExt {
             confirmButton = {
                 TextButton(enabled = value.isNotEmpty(), onClick = {
                     if (vm.saveActionToast(value)) {
-                        toast("更新成功")
+                        toast("Updated successfully")
                     }
                     vm.setActionToastDialogVisible(false)
                 }) {
-                    Text(text = "确认")
+                    Text(text = "Confirm")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { vm.setActionToastDialogVisible(false) }) {
-                    Text(text = "取消")
+                    Text(text = "Cancel")
                 }
             }
         )
@@ -233,16 +233,16 @@ fun useSettingsPage(): ScaffoldExt {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(text = "通知文案")
+                    Text(text = "Notification text")
                     PerfIconButton(
                         imageVector = PerfIcon.HelpOutline,
-                        contentDescription = "文案规则",
-                        onClickLabel = "打开文案规则弹窗",
+                        contentDescription = "Text rules",
+                        onClickLabel = "Open the text rules dialog",
                         onClick = throttle {
                             actionScope.launchTry {
                                 mainVm.dialogRequests.showMessage(
-                                    title = "文案规则",
-                                    text = $$"通知文案支持变量替换，规则如下\n${i} 全局规则数\n${k} 应用数\n${u} 应用规则数\n${n} 触发次数\n\n示例模板\n${i}全局/${k}应用/${u}规则/${n}触发\n\n替换结果\n0全局/1应用/2规则/3触发",
+                                    title = "Text rules",
+                                    text = $$"The notification text supports variable substitution, with these rules\n${i} global rule count\n${k} app count\n${u} app rule count\n${n} trigger count\n\nExample template\n${i} global/${k} apps/${u} rules/${n} triggered\n\nSubstituted result\n0 global/1 apps/2 rules/3 triggered",
                                 )
                             }
                         },
@@ -256,9 +256,9 @@ fun useSettingsPage(): ScaffoldExt {
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     CustomOutlinedTextField(
-                        label = { Text("主标题") },
+                        label = { Text("Title") },
                         value = titleValue,
-                        placeholder = { Text(text = "请输入内容，支持变量替换") },
+                        placeholder = { Text(text = "Enter the content; variable substitution is supported") },
                         onValueChange = {
                             titleValue = (if (it.length > titleMaxLen) it.take(titleMaxLen) else it)
                                 .filter { c -> c !in "\n\r" }
@@ -276,9 +276,9 @@ fun useSettingsPage(): ScaffoldExt {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     CustomOutlinedTextField(
-                        label = { Text("副标题") },
+                        label = { Text("Subtitle") },
                         value = textValue,
-                        placeholder = { Text(text = "请输入内容，支持变量替换") },
+                        placeholder = { Text(text = "Enter the content; variable substitution is supported") },
                         onValueChange = {
                             textValue = if (it.length > textMaxLen) it.take(textMaxLen) else it
                         },
@@ -304,19 +304,19 @@ fun useSettingsPage(): ScaffoldExt {
                 TextButton(onClick = {
                     context.imeController.requestHide()
                     if (vm.saveNotificationText(titleValue, textValue)) {
-                        toast("更新成功")
+                        toast("Updated successfully")
                     }
                     vm.setNotificationTextDialogVisible(false)
                 }) {
                     Text(
-                        text = "确认",
+                        text = "Confirm",
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { vm.setNotificationTextDialogVisible(false) }) {
                     Text(
-                        text = "取消",
+                        text = "Cancel",
                     )
                 }
             })
@@ -332,17 +332,17 @@ fun useSettingsPage(): ScaffoldExt {
         TextListDialog(
             onDismiss = { vm.setBackupDialogVisible(false) },
             textList = listOf(
-                "导入备份" to {
+                "Import backup" to {
                     actionScope.launchTry {
                         val uri = mainVm.activityResults.openDocument(ZIP_MIME_TYPE)
                         if (uri == null) {
-                            toast("未选择文件")
+                            toast("No file selected")
                             return@launchTry
                         }
                         vm.importBackup(uri)
                     }
                 },
-                "导出备份" to {
+                "Export backup" to {
                     vm.setExportBackupDialogVisible(true)
                 },
             )
@@ -352,13 +352,13 @@ fun useSettingsPage(): ScaffoldExt {
         TextListDialog(
             onDismiss = { vm.setExportBackupDialogVisible(false) },
             textList = listOf(
-                "分享到其他应用" to {
+                "Share to another app" to {
                     actionScope.launchTry {
                         val file = vm.exportBackup()
-                        context.shareFile(file, "分享备份文件")
+                        context.shareFile(file, "Share the backup file")
                     }
                 },
-                "保存到下载" to {
+                "Save to Downloads" to {
                     actionScope.launchTry {
                         val file = vm.exportBackup()
                         context.saveFileToDownloads(file)
@@ -393,16 +393,16 @@ fun useSettingsPage(): ScaffoldExt {
         ) {
 
             Text(
-                text = "常规",
+                text = "General",
                 modifier = Modifier.titleItemPadding(showTop = false),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             TextSwitch(
-                title = "触发提示",
+                title = "Trigger toast",
                 subtitle = store.actionToast,
                 checked = store.toastWhenClick,
-                onClickLabel = "打开触发提示弹窗",
+                onClickLabel = "Open the trigger toast dialog",
                 onClick = {
                     vm.setActionToastDialogVisible(true)
                 },
@@ -410,10 +410,10 @@ fun useSettingsPage(): ScaffoldExt {
                     PerfCustomIconButton(
                         size = 32.dp,
                         iconSize = 20.dp,
-                        onClickLabel = "打开提示设置弹窗",
+                        onClickLabel = "Open the toast settings dialog",
                         onClick = { vm.setToastSettingsDialogVisible(true) },
                         id = R.drawable.ic_page_info,
-                        contentDescription = "提示设置",
+                        contentDescription = "Toast settings",
                         tint = if (showToastSettingsDialog) MaterialTheme.colorScheme.primary else LocalContentColor.current,
                     )
                 },
@@ -422,30 +422,30 @@ fun useSettingsPage(): ScaffoldExt {
                 })
 
             TextSwitch(
-                title = "通知文案",
+                title = "Notification text",
                 subtitle = if (store.useCustomNotifText) {
                     store.customNotifTitle + " / " + store.customNotifText
                 } else {
                     subsStatus
                 },
                 checked = store.useCustomNotifText,
-                onClickLabel = "打开修改通知文案弹窗",
+                onClickLabel = "Open the edit notification text dialog",
                 onClick = { vm.setNotificationTextDialogVisible(true) },
                 onCheckedChange = {
                     vm.setUseCustomNotificationText(it)
                 })
 
             TextSwitch(
-                title = "后台隐藏",
-                subtitle = "在「最近任务」隐藏卡片",
+                title = "Hide from Recents",
+                subtitle = "Hide the card in \"Recent tasks\"",
                 checked = store.excludeFromRecents,
                 onCheckedChange = { enabled ->
                     actionScope.launchTry {
                         if (enabled) {
                             if (!mainVm.dialogRequests.confirm(
-                                title = "后台隐藏",
-                                text = "隐藏卡片后可能导致部分设备无法给任务卡片加锁后台，建议先加锁后再隐藏，若已加锁或没有锁后台机制请继续",
-                                confirmText = "继续",
+                                title = "Hide from Recents",
+                                text = "Hiding the card may prevent some devices from locking the task card in the background; it's recommended to lock it first before hiding. If it's already locked, or there's no lock-background mechanism, please continue",
+                                confirmText = "Continue",
                             )) return@launchTry
                         }
                         vm.setExcludeFromRecents(enabled)
@@ -464,14 +464,14 @@ fun useSettingsPage(): ScaffoldExt {
                     modifier = Modifier
                         .fillMaxWidth()
                         .titleItemPadding(),
-                    text = "无障碍",
+                    text = "Accessibility",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
             TextSwitch(
-                title = "局部关闭",
-                subtitle = "白名单内关闭服务",
+                title = "Partial disable",
+                subtitle = "Disable the service for allowlisted apps",
                 checked = store.enableBlockA11yAppList && privilegeAvailable,
                 onCheckedChange = {
                     if (it && !privilegeAvailable) {
@@ -484,20 +484,20 @@ fun useSettingsPage(): ScaffoldExt {
                 },
             )
             AnimatedVisibility(visible = blockSectionVisible) {
-                SettingItem(title = "白名单", onClickLabel = "进入无障碍白名单页面", onClick = {
+                SettingItem(title = "Allowlist", onClickLabel = "Open the accessibility allowlist page", onClick = {
                     mainVm.navigatePage(BlockA11yAppListRoute)
                 })
             }
 
             Text(
-                text = "外观",
+                text = "Appearance",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
 
             TextMenu(
-                title = "深色模式",
+                title = "Dark mode",
                 option = DarkThemeOption.objects.findOption(store.enableDarkTheme),
                 onOptionChange = {
                     vm.setDarkTheme(it.value)
@@ -506,7 +506,7 @@ fun useSettingsPage(): ScaffoldExt {
 
             if (AndroidTarget.S) {
                 TextSwitch(
-                    title = "动态配色",
+                    title = "Dynamic color",
                     checked = store.enableDynamicColor,
                     onCheckedChange = {
                         vm.setDynamicColor(it)
@@ -515,20 +515,20 @@ fun useSettingsPage(): ScaffoldExt {
             }
 
             Text(
-                text = "其他",
+                text = "Other",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
 
-            SettingItem(title = "高级设置", onClick = {
+            SettingItem(title = "Advanced settings", onClick = {
                 mainVm.navigatePage(AdvancedPageRoute)
             })
-            SettingItem(title = "备份恢复", onClick = {
+            SettingItem(title = "Backup & restore", onClick = {
                 vm.setBackupDialogVisible(true)
             })
 
-            SettingItem(title = "关于", onClick = {
+            SettingItem(title = "About", onClick = {
                 mainVm.navigatePage(AboutRoute)
             })
 
@@ -555,12 +555,12 @@ private fun BlockA11yDialog(
                     navigationIcon = {
                         PerfIconButton(
                             imageVector = PerfIcon.Close,
-                            onClickLabel = "关闭弹窗",
+                            onClickLabel = "Close the dialog",
                             onClick = onDismissRequest,
                         )
                     },
                     title = {
-                        Text(text = "局部关闭")
+                        Text(text = "Partial disable")
                     },
                 )
             },
@@ -577,7 +577,7 @@ private fun BlockA11yDialog(
                             }
                         }
                     ) {
-                        Text(text = "继续")
+                        Text(text = "Continue")
                     }
                     Spacer(modifier = Modifier.width(itemHorizontalPadding))
                 }
@@ -591,23 +591,23 @@ private fun BlockA11yDialog(
                     .padding(horizontal = itemHorizontalPadding)
             ) {
                 CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.bodyMedium) {
-                    Text(text = "「局部关闭」可在白名单应用内关闭服务，来解决界面异常，游戏掉帧或无障碍检测的问题")
+                    Text(text = "\"Partial disable\" can turn off the service for allowlisted apps, to work around display glitches, game frame drops, or accessibility detection")
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "使用须知", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Before you enable this", style = MaterialTheme.typography.titleMedium)
                     Column(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        RequiredTextItem(text = "切换服务会造成短暂触摸卡顿，请自行测试后再编辑白名单")
-                        RequiredTextItem(text = "使用其它无障碍应用可能导致优化无效，可在服务关闭后自行确认")
-                        RequiredTextItem(text = "必须确保服务关闭后的持续后台运行，否则会被系统暂停或结束运行导致重启失败")
+                        RequiredTextItem(text = "Switching the service causes a brief touch stutter, please test it yourself before editing the allowlist")
+                        RequiredTextItem(text = "Using another accessibility app may make the optimization ineffective; you can verify this yourself after the service is off")
+                        RequiredTextItem(text = "You must ensure the service keeps running in the background after being turned off, otherwise the system may suspend or kill it, causing a restart failure")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "使用条件", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Requirements", style = MaterialTheme.typography.titleMedium)
                     Column(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         RequiredTextItem(
-                            text = "特权服务",
+                            text = "Privileged service",
                             enabled = privilegeContext == null,
                             imageVector = if (privilegeContext != null) PerfIcon.Check else PerfIcon.ArrowForward,
                             onClick = {
@@ -615,7 +615,7 @@ private fun BlockA11yDialog(
                             },
                         )
                         RequiredTextItem(
-                            text = "开启「常驻通知」",
+                            text = "Enable \"persistent notification\"",
                             enabled = !statusRunning,
                             imageVector = if (statusRunning) PerfIcon.Check else PerfIcon.ArrowForward,
                             onClick = {
@@ -625,10 +625,10 @@ private fun BlockA11yDialog(
                             },
                         )
                         RequiredTextItem(
-                            text = "省电策略设置为无限制",
+                            text = "Set battery saver to unrestricted",
                             enabled = !ignoreBatteryOptimizations,
                             imageVector = if (ignoreBatteryOptimizations) PerfIcon.Check else PerfIcon.ArrowForward,
-                            onClickLabel = "打开忽略电池优化设置页面",
+                            onClickLabel = "Open the ignore battery optimizations settings page",
                             onClick = {
                                 actionScope.launchTry {
                                     mainVm.permissionRequests.ensurePermissions(
@@ -638,19 +638,19 @@ private fun BlockA11yDialog(
                             },
                         )
                         RequiredTextItem(
-                            text = "(可选) 允许自启动",
+                            text = "(Optional) Allow auto-start",
                             enabled = true,
                             imageVector = PerfIcon.OpenInNew,
-                            onClickLabel = "打开应用详情页面",
+                            onClickLabel = "Open the app details page",
                             onClick = {
                                 openAppDetailsSettings()
                             },
                         )
                         RequiredTextItem(
-                            text = "(可选) 在「最近任务」锁定",
+                            text = "(Optional) Lock in \"Recent tasks\"",
                             enabled = true,
                             imageVector = PerfIcon.OpenInNew,
-                            onClickLabel = "打开应用详情页面",
+                            onClickLabel = "Open the app details page",
                             onClick = {
                                 val inputManager = privilegeContextFlow.value?.inputManager
                                 if (inputManager == null) {
@@ -662,7 +662,7 @@ private fun BlockA11yDialog(
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "某些场景下服务刚启动时概率不工作，如多次遇到此情况则不建议使用此功能")
+                    Text(text = "In some scenarios the service may occasionally not work right after starting; if you encounter this repeatedly, this feature is not recommended")
                 }
                 Spacer(modifier = Modifier.height(EmptyHeight))
             }

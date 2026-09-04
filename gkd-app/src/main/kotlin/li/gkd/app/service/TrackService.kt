@@ -309,7 +309,7 @@ class TrackService : LifecycleService(), SavedStateRegistryOwner,
         onCreated { service = this }
         onDestroyed { service = null }
         useAliveFlow(isRunning)
-        useAliveToast("轨迹提示")
+        useAliveToast("Trace hint")
         StopServiceReceiver.autoRegister()
         onCreated {
             NotificationCatalog.track().startForeground()

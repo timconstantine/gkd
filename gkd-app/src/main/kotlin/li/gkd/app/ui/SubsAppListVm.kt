@@ -131,7 +131,7 @@ class SubsAppListVm(
         } else {
             val results = mutableListOf<RawSubscription.RawApp>()
             val remainingApps = apps.toMutableList()
-            //1. 搜索已安装应用名称
+            //1. Search installed app names
             remainingApps.toList().apply { remainingApps.clear() }.forEach { app ->
                 if (appMap[app.id]?.name?.contains(searchStr, true) == true) {
                     results.add(app)
@@ -139,7 +139,7 @@ class SubsAppListVm(
                     remainingApps.add(app)
                 }
             }
-            //2. 搜索未安装应用名称
+            //2. Search names of apps not installed
             remainingApps.toList().apply { remainingApps.clear() }.forEach { app ->
                 if (appMap[app.id] == null && app.name?.contains(searchStr, true) == true) {
                     results.add(app)
@@ -147,7 +147,7 @@ class SubsAppListVm(
                     remainingApps.add(app)
                 }
             }
-            //3. 搜索应用 id
+            //3. Search app id
             remainingApps.forEach { app ->
                 if (app.id.contains(searchStr, true)) {
                     results.add(app)

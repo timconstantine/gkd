@@ -48,10 +48,10 @@ fun SubsAppCard(
             AppNameText(appInfo = appInfo, fallbackName = rawApp.name)
             if (rawApp.groups.isNotEmpty()) {
                 val enableDesc = when (enableSize) {
-                    null -> "${rawApp.groups.size}组规则"
-                    0 -> "${rawApp.groups.size}组规则/${rawApp.groups.size}关闭"
-                    rawApp.groups.size -> "${rawApp.groups.size}组规则"
-                    else -> "${rawApp.groups.size}组规则/${enableSize}启用/${rawApp.groups.size - enableSize}关闭"
+                    null -> "${rawApp.groups.size} rule group(s)"
+                    0 -> "${rawApp.groups.size} rule group(s)/${rawApp.groups.size} disabled"
+                    rawApp.groups.size -> "${rawApp.groups.size} rule group(s)"
+                    else -> "${rawApp.groups.size} rule group(s)/${enableSize} enabled/${rawApp.groups.size - enableSize} disabled"
                 }
                 Text(
                     text = enableDesc,

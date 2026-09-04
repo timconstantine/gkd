@@ -24,7 +24,7 @@ private fun execSnapshot() {
     val service = A11yRuleEngine.instance
     if (service == null) {
         A11yRuleEngine.performActionBack()
-        toast("服务未连接", forced = true)
+        toast("Service not connected", forced = true)
         return
     }
     appScope.launchTry(Dispatchers.IO) {
@@ -32,7 +32,7 @@ private fun execSnapshot() {
 
         if (oldAppId == null) {
             A11yRuleEngine.performActionBack()
-            toast("获取信息根节点失败", forced = true)
+            toast("Failed to get the root info node", forced = true)
             return@launchTry
         }
 
@@ -48,7 +48,7 @@ private fun execSnapshot() {
                 // https://github.com/gkd-kit/gkd/issues/713
                 delay(250)
                 if (timeout()) {
-                    toast("当前应用没有无障碍信息，捕获失败", forced = true)
+                    toast("The current app has no accessibility info, capture failed", forced = true)
                     break
                 }
             } else if (latestAppId != oldAppId) {
@@ -60,7 +60,7 @@ private fun execSnapshot() {
                 A11yRuleEngine.performActionBack()
                 delay(500)
                 if (timeout()) {
-                    toast("未检测到界面切换，捕获失败", forced = true)
+                    toast("No screen change detected, capture failed", forced = true)
                     break
                 }
             }

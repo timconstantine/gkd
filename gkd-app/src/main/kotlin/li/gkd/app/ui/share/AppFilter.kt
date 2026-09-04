@@ -210,7 +210,7 @@ fun filterSubsApps(
     showBlockApps: (SettingsStore) -> Boolean,
 ): List<RawSubscription.RawApp> {
     var result = apps.sortedWith { a, b ->
-        // 默认顺序: 已安装(有名字->无名字)->未安装(有名字(来自订阅)->无名字)
+        // Default order: installed (has name -> no name) -> not installed (has name from subscription -> no name)
         val x = appMap[a.id]?.name ?: a.name?.let { "\uFFFF" + it }
         ?: ("\uFFFF\uFFFF" + a.id)
         val y = appMap[b.id]?.name ?: b.name?.let { "\uFFFF" + it }

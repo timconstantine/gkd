@@ -122,9 +122,9 @@ private fun TriStateSwitch(
                 .minimumInteractiveComponentSize()
                 .semantics {
                     stateDescription = when (checked) {
-                        true -> "开启"
-                        false -> "关闭"
-                        null -> "跟随"
+                        true -> "On"
+                        false -> "Off"
+                        null -> "Follow"
                     }
                 }
                 .triStateToggleable(

@@ -48,7 +48,7 @@ class PermissionState(
     fun checkOrToast(): Boolean {
         val granted = refresh()
         if (!granted) {
-            toast("请先授予「$name」")
+            toast("Please grant \"$name\" first")
         }
         return granted
     }
@@ -56,7 +56,7 @@ class PermissionState(
 
 data class PermissionResolution(
     val message: String,
-    val confirmText: String = "去设置",
+    val confirmText: String = "Go to settings",
     val navigateToPrivilegeService: Boolean = false,
 )
 
@@ -72,7 +72,7 @@ private fun requestablePermissionState(
     permission = permission,
     purpose = purpose,
     resolution = PermissionResolution(
-        message = "未授予「$name」\n请前往系统权限设置开启",
+        message = "\"$name\" is not granted\nPlease enable it in the system permission settings",
     ),
     onChanged = onChanged,
 )
@@ -91,7 +91,7 @@ object PermissionStates {
     // https://github.com/gkd-kit/gkd/issues/887
     val foregroundServiceSpecialUse by lazy {
         PermissionState(
-            name = "特殊用途的前台服务",
+            name = "Special-use foreground service",
             check = {
                 if (AndroidTarget.UPSIDE_DOWN_CAKE) {
                     checkAllowedOp(AppOpsManagerHidden.OPSTR_FOREGROUND_SERVICE_SPECIAL_USE)
@@ -100,8 +100,8 @@ object PermissionStates {
                 }
             },
             resolution = PermissionResolution(
-                message = "「特殊用途的前台服务」已被限制，请前往特权服务重新授权",
-                confirmText = "去授权",
+                message = "\"Special-use foreground service\" has been restricted, please re-authorize via the privileged service",
+                confirmText = "Go to authorize",
                 navigateToPrivilegeService = true,
             ),
         )
@@ -137,7 +137,7 @@ object PermissionStates {
 
     private val appOpsAllowed by lazy {
         PermissionState(
-            name = "启动相关操作权限",
+            name = "Launch-related operation permission",
             check = {
                 val accessA11yAllowed = checkAccessA11y()
                 val accessRestrictedSettingsAllowed = checkAccessRestrictedSettings()
@@ -157,24 +157,24 @@ object PermissionStates {
 
     val notification by lazy {
         requestablePermissionState(
-            name = "通知权限",
-            purpose = "用于显示后台服务运行状态与必要通知",
+            name = "Notification permission",
+            purpose = "Used to show background service status and necessary notifications",
             permission = PermissionLists.getPostNotificationsPermission(),
         )
     }
 
     val localNetwork by lazy {
         requestablePermissionState(
-            name = "访问本地网络权限",
-            purpose = "用于通过无线调试连接特权服务及允许局域网设备访问 HTTP 服务",
+            name = "Local network access permission",
+            purpose = "Used to connect to the privileged service via wireless debugging, and to allow devices on the local network to access the HTTP service",
             permission = PermissionLists.getAccessLocalNetworkPermission(),
         )
     }
 
     val queryPackages by lazy {
         requestablePermissionState(
-            name = "读取应用列表权限",
-            purpose = "用于展示设备应用并匹配应用规则",
+            name = "Read app list permission",
+            purpose = "Used to display device apps and match app rules",
             permission = PermissionLists.getGetInstalledAppsPermission(),
             onChanged = {
                 if (!updateAppMutex.mutex.isLocked) {
@@ -186,8 +186,8 @@ object PermissionStates {
 
     val drawOverlays by lazy {
         requestablePermissionState(
-            name = "悬浮窗权限",
-            purpose = "用于显示快照按钮、界面信息和事件提示等悬浮内容",
+            name = "Overlay window permission",
+            purpose = "Used to show floating content such as the snapshot button, screen info, and event hints",
             permission = PermissionLists.getSystemAlertWindowPermission(),
             check = {
                 // https://developer.android.com/security/fraud-prevention/activities?hl=zh-cn#hide_overlay_windows
@@ -198,8 +198,8 @@ object PermissionStates {
 
     val writeExternalStorage by lazy {
         requestablePermissionState(
-            name = "写入外部存储权限",
-            purpose = "用于在 Android 9 及以下保存截图或文件到公共存储",
+            name = "Write external storage permission",
+            purpose = "Used to save screenshots or files to public storage on Android 9 and below",
             permission = PermissionLists.getWriteExternalStoragePermission(),
             check = {
                 if (AndroidTarget.Q) {
@@ -213,8 +213,8 @@ object PermissionStates {
 
     val ignoreBatteryOptimizations by lazy {
         requestablePermissionState(
-            name = "忽略电池优化权限",
-            purpose = "用于降低后台服务被系统休眠或终止的概率",
+            name = "Ignore battery optimizations permission",
+            purpose = "Used to reduce the chance of the background service being suspended or killed by the system",
             permission = PermissionLists.getRequestIgnoreBatteryOptimizationsPermission(),
             check = {
                 app.powerManager.isIgnoringBatteryOptimizations(app.packageName)
@@ -224,14 +224,14 @@ object PermissionStates {
 
     val writeSecureSettings by lazy {
         PermissionState(
-            name = "写入安全设置权限",
+            name = "Write secure settings permission",
             check = { app.checkGrantedPermission(Manifest.permission.WRITE_SECURE_SETTINGS) },
         )
     }
 
     val privilegeGranted by lazy {
         PermissionState(
-            name = "特权服务",
+            name = "Privileged service",
             check = {
                 privilegeContextFlow.value != null && Privilege.pingServer()
             },

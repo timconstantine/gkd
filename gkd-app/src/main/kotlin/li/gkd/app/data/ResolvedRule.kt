@@ -90,14 +90,14 @@ sealed class ResolvedRule(
                     }
             val groupRules = selfGroupRules + othersGroupRules
 
-            // 共享次数
+            // Shared count
             if (actionMaximumKey != null) {
                 val otherRule = groupRules.find { r -> r.key == actionMaximumKey }
                 if (otherRule != null) {
                     actionCount = otherRule.actionCount
                 }
             }
-            // 共享 cd
+            // Shared cooldown
             if (actionCdKey != null) {
                 val otherRule = groupRules.find { r -> r.key == actionCdKey }
                 if (otherRule != null) {
@@ -175,27 +175,27 @@ sealed class ResolvedRule(
         get() {
             if (actionMaximum != null) {
                 if (actionCount.value >= actionMaximum) {
-                    return RuleStatus.Status1 // 达到最大执行次数
+                    return RuleStatus.Status1 // Reached the maximum trigger count
                 }
             }
             if (preRules.isNotEmpty() && !preRules.any { it === lastTriggerRule }) {
-                return RuleStatus.Status2 // 需要提前触发某个规则
+                return RuleStatus.Status2 // Needs another rule to trigger first
             }
             val t = System.currentTimeMillis()
             val c = matchChangedTime.value
             if (matchDelay > 0 && t - c < matchDelay) {
-                return RuleStatus.Status3 // 处于匹配延迟中
+                return RuleStatus.Status3 // In the match delay window
             }
             if (matchTime != null && t - c > matchLimitTime) {
-                return RuleStatus.Status4 // 超出匹配时间
+                return RuleStatus.Status4 // Past the match time window
             }
             if (actionTriggerTime.value + actionCd > t) {
-                return RuleStatus.Status5 // 处于冷却时间
+                return RuleStatus.Status5 // In cooldown
             }
             val d = actionDelayTriggerTime.value
             if (d > 0) {
                 if (d + actionDelay > t) {
-                    return RuleStatus.Status6 // 处于触发延迟中
+                    return RuleStatus.Status6 // In the trigger delay window
                 }
             }
             return RuleStatus.StatusOk
@@ -207,7 +207,7 @@ sealed class ResolvedRule(
 
     abstract val type: String
 
-    // 范围越精确, 优先级越高
+    // The more precise the scope, the higher the priority
     abstract fun matchActivity(appId: String, activityId: String? = null): Boolean
 }
 
@@ -223,12 +223,12 @@ sealed class ResetMatchType(val value: String) {
 
 sealed class RuleStatus(val name: String) {
     data object StatusOk : RuleStatus("ok")
-    data object Status1 : RuleStatus("达到最大执行次数")
-    data object Status2 : RuleStatus("需要提前触发某个规则")
-    data object Status3 : RuleStatus("处于匹配延迟")
-    data object Status4 : RuleStatus("超出匹配时间")
-    data object Status5 : RuleStatus("处于冷却时间")
-    data object Status6 : RuleStatus("处于触发延迟")
+    data object Status1 : RuleStatus("Reached the maximum trigger count")
+    data object Status2 : RuleStatus("Needs another rule to trigger first")
+    data object Status3 : RuleStatus("In the match delay window")
+    data object Status4 : RuleStatus("Past the match time window")
+    data object Status5 : RuleStatus("In cooldown")
+    data object Status6 : RuleStatus("In the trigger delay window")
 
     val ok: Boolean
         get() = this === StatusOk

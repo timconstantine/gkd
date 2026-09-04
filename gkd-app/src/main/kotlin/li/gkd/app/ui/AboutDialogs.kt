@@ -47,25 +47,25 @@ private fun VersionInfoDialog() {
     if (visible) {
         AppAlertDialog(
             onDismissRequest = { vm.setInfoDialogVisible(false) },
-            title = { Text(text = "版本信息") },
+            title = { Text(text = "Version info") },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Column {
-                        Text(text = "构建渠道")
+                        Text(text = "Build channel")
                         Text(text = META.channel)
                     }
                     Column {
-                        Text(text = "版本代码")
+                        Text(text = "Version code")
                         Text(text = META.versionCode.toString())
                     }
                     Column {
-                        Text(text = "版本名称")
+                        Text(text = "Version name")
                         Text(text = META.versionName)
                     }
                     Column {
-                        Text(text = "代码记录")
+                        Text(text = "Commit")
                         Text(
                             modifier = Modifier.clickable { openUri(META.commitUrl) },
                             text = META.tagName ?: META.commitId.substring(0, 16),
@@ -74,14 +74,14 @@ private fun VersionInfoDialog() {
                         )
                     }
                     Column {
-                        Text(text = "提交时间")
+                        Text(text = "Commit time")
                         Text(text = META.commitTime.format("yyyy-MM-dd HH:mm:ss ZZ"))
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = { vm.setInfoDialogVisible(false) }) {
-                    Text(text = "关闭")
+                    Text(text = "Close")
                 }
             },
         )
@@ -96,7 +96,7 @@ private fun ShareAppDialog() {
     val visible by vm.showShareAppDlgFlow.collectAsStateWithLifecycle()
     if (visible) {
         val exportPlayTipText = buildAnnotatedString {
-            append("当前导出的 APK 文件只能在已安装 Google 框架的设备上才能使用，否则安装打开后会提示报错，")
+            append("The exported APK file only works on devices with Google Play Services installed; otherwise it will show an error after installing and opening. ")
             withLink(
                 LinkAnnotation.Url(
                     ShortUrlSet.URL13,
@@ -108,29 +108,29 @@ private fun ShareAppDialog() {
                     )
                 )
             ) {
-                append("建议点此从官网下载")
+                append("We recommend tapping here to download from the official site")
             }
-            append("，或点击下方继续操作")
+            append(", or tap below to continue anyway")
         }
         TextListDialog(
             onDismiss = { vm.setShareAppDialogVisible(false) },
             textList = listOf(
-                "分享到其他应用" to vm.scope.launchAsFn(Dispatchers.IO) {
+                "Share to another app" to vm.scope.launchAsFn(Dispatchers.IO) {
                     if (!META.isGkdChannel) {
                         if (!mainVm.dialogRequests.confirm(
-                            title = "分享提示",
+                            title = "Share notice",
                             text = exportPlayTipText,
-                            confirmText = "继续",
+                            confirmText = "Continue",
                         )) return@launchAsFn
                     }
-                    context.shareFile(getShareApkFile(), "分享安装文件")
+                    context.shareFile(getShareApkFile(), "Share the install file")
                 },
-                "保存到下载" to vm.scope.launchAsFn(Dispatchers.IO) {
+                "Save to Downloads" to vm.scope.launchAsFn(Dispatchers.IO) {
                     if (!META.isGkdChannel) {
                         if (!mainVm.dialogRequests.confirm(
-                            title = "保存提示",
+                            title = "Save notice",
                             text = exportPlayTipText,
-                            confirmText = "继续",
+                            confirmText = "Continue",
                         )) return@launchAsFn
                     }
                     context.saveFileToDownloads(getShareApkFile())

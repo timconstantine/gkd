@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
-// 文件重命名和数据库发布必须作为不可取消的提交阶段完成，耗时写入仍应响应取消。
+// The file rename and database publish must be completed as a non-cancellable commit phase; the time-consuming write should still respond to cancellation.
 suspend fun commitSnapshotDirectory(
     layout: SnapshotFileLayout,
     id: Long,
@@ -18,18 +18,18 @@ suspend fun commitSnapshotDirectory(
     val target = layout.committed(id)
     val staging = layout.staging(id)
     if (target.directory.exists()) {
-        throw IOException("目标目录已存在: ${target.directory.name}")
+        throw IOException("Target directory already exists: ${target.directory.name}")
     }
     staging.directory.deleteIfExists()
     if (!staging.directory.mkdirs()) {
-        throw IOException("无法创建临时目录: ${staging.directory.name}")
+        throw IOException("Failed to create staging directory: ${staging.directory.name}")
     }
     try {
         write(staging)
         currentCoroutineContext().ensureActive()
         withContext(NonCancellable) {
             if (!staging.directory.renameTo(target.directory)) {
-                throw IOException("无法提交目录: ${target.directory.name}")
+                throw IOException("Failed to commit directory: ${target.directory.name}")
             }
             try {
                 publish()
@@ -56,6 +56,6 @@ suspend fun commitSnapshotDirectory(
 
 private fun File.deleteIfExists() {
     if (exists() && !deleteRecursively()) {
-        throw IOException("无法删除目录: $name")
+        throw IOException("Failed to delete directory: $name")
     }
 }

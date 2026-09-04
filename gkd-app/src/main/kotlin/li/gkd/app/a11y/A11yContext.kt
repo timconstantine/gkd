@@ -92,7 +92,7 @@ class A11yContext(
             indexCache.evictAll()
         } catch (_: Exception) {
             // https://github.com/gkd-kit/gkd/issues/664
-            // 在某些机型上 未知原因 缓存不一致 导致删除失败
+            // On some devices, for unknown reasons, the cache becomes inconsistent, causing eviction to fail
             childCache = LruCache(MAX_CACHE_SIZE)
             indexCache = LruCache(MAX_CACHE_SIZE)
             parentCache = LruCache(MAX_CACHE_SIZE)
@@ -124,7 +124,7 @@ class A11yContext(
         if (!activityRuleFlow.value.currentRules.any { it === rule }) return
         if (rule.isPriority()) return
         if (META.debuggable) {
-            Log.d("guardInterrupt", "中断 rule=${rule.statusText()}")
+            Log.d("guardInterrupt", "interrupted rule=${rule.statusText()}")
         }
         throw InterruptRuleMatchException()
     }
@@ -362,7 +362,7 @@ class A11yContext(
             relationExpression: RelationExpression,
         ): Sequence<TraversalCandidate<AccessibilityNodeInfo>> = sequence {
             val parentVal = getCacheParent(node) ?: return@sequence
-            // 如果 node 由 fastQuery 得到, 则第一次调用此方法可能得到 cache.index 是空
+            // If node was obtained via fastQuery, the first call to this method may find cache.index empty
             val index = getPureIndex(node)
             if (index != null) {
                 var i = index - 1

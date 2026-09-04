@@ -113,7 +113,7 @@ fun SnapshotSettingsPage() {
                         onClick = mainVm::popPage,
                     )
                 },
-                title = { Text(text = "快照设置") },
+                title = { Text(text = "Snapshot settings") },
             )
         },
     ) { contentPadding ->
@@ -124,64 +124,64 @@ fun SnapshotSettingsPage() {
                 .padding(contentPadding),
         ) {
             Text(
-                text = "生成方式",
+                text = "Generation method",
                 modifier = Modifier.titleItemPadding(showTop = false),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             if (!AndroidTarget.R) {
                 TextSwitch(
-                    title = "截屏服务",
-                    subtitle = "生成快照需要获取屏幕截图",
+                    title = "Screenshot service",
+                    subtitle = "Generating a snapshot requires capturing a screenshot",
                     checked = screenshotServiceRunning,
                     onCheckedChange = ::setScreenshotServiceEnabled,
                 )
             }
             TextSwitch(
-                title = "音量快照",
-                subtitle = "音量变化时保存快照",
+                title = "Volume-key snapshot",
+                subtitle = "Save a snapshot when the volume changes",
                 checked = store.captureVolumeChange,
                 onCheckedChange = vm::setCaptureVolumeChange,
             )
             TextSwitch(
-                title = "截屏快照",
-                subtitle = "截屏时保存快照",
+                title = "Screenshot-triggered snapshot",
+                subtitle = "Save a snapshot when a screenshot is taken",
                 checked = store.captureScreenshot,
                 suffixIcon = {
                     PerfCustomIconButton(
                         size = 32.dp,
                         iconSize = 20.dp,
-                        onClickLabel = "打开配置截屏快照弹窗",
+                        onClickLabel = "Open the screenshot snapshot config dialog",
                         onClick = throttle { showCaptureScreenshotDialog = true },
                         id = R.drawable.ic_page_info,
-                        contentDescription = "截屏快照设置",
+                        contentDescription = "Screenshot snapshot settings",
                     )
                 },
                 onCheckedChange = vm::setCaptureScreenshot,
             )
 
             Text(
-                text = "截图处理",
+                text = "Screenshot processing",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             TextSwitch(
-                title = "隐藏状态栏",
-                subtitle = "隐藏快照截图状态栏",
+                title = "Hide status bar",
+                subtitle = "Hide the status bar in snapshot screenshots",
                 checked = store.hideSnapshotStatusBar,
                 onCheckedChange = vm::setHideSnapshotStatusBar,
             )
 
             Text(
-                text = "导出",
+                text = "Export",
                 modifier = Modifier.titleItemPadding(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
             TextSwitch(
-                title = "自动保存至下载",
-                subtitle = "快照完成后导出 ZIP 文件",
+                title = "Auto-save to Downloads",
+                subtitle = "Export a ZIP file after each snapshot",
                 checked = store.autoSaveSnapshotToDownloads,
                 onCheckedChange = scope.launchAsFn { enabled ->
                     if (
@@ -216,7 +216,7 @@ private fun CaptureScreenshotConfigDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(text = "截屏快照")
+                Text(text = "Screenshot-triggered snapshot")
                 PerfIconButton(
                     imageVector = PerfIcon.HelpOutline,
                     onClick = throttle(onOpenHelp),
@@ -226,18 +226,18 @@ private fun CaptureScreenshotConfigDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 CustomOutlinedTextField(
-                    label = { Text("应用ID") },
+                    label = { Text("App ID") },
                     value = appIdValue,
-                    placeholder = { Text(text = "请输入目标应用ID") },
+                    placeholder = { Text(text = "Enter the target app ID") },
                     onValueChange = { appIdValue = it },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomOutlinedTextField(
-                    label = { Text("特征事件选择器") },
+                    label = { Text("Feature event selector") },
                     value = eventSelectorValue,
-                    placeholder = { Text(text = "请输入特征事件选择器") },
+                    placeholder = { Text(text = "Enter a feature event selector") },
                     onValueChange = { eventSelectorValue = it },
                     maxLines = 4,
                     modifier = Modifier
@@ -251,12 +251,12 @@ private fun CaptureScreenshotConfigDialog(
             TextButton(
                 onClick = throttle { onConfirm(appIdValue, eventSelectorValue) },
             ) {
-                Text(text = "确认")
+                Text(text = "Confirm")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(text = "取消")
+                Text(text = "Cancel")
             }
         },
     )

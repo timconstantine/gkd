@@ -99,7 +99,7 @@ fun A11yEventLogPage() {
             },
             title = {
                 Text(
-                    text = "事件日志",
+                    text = "Event log",
                     modifier = Modifier.noRippleClickable(onClick = pageScrollState::resetScroll),
                 )
             },
@@ -110,12 +110,12 @@ fun A11yEventLogPage() {
                         onClick = throttle {
                             scope.launchTry {
                                 if (!mainVm.dialogRequests.confirm(
-                                    title = "删除日志",
-                                    text = "确定删除所有事件日志?",
+                                    title = "Delete log",
+                                    text = "Delete all event log entries?",
                                     error = true,
                                 )) return@launchTry
                                 vm.deleteAll()
-                                toast("删除成功")
+                                toast("Deleted successfully")
                             }
                         }
                     )
@@ -145,7 +145,7 @@ fun A11yEventLogPage() {
             item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                 Spacer(modifier = Modifier.height(EmptyHeight))
                 if (logCount == 0 && list.loadState.refresh !is LoadState.Loading) {
-                    EmptyText(text = "暂无数据")
+                    EmptyText(text = "No data yet")
                 }
             }
         }
@@ -170,7 +170,7 @@ fun A11yEventLogPage() {
         }
         AppAlertDialog(
             onDismissRequest = onDismissRequest,
-            title = { Text(text = "事件详情") },
+            title = { Text(text = "Event details") },
             text = {
                 val textModifier = Modifier
                     .background(
@@ -179,9 +179,9 @@ fun A11yEventLogPage() {
                     )
                     .padding(horizontal = 4.dp)
                 Column {
-                    Text(text = "类型: " + if (eventLog.isStateChanged) "状态变化" else "内容变化")
+                    Text(text = "Type: " + if (eventLog.isStateChanged) "State change" else "Content change")
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = "应用ID")
+                    Text(text = "App ID")
                     Row {
                         Text(
                             text = eventLog.appId,
@@ -193,7 +193,7 @@ fun A11yEventLogPage() {
                         })
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = "事件数据")
+                    Text(text = "Event data")
                     CopyableText(
                         text = eventText,
                         modifier = Modifier
@@ -218,7 +218,7 @@ fun A11yEventLogPage() {
                                 "[${key}=${v}]"
                             }
                         }
-                        Text(text = "特征选择器")
+                        Text(text = "Feature selector")
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -236,7 +236,7 @@ fun A11yEventLogPage() {
             },
             confirmButton = {
                 TextButton(onClick = onDismissRequest) {
-                    Text(text = "关闭")
+                    Text(text = "Close")
                 }
             },
         )
@@ -321,7 +321,7 @@ fun EventLogCard(eventLog: A11yEventLog, modifier: Modifier = Modifier) {
                             square = false
                         ),
                     )
-                    // 如果祖先容器有设置了 height(IntrinsicSize.Min) 会导致 FlowRow 不会自动换行
+                    // If an ancestor container has height(IntrinsicSize.Min) set, FlowRow won't wrap automatically
                     FlowRow(
                         modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.spacedBy(2.dp),

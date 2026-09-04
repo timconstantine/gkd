@@ -36,7 +36,7 @@ fun QueryPkgAuthCard(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "如需显示所有应用\n请授予「读取应用列表权限」",
+            text = "To show all apps\nplease grant \"Read app list permission\"",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -47,7 +47,7 @@ fun QueryPkgAuthCard(
                 mainVm.permissionRequests.ensurePermissions(PermissionStates.queryPackages)
             })
         ) {
-            Text(text = "申请权限")
+            Text(text = "Request permission")
         }
     }
 }

@@ -77,7 +77,7 @@ fun WebViewPage(route: WebViewRoute) {
                     )
                 } else {
                     Text(
-                        // webViewState.pageTitle 在调用 reload 后会变成 null
+                        // webViewState.pageTitle becomes null after calling reload
                         text = webViewState.pageTitle ?: webView.value?.title ?: "",
                         maxLines = 1,
                         softWrap = false,
@@ -91,8 +91,8 @@ fun WebViewPage(route: WebViewRoute) {
                         imageVector = PerfIcon.WarningAmber,
                         onClick = throttle(mainVm.scope.launchAsFn {
                             mainVm.dialogRequests.showMessage(
-                                title = "兼容性提示",
-                                text = "检测到您的系统内置浏览器版本($chromeVersion)过低, 可能无法正常浏览网页文档\n\n建议自行升级版本后重启 GKD 再查看文档, 或点击右上角后在外部浏览器打开查阅\n\n若能正常浏览文档请忽略此项提示",
+                                title = "Compatibility notice",
+                                text = "Your system's built-in browser version ($chromeVersion) is too old and may not display the web docs correctly\n\nWe recommend updating it and restarting GKD before viewing the docs again, or tap the top-right icon to open them in an external browser\n\nIf the docs display correctly, you can ignore this notice",
                             )
                         }),
                     )
@@ -110,7 +110,7 @@ fun WebViewPage(route: WebViewRoute) {
                         if (webViewState.loadingState !is LoadingState.Loading) {
                             DropdownMenuItem(
                                 text = {
-                                    Text(text = "刷新页面")
+                                    Text(text = "Refresh page")
                                 },
                                 onClick = {
                                     expanded = false
@@ -120,7 +120,7 @@ fun WebViewPage(route: WebViewRoute) {
                         }
                         DropdownMenuItem(
                             text = {
-                                Text(text = "复制链接")
+                                Text(text = "Copy link")
                             },
                             onClick = {
                                 expanded = false
@@ -129,7 +129,7 @@ fun WebViewPage(route: WebViewRoute) {
                         )
                         DropdownMenuItem(
                             text = {
-                                Text(text = "外部打开")
+                                Text(text = "Open externally")
                             },
                             onClick = {
                                 expanded = false

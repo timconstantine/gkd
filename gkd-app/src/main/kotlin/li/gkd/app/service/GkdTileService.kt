@@ -60,13 +60,13 @@ private suspend fun switchA11yService() {
     } else {
         if (!PermissionStates.writeSecureSettings.updateAndGet()) {
             if (!PermissionStates.writeSecureSettings.value) {
-                toast("请先授予「写入安全设置权限」")
+                toast("Please grant the \"Write secure settings\" permission first")
                 return
             }
         }
         val names = app.getSecureA11yServices()
         app.putSecureInt(Settings.Secure.ACCESSIBILITY_ENABLED, 1)
-        if (names.contains(A11yService.a11yCn)) { // 当前无障碍异常, 重启服务
+        if (names.contains(A11yService.a11yCn)) { // Accessibility is currently broken, restart the service
             names.remove(A11yService.a11yCn)
             app.putSecureA11yServices(names)
             delay(A11Y_AWAIT_FIX_TIME.milliseconds)
@@ -76,7 +76,7 @@ private suspend fun switchA11yService() {
         delay(A11Y_AWAIT_START_TIME.milliseconds)
         // https://github.com/orgs/gkd-kit/discussions/799
         if (!A11yService.isRunning.value) {
-            toast("开启无障碍失败")
+            toast("Failed to enable accessibility")
             accessRestrictedSettingsShowFlow.value = true
             return
         }
@@ -119,10 +119,10 @@ private suspend fun fixA11yService() {
         val names = app.getSecureA11yServices()
         val a11yBroken = names.contains(A11yService.a11yCn)
         if (a11yBroken) {
-            // 无障碍出现故障, 重启服务
+            // Accessibility is broken, restart the service
             names.remove(A11yService.a11yCn)
             app.putSecureA11yServices(names)
-            // 必须等待一段时间, 否则概率不会触发系统重启无障碍
+            // Must wait a bit, otherwise the system may not restart accessibility
             delay(A11Y_AWAIT_FIX_TIME.milliseconds)
             if (!currentAppUseA11y) return
         }
@@ -130,7 +130,7 @@ private suspend fun fixA11yService() {
         app.putSecureA11yServices(names)
         delay(A11Y_AWAIT_START_TIME.milliseconds)
         if (currentAppUseA11y && !A11yService.isRunning.value) {
-            toast("重启无障碍失败")
+            toast("Failed to restart accessibility")
             accessRestrictedSettingsShowFlow.value = true
         }
     }
@@ -212,7 +212,7 @@ fun initA11yWhiteAppList() {
             lastAppIdChangeTime = System.currentTimeMillis()
             if (!currentAppBlocked) {
                 if (topActivityFlow.value.sameAs(systemRecentCn) && currentAppUseA11y) {
-                    // 切换无障碍会造成卡顿，在最近任务界面时，延迟这个卡顿
+                    // Switching accessibility causes a stutter; delay it while on the recent-tasks screen
                     val tempTime = lastAppIdChangeTime
                     runMainPost(A11Y_WHITE_APP_AWAIT_TIME) {
                         if (tempTime == lastAppIdChangeTime) {
@@ -220,7 +220,7 @@ fun initA11yWhiteAppList() {
                         }
                     }
                 } else {
-                    // 切换自动化不会卡顿，直接启动
+                    // Switching automation doesn't stutter, so start it immediately
                     forcedUpdateA11yService(false)
                 }
             }

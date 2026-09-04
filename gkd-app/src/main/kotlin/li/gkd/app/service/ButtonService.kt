@@ -47,7 +47,7 @@ class ButtonService : OverlayWindowService(
 
     init {
         useAliveFlow(isRunning)
-        useAliveToast("快照按钮服务")
+        useAliveToast("Snapshot button service")
         onCreated {
             NotificationCatalog.button().startForeground()
         }

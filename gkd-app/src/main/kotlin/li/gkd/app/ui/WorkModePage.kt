@@ -75,7 +75,7 @@ fun WorkModePage() {
                     mainVm.popPage()
                 })
         }, title = {
-            Text(text = "工作模式")
+            Text(text = "Work mode")
         })
     }) { contentPadding ->
         Column(
@@ -109,7 +109,7 @@ fun WorkModePage() {
                     modifier = Modifier
                         .padding(horizontal = cardHorizontalPadding)
                         .padding(start = 4.dp),
-                    text = "基础",
+                    text = "Basic",
                     style = MaterialTheme.typography.titleSmall
                 )
                 TextListItem(
@@ -118,8 +118,8 @@ fun WorkModePage() {
                         .padding(start = 8.dp, top = 4.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     list = listOf(
-                        "授予「无障碍权限」",
-                        "无障碍关闭后需重新授权"
+                        "Grant \"accessibility permission\"",
+                        "Must re-authorize after accessibility is turned off"
                     ),
                 )
                 AnimatedBooleanContent(
@@ -129,7 +129,7 @@ fun WorkModePage() {
                             modifier = Modifier
                                 .padding(horizontal = cardHorizontalPadding)
                                 .padding(start = 8.dp, top = 4.dp),
-                            text = "已持有「无障碍权限」可继续使用",
+                            text = "\"Accessibility permission\" already granted, you're all set",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     },
@@ -145,7 +145,7 @@ fun WorkModePage() {
                                 onClick = throttle { openA11ySettings() },
                             ) {
                                 Text(
-                                    text = "手动授权",
+                                    text = "Authorize manually",
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
                             }
@@ -157,7 +157,7 @@ fun WorkModePage() {
                                         mainVm.navigateWebPage(ShortUrlSet.URL2)
                                     })
                                     .padding(horizontal = 4.dp),
-                                text = "无法开启无障碍?",
+                                text = "Can't turn on accessibility?",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -168,7 +168,7 @@ fun WorkModePage() {
                     modifier = Modifier
                         .padding(horizontal = cardHorizontalPadding)
                         .padding(start = 4.dp, top = 8.dp),
-                    text = "增强",
+                    text = "Enhanced",
                     style = MaterialTheme.typography.titleSmall,
                 )
                 TextListItem(
@@ -177,8 +177,8 @@ fun WorkModePage() {
                         .padding(start = 8.dp, top = 4.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     list = listOf(
-                        "授予「写入安全设置权限」",
-                        "应用可自行控制开关无障碍",
+                        "Grant \"write secure settings\" permission",
+                        "The app can control accessibility on/off by itself",
                     ),
                 )
                 AnimatedBooleanContent(
@@ -188,7 +188,7 @@ fun WorkModePage() {
                             modifier = Modifier
                                 .padding(horizontal = cardHorizontalPadding)
                                 .padding(start = 8.dp, top = 4.dp),
-                            text = "已持有「写入安全设置权限」 优先使用此项",
+                            text = "\"Write secure settings\" permission already granted, this option is preferred",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     },
@@ -203,16 +203,16 @@ fun WorkModePage() {
                         .padding(horizontal = cardHorizontalPadding),
                     onClick = throttle(vm.scope.launchAsFn {
                         if (!writeSecureSettings) {
-                            toast("请先授予「${PermissionStates.writeSecureSettings.name}」")
+                            toast("Please grant \"${PermissionStates.writeSecureSettings.name}\" first")
                         }
                         mainVm.dialogRequests.showMessage(
-                            title = "无感保活",
-                            text = "添加通知栏快捷开关\n\n1. 下拉通知栏至「快捷开关」标界面\n2. 找到名称为 ${META.appName} 的快捷开关\n3. 添加此开关到通知面板 \n\n只要此快捷开关在通知面板可见\n无论是系统杀后台还是自身崩溃\n简单下拉打开通知即可重启"
+                            title = "Seamless keep-alive",
+                            text = "Add a quick-settings tile\n\n1. Pull down the notification shade to the quick settings screen\n2. Find the tile named ${META.appName}\n3. Add this tile to the notification panel\n\nAs long as this tile is visible in the notification panel,\nwhether the system kills the background process or it crashes,\na simple pull-down and tap will restart it"
                         )
                     })
                 ) {
                     Text(
-                        text = "无感保活",
+                        text = "Seamless keep-alive",
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
@@ -252,10 +252,10 @@ fun WorkModePage() {
                         .padding(start = 8.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     list = listOf(
-                        "自动化驱动的无障碍",
-                        "不会导致界面显示异常",
-                        "不会被应用检测为无障碍",
-                        "若不兼容可配置「局部无障碍」",
+                        "Automation-driven accessibility",
+                        "Won't cause display glitches",
+                        "Won't be detected as accessibility by apps",
+                        "If incompatible, configure \"partial accessibility\"",
                     ),
                 )
                 AnimatedBooleanContent(
@@ -265,7 +265,7 @@ fun WorkModePage() {
                             modifier = Modifier
                                 .padding(horizontal = cardHorizontalPadding)
                                 .padding(start = 8.dp, top = 8.dp),
-                            text = "已连接特权服务，可继续使用",
+                            text = "Connected to the privileged service, you're all set",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     },
@@ -284,7 +284,7 @@ fun WorkModePage() {
                     },
                 ) {
                     Text(
-                        text = "局部无障碍",
+                        text = "Partial accessibility",
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
@@ -308,7 +308,7 @@ private fun PrivilegeAuthButton(
         },
     ) {
         Text(
-            text = "特权服务",
+            text = "Privileged service",
             style = MaterialTheme.typography.bodyLarge,
         )
     }

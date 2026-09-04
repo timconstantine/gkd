@@ -87,20 +87,20 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
         val updateSelected: (Boolean?) -> Unit = { enabled ->
             scope.launchTry {
                 val action = when (enabled) {
-                    false -> "关闭"
-                    true -> "启用"
-                    null -> "重置开关至默认值"
+                    false -> "Disable"
+                    true -> "Enable"
+                    null -> "Reset to default"
                 }
                 if (!mainVm.dialogRequests.confirm(
-                    title = "操作提示",
-                    text = "是否将所选规则全部${action}?\n\n注: 也可在「订阅-规则类别」操作",
+                    title = "Action notice",
+                    text = "Apply \"$action\" to all selected rules?\n\nNote: this can also be done under \"Subscription - Rule categories\"",
                 )) return@launchTry
                 val changedSize = vm.updateSelectedEnabled(selectedKeys, enabled)
                 if (changedSize > 0) {
-                    val result = if (enabled == null) "重置" else if (enabled) "已启用" else "已关闭"
-                    toast("$result $changedSize 规则")
+                    val result = if (enabled == null) "Reset" else if (enabled) "Enabled" else "Disabled"
+                    toast("$result $changedSize rule(s)")
                 } else {
-                    toast(if (enabled == null) "无可重置规则" else "无规则被改变")
+                    toast(if (enabled == null) "No rules to reset" else "No rules were changed")
                 }
             }
         }
@@ -143,7 +143,7 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
                         TowLineText(
                             modifier = titleModifier,
                             title = subs.name,
-                            subtitle = "全局规则"
+                            subtitle = "Global rules"
                         )
                     }
                 }, actions = {
@@ -166,14 +166,14 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
                                         onClick = throttle {
                                             scope.launchTry {
                                                 if (!mainVm.dialogRequests.confirm(
-                                                    title = "删除规则",
-                                                    text = "删除当前所选规则?",
+                                                    title = "Delete rule",
+                                                    text = "Delete the currently selected rules?",
                                                     error = true,
                                                 )) return@launchTry
                                                 val keysToDelete = selectedKeys
                                                 selectionState.clear()
                                                 vm.deleteSelectedGroups(keysToDelete)
-                                                toast("删除成功")
+                                                toast("Deleted successfully")
                                             }
                                         },
                                     )
@@ -197,7 +197,7 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
                             ) {
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = "全选")
+                                        Text(text = "Select all")
                                     },
                                     onClick = {
                                         expanded = false
@@ -206,7 +206,7 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
                                 )
                                 DropdownMenuItem(
                                     text = {
-                                        Text(text = "反选")
+                                        Text(text = "Invert selection")
                                     },
                                     onClick = {
                                         expanded = false
@@ -232,7 +232,7 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
                             )
                         },
                         imageVector = PerfIcon.Add,
-                        contentDescription = "添加规则"
+                        contentDescription = "Add rule"
                     )
                 }
             },
@@ -281,7 +281,7 @@ fun SubsGlobalGroupListPage(route: SubsGlobalGroupListRoute) {
                 item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                     Spacer(modifier = Modifier.height(EmptyHeight))
                     if (globalGroups.isEmpty()) {
-                        EmptyText(text = "暂无规则")
+                        EmptyText(text = "No rules yet")
                     }
                 }
             }

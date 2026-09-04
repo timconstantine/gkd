@@ -119,13 +119,13 @@ fun SubsAppListPage(route: SubsAppListRoute) {
                     AppBarTextField(
                         value = searchStr,
                         onValueChange = { newValue -> vm.setSearchText(newValue.trim()) },
-                        hint = "请输入应用名称/ID",
+                        hint = "Enter app name/ID",
                         modifier = if (firstShowSearchBar) Modifier else Modifier.autoFocus(),
                     )
                 } else {
                     TowLineText(
                         title = subscription?.name ?: subsItemId.toString(),
-                        subtitle = "应用规则",
+                        subtitle = "App rules",
                         modifier = Modifier.noRippleClickable {
                             pageScrollState.resetScroll()
                         }
@@ -157,7 +157,7 @@ fun SubsAppListPage(route: SubsAppListRoute) {
                     modifier = Modifier.wrapContentSize(Alignment.TopStart)
                 ) {
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        MenuGroupCard(inTop = true, title = "排序") {
+                        MenuGroupCard(inTop = true, title = "Sort") {
                             AppSortOption.objects.forEach { option ->
                                 MenuItemRadioButton(
                                     text = option.label,
@@ -166,7 +166,7 @@ fun SubsAppListPage(route: SubsAppListRoute) {
                                 )
                             }
                         }
-                        MenuGroupCard(title = "分组") {
+                        MenuGroupCard(title = "Group by") {
                             AppGroupOption.allObjects.forEach { option ->
                                 val newValue = option.invert(store.subsAppGroupType)
                                 MenuItemCheckbox(
@@ -177,9 +177,9 @@ fun SubsAppListPage(route: SubsAppListRoute) {
                                 )
                             }
                         }
-                        MenuGroupCard(title = "筛选") {
+                        MenuGroupCard(title = "Filter") {
                             MenuItemCheckbox(
-                                text = "白名单",
+                                text = "Allowlist",
                                 checked = store.subsAppShowBlock,
                                 onClick = vm::toggleShowBlockApps,
                             )
@@ -234,11 +234,11 @@ fun SubsAppListPage(route: SubsAppListRoute) {
                 if (apps.isEmpty() && !firstLoading) {
                     EmptyText(
                         text = if (loadError != null) {
-                            loadError.message ?: "订阅加载失败"
+                            loadError.message ?: "Failed to load the subscription"
                         } else if (searchStr.isNotEmpty()) {
-                            if (showAllApps) "暂无搜索结果" else "暂无搜索结果，或修改筛选"
+                            if (showAllApps) "No search results" else "No search results, or adjust the filter"
                         } else {
-                            "暂无规则"
+                            "No rules yet"
                         }
                     )
                     Spacer(modifier = Modifier.height(EmptyHeight / 2))

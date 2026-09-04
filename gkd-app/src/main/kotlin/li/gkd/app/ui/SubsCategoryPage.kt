@@ -83,7 +83,7 @@ fun SubsCategoryPage(@Suppress("unused") route: SubsCategoryRoute) {
             }, title = {
                 TowLineText(
                     title = subs.name,
-                    subtitle = "规则类别",
+                    subtitle = "Rule categories",
                     modifier = Modifier.noRippleClickable(onClick = pageScrollState::resetScroll)
                 )
             }, actions = {
@@ -92,11 +92,11 @@ fun SubsCategoryPage(@Suppress("unused") route: SubsCategoryRoute) {
                     onClick = throttle {
                         scope.launchTry {
                             mainVm.dialogRequests.showMessage(
-                                title = "类别说明",
+                                title = "About categories",
                                 text = arrayOf(
-                                    "类别会捕获以当前类别开头的所有应用规则, 因此可调整类别开关(分类手动配置)来批量开关规则",
-                                    "规则开关优先级为:\n规则手动配置 > 分类手动配置 > 分类默认 > 规则默认",
-                                    "因此如果手动开关了规则(规则手动配置), 则该规则不会被批量开关, 可通过点击类别-重置规则开关, 来移除类别下所有规则手动配置",
+                                    "A category captures all app rules whose name starts with that category, so you can toggle the category (manual category config) to batch-toggle rules",
+                                    "Rule toggle priority is:\nmanual rule config > manual category config > category default > rule default",
+                                    "So if you've manually toggled a rule (manual rule config), it won't be affected by the batch toggle; you can tap Category - Reset rule toggles to remove all manual rule configs under that category",
                                 ).joinToString("\n\n"),
                             )
                         }
@@ -141,7 +141,7 @@ fun SubsCategoryPage(@Suppress("unused") route: SubsCategoryRoute) {
                 item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                     Spacer(modifier = Modifier.height(EmptyHeight))
                     if (categories.isEmpty()) {
-                        EmptyText(text = "暂无类别")
+                        EmptyText(text = "No categories yet")
                     }
                 }
             }
@@ -201,7 +201,7 @@ private fun CategoryItemCard(
                     )
                 } else {
                     Text(
-                        text = "暂无规则",
+                        text = "No rules yet",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
@@ -209,7 +209,7 @@ private fun CategoryItemCard(
             }
             PerfTriStateSwitch(
                 modifier = Modifier
-                    .pointerInput(Unit) { detectTapGestures { } } // 防止误触边界
+                    .pointerInput(Unit) { detectTapGestures { } } // Prevent accidental taps at the boundary
                     .padding(8.dp),
                 checked = getCategoryEnable(category, categoryConfig),
                 enabled = switchEnabled,
@@ -237,7 +237,7 @@ fun UpsertCategoryDialog(
                             onClick = throttle(onDismissRequest),
                         )
                     },
-                    title = { Text(text = if (category == null) "添加类别" else "编辑类别") },
+                    title = { Text(text = if (category == null) "Add category" else "Edit category") },
                     actions = {
                         PerfIconButton(
                             imageVector = PerfIcon.Save,
@@ -254,22 +254,22 @@ fun UpsertCategoryDialog(
                     .padding(horizontal = 16.dp),
             ) {
                 OutlinedTextField(
-                    label = { Text("类别名称") },
+                    label = { Text("Category name") },
                     value = nameValue,
                     onValueChange = { nameValue = it.trim() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .autoFocus(),
-                    placeholder = { Text(text = "请输入类别名称") },
+                    placeholder = { Text(text = "Enter a category name") },
                     singleLine = true,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
-                    label = { Text("类别描述") },
+                    label = { Text("Category description") },
                     value = descValue,
                     onValueChange = { descValue = it.trim() },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = "请输入类别描述") },
+                    placeholder = { Text(text = "Enter a category description") },
                     singleLine = true,
                 )
             }

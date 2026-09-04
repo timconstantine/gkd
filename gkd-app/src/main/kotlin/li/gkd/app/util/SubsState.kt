@@ -153,10 +153,10 @@ fun getCategoryEnable(
     category: RawSubscription.RawCategory?,
     categoryConfig: CategoryConfig?,
 ): Boolean? = if (categoryConfig != null) {
-    // 批量配置
+    // Batch config
     categoryConfig.enable
 } else {
-    // 批量默认
+    // Batch default
     category?.enable
 }
 
@@ -166,7 +166,7 @@ fun getGroupEnable(
     category: RawSubscription.RawCategory? = null,
     categoryConfig: CategoryConfig? = null,
 ): Boolean = group.valid && when (group) {
-    // 优先级: 规则用户配置 > 批量配置 > 批量默认 > 规则默认
+    // Priority: rule's user config > batch config > batch default > rule default
     is RawSubscription.RawAppGroup -> {
         subsConfig?.enable ?: getCategoryEnable(category, categoryConfig) ?: group.enable ?: true
     }
@@ -188,7 +188,7 @@ data class RuleSummary(
 
     val numText = if (globalGroups.size + appGroupSize > 0) {
         if (globalGroups.isNotEmpty()) {
-            "${globalGroups.size}全局" + if (appGroupSize > 0) {
+            "${globalGroups.size} global" + if (appGroupSize > 0) {
                 "/"
             } else {
                 ""
@@ -196,7 +196,7 @@ data class RuleSummary(
         } else {
             ""
         } + if (appGroupSize > 0) {
-            "${appSize}应用/${appGroupSize}规则"
+            "${appSize} apps/${appGroupSize} rules"
         } else {
             ""
         }
@@ -268,7 +268,7 @@ val ruleSummaryFlow by lazy {
             val subGroupSubsConfigs = groupSubsConfigs.filter { c -> c.subsId == subsItem.id }
             val subCategoryConfigs = categoryConfigs.filter { c -> c.subsId == subsItem.id }
             rawSubs.apps.filter { appRaw ->
-                // 筛选 当前启用的 app 订阅规则
+                // Filter to currently enabled app subscription rules
                 appRaw.groups.isNotEmpty() && (subAppConfigs.find { c -> c.appId == appRaw.id }?.enable
                     ?: (appInfoCache[appRaw.id] != null))
             }.forEach { appRaw ->
@@ -336,7 +336,7 @@ val ruleSummaryFlow by lazy {
 
 fun getSubsStatus(ruleSummary: RuleSummary, count: Long): String {
     return if (count > 0) {
-        "${ruleSummary.numText}/${count}触发"
+        "${ruleSummary.numText}/${count} triggered"
     } else {
         ruleSummary.numText
     }

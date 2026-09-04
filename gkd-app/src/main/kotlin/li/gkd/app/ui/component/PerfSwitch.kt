@@ -25,7 +25,7 @@ fun PerfSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange?.let { throttle(it) },
         modifier = modifier.semantics {
-            stateDescription = if (checked) "已开启" else "已关闭"
+            stateDescription = if (checked) "On" else "Off"
         },
         thumbContent = thumbContent,
         enabled = enabled,

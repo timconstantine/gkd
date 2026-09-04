@@ -219,7 +219,7 @@ class MainViewModel : BaseViewModel(), OnSimpleLife by DefaultSimpleLifeImpl() {
     }
 
     fun handleGkdUri(uri: Uri) {
-        val notFoundToast = { toast("未知URI\n${uri}") }
+        val notFoundToast = { toast("Unknown URI\n${uri}") }
         when (uri.host) {
             "page" -> when (uri.path) {
                 "" -> {
@@ -305,7 +305,7 @@ class MainViewModel : BaseViewModel(), OnSimpleLife by DefaultSimpleLifeImpl() {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                toast("自动化状态检测失败：${e.message}")
+                toast("Failed to detect automation state: ${e.message}")
                 LogUtils.d("detect automation state failed", e)
                 return@launch
             }
@@ -327,7 +327,7 @@ class MainViewModel : BaseViewModel(), OnSimpleLife by DefaultSimpleLifeImpl() {
         // preload
         appIconMapFlow.value
         scope.launchTry(Dispatchers.IO) {
-            // 每次进入删除缓存
+            // Clear cache on every entry
             clearCache()
         }
 
@@ -340,7 +340,7 @@ class MainViewModel : BaseViewModel(), OnSimpleLife by DefaultSimpleLifeImpl() {
                 try {
                     json.decodeFromString<CrashData>(it.readText())
                 } catch (e: Exception) {
-                    LogUtils.d("解析崩溃日志失败: ${it.name}", e)
+                    LogUtils.d("Failed to parse crash log: ${it.name}", e)
                     null
                 }
             }.sortedBy { -it.mtime }

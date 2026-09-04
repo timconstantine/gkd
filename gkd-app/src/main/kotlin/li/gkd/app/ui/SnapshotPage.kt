@@ -99,7 +99,7 @@ fun SnapshotPage() {
             },
             title = {
                 Text(
-                    text = "快照记录",
+                    text = "Snapshot records",
                     modifier = Modifier.noRippleClickable(onClick = pageScrollState::resetScroll),
                 )
             },
@@ -110,8 +110,8 @@ fun SnapshotPage() {
                         onClick = throttle {
                             actionScope.launchTry {
                                 if (!mainVm.dialogRequests.confirm(
-                                    title = "删除快照",
-                                    text = "确定删除所有快照记录?",
+                                    title = "Delete snapshots",
+                                    text = "Delete all snapshot records?",
                                     error = true,
                                 )) return@launchTry
                                 vm.deleteAllSnapshots()
@@ -139,7 +139,7 @@ fun SnapshotPage() {
                 Spacer(modifier = Modifier.height(EmptyHeight))
                 if (snapshots.isEmpty() && !firstLoading) {
                     EmptyText(
-                        text = loadError?.let { it.message ?: "数据加载失败" } ?: "暂无数据",
+                        text = loadError?.let { it.message ?: "Failed to load data" } ?: "No data yet",
                     )
                 }
             }
@@ -158,7 +158,7 @@ fun SnapshotPage() {
                     .fillMaxWidth()
                     .padding(16.dp)
                 Text(
-                    text = "查看", modifier = Modifier
+                    text = "View", modifier = Modifier
                         .clickable(onClick = throttle {
                             selectedSnapshot = null
                             mainVm.navigatePage(
@@ -172,14 +172,14 @@ fun SnapshotPage() {
                 )
                 HorizontalDivider()
                 Text(
-                    text = "分享到其他应用",
+                    text = "Share to another app",
                     modifier = Modifier
                         .clickable(onClick = throttle {
                             actionScope.launchTry {
                                 selectedSnapshot = null
                                 context.shareFile(
                                     vm.buildShareArchive(snapshotVal),
-                                    "分享快照文件",
+                                    "Share the snapshot file",
                                 )
                             }
                         })
@@ -187,12 +187,12 @@ fun SnapshotPage() {
                 )
                 HorizontalDivider()
                 Text(
-                    text = "保存到下载",
+                    text = "Save to Downloads",
                     modifier = Modifier
                         .clickable(onClick = throttle {
                             actionScope.launchTry {
                                 selectedSnapshot = null
-                                toast("正在保存...")
+                                toast("Saving...")
                                 val archive = vm.buildShareArchive(snapshotVal)
                                 try {
                                     context.saveFileToDownloads(archive)
@@ -206,7 +206,7 @@ fun SnapshotPage() {
                 HorizontalDivider()
                 if (snapshotVal.githubAssetId != null) {
                     Text(
-                        text = "复制链接", modifier = Modifier
+                        text = "Copy link", modifier = Modifier
                             .clickable(onClick = throttle {
                                 selectedSnapshot = null
                                 copyText(IMPORT_SHORT_URL + snapshotVal.githubAssetId)
@@ -215,7 +215,7 @@ fun SnapshotPage() {
                     )
                 } else {
                     Text(
-                        text = "生成链接(需科学上网)", modifier = Modifier
+                        text = "Generate link (requires an unrestricted connection)", modifier = Modifier
                             .clickable(onClick = throttle {
                                 selectedSnapshot = null
                                 mainVm.githubUpload.startTask(
@@ -232,11 +232,11 @@ fun SnapshotPage() {
                 HorizontalDivider()
 
                 Text(
-                    text = "保存截图到相册",
+                    text = "Save screenshot to gallery",
                     modifier = Modifier
                         .clickable(onClick = throttle {
                             actionScope.launchTry {
-                                toast("正在保存...")
+                                toast("Saving...")
                                 selectedSnapshot = null
                                 if (!mainVm.permissionRequests.ensurePermissions(
                                         PermissionStates.writeExternalStorage,
@@ -245,14 +245,14 @@ fun SnapshotPage() {
                                     return@launchTry
                                 }
                                 vm.saveScreenshotToAlbum(snapshotVal)
-                                toast("保存成功")
+                                toast("Saved successfully")
                             }
                         })
                         .then(modifier)
                 )
                 HorizontalDivider()
                 Text(
-                    text = "替换截图(去除隐私)",
+                    text = "Replace screenshot (remove private info)",
                     modifier = Modifier
                         .clickable(onClick = throttle {
                             actionScope.launchTry {
@@ -262,9 +262,9 @@ fun SnapshotPage() {
                                     UriUtils.uri2Bytes(uri)
                                 }
                                 if (vm.replaceScreenshot(snapshotVal, newBytes)) {
-                                    toast("替换成功")
+                                    toast("Replaced successfully")
                                 } else {
-                                    toast("截图尺寸不一致, 无法替换")
+                                    toast("Screenshot dimensions don't match, cannot replace")
                                 }
                             }
                         })
@@ -272,17 +272,17 @@ fun SnapshotPage() {
                 )
                 HorizontalDivider()
                 Text(
-                    text = "删除", modifier = Modifier
+                    text = "Delete", modifier = Modifier
                         .clickable(onClick = throttle {
                             actionScope.launchTry {
                                 if (!mainVm.dialogRequests.confirm(
-                                    title = "删除快照",
-                                    text = "确定删除当前快照吗?",
+                                    title = "Delete snapshot",
+                                    text = "Delete the current snapshot?",
                                     error = true,
                                 )) return@launchTry
                                 vm.deleteSnapshot(snapshotVal)
                                 selectedSnapshot = null
-                                toast("删除成功")
+                                toast("Deleted successfully")
                             }
                         })
                         .then(modifier), color = colorScheme.error

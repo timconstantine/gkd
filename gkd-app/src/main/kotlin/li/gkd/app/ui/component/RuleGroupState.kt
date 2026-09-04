@@ -308,10 +308,10 @@ class RuleGroupState(
                     exclude = excludeData.clear(appId = state.pageAppId).stringify(),
                 ),
             )
-            return "已重置局部开关至默认值"
+            return "Reset the per-app toggle to default"
         }
         Db.subsConfigDao.update(subsConfig.copy(enable = null))
-        return "已重置开关至默认值"
+        return "Reset the toggle to default"
     }
 
     private suspend fun deleteGroup(
@@ -322,16 +322,16 @@ class RuleGroupState(
             if (state.appId == null) {
                 subscription.edit {
                     if (removeGlobalGroups { it.key == groupKey }.isEmpty()) {
-                        error("规则已不存在")
+                        error("The rule no longer exists")
                     }
                 }
             } else {
                 subscription.edit {
                     if (subscription.apps.none { it.id == state.appId }) {
-                        error("应用规则已不存在")
+                        error("The app rule no longer exists")
                     }
                     if (removeAppGroups(state.appId) { it.key == groupKey }.isEmpty()) {
-                        error("规则已不存在")
+                        error("The rule no longer exists")
                     }
                 }
             }
@@ -413,8 +413,8 @@ class RuleGroupState(
                 },
                 onClickDelete = mainVm.scope.launchAsFn {
                     val r = mainVm.dialogRequests.confirm(
-                        title = "删除规则",
-                        text = "确定删除 ${showGroup.name} ?",
+                        title = "Delete rule",
+                        text = "Delete ${showGroup.name}?",
                         error = true,
                     )
                     if (!r) {
@@ -422,7 +422,7 @@ class RuleGroupState(
                     }
                     deleteGroup(showGroupState)
                     dismissGroupShow()
-                    toast("删除成功")
+                    toast("Deleted successfully")
                 }
             )
         }
@@ -440,8 +440,8 @@ class RuleGroupState(
                     val newValue = getChangedExcludeData(excludeEditSession)
                     if (newValue != null) {
                         if (!mainVm.dialogRequests.confirm(
-                            title = "提示",
-                            text = "当前内容未保存，是否放弃编辑？",
+                            title = "Notice",
+                            text = "The current content is unsaved. Discard changes?",
                         )) return@launchAsFn
                     }
                     dismissExcludeGroupShow()
@@ -459,14 +459,14 @@ class RuleGroupState(
                             title = {
                                 TowLineText(
                                     title = excludeGroup.name,
-                                    subtitle = "编辑禁用",
+                                    subtitle = "Edit exclusions",
                                 )
                             },
                             actions = {
                                 PerfIconButton(imageVector = PerfIcon.Save, onClick = throttle {
                                     val newValue = getChangedExcludeData(excludeEditSession)
                                     if (newValue == null) {
-                                        toast("无修改")
+                                        toast("No changes")
                                         dismissExcludeGroupShow()
                                     } else {
                                         dismissExcludeGroupShow()
@@ -476,7 +476,7 @@ class RuleGroupState(
                                                 excludeSubs,
                                                 newValue,
                                             )
-                                            toast("更新成功")
+                                            toast("Updated successfully")
                                         }
                                     }
                                 })
@@ -487,7 +487,7 @@ class RuleGroupState(
                     MultiTextField(
                         modifier = Modifier.scaffoldPadding(contentPadding),
                         textFlow = excludeTextFlow,
-                        placeholderText = "请填入需要禁用的 activityId 列表\n每行一个",
+                        placeholderText = "Enter the activityId list to disable\nOne per line",
                     )
                 }
             }

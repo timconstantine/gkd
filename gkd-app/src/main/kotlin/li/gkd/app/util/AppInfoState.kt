@@ -88,7 +88,7 @@ private fun registerPackageListener() {
         ContextCompat.RECEIVER_EXPORTED,
     )
 
-    // 某些设备 ACTION_PACKAGE_ADDED 接收不到，使用 LauncherApps.Callback 作为补充
+    // Some devices don't receive ACTION_PACKAGE_ADDED, so use LauncherApps.Callback as a fallback
     val packageCallback = object : LauncherApps.Callback() {
         override fun onPackageAdded(packageName: String, user: UserHandle) {
             dispatchAppUpdate(packageName)
@@ -249,10 +249,10 @@ fun updateAllAppInfo(): Unit = updateAppMutex.launchTry(appScope, Dispatchers.IO
     userAppInfoMapFlow.value = newAppMap
     userAppIconMapFlow.value = newIconMap
     if (!app.justStarted) {
-        toast("应用列表更新成功")
+        toast("App list updated successfully")
     }
     if (PermissionStates.queryPackages.value && mayAuthDenied && app.justStarted) {
-        // 概率出现：即使有「读取应用列表权限」在刚启动时也只能获取到少量应用，延迟几秒再试一次
+        // Occasionally happens: even with the "read app list" permission, only a few apps are returned right at startup — retry after a short delay
         appScope.launch {
             delay(App.START_WAIT_TIME.milliseconds)
             updateAllAppInfo()

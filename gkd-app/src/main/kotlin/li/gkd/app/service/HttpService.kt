@@ -77,7 +77,7 @@ class HttpService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
     init {
         useLogLifecycle()
         useAliveFlow(isRunning)
-        useAliveToast("HTTP服务")
+        useAliveToast("HTTP service")
         StopServiceReceiver.autoRegister()
         onCreated {
             scope.launchTry(Dispatchers.IO) {
@@ -104,21 +104,21 @@ class HttpService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
                         value = null
                     }
                     if (!isPortAvailable(port)) {
-                        toast("端口 $port 被占用，请更换后重试")
+                        toast("Port $port is in use, please change it and try again")
                         stopSelf()
                         return@collect
                     }
                     httpServerFlow.value = try {
                         scope.createServer(port).apply { start() }
                     } catch (e: Exception) {
-                        toast("HTTP服务启动失败:${e.stackTraceToString()}")
-                        LogUtils.d("HTTP服务启动失败", e)
+                        toast("Failed to start the HTTP service: ${e.stackTraceToString()}")
+                        LogUtils.d("Failed to start the HTTP service", e)
                         null
                     }
                     if (httpServerFlow.value == null) {
                         stopSelf()
                     } else if (isReboot) {
-                        toast("HTTP服务重启成功")
+                        toast("HTTP service restarted successfully")
                     }
                 }
             }
@@ -168,7 +168,7 @@ data class ServerInfo(
 )
 
 fun clearHttpSubs() {
-    // 如果 app 被直接在任务列表划掉, HTTP订阅会没有清除, 所以在后续的第一次启动时清除
+    // If the app is swiped away directly from the recent tasks list, the HTTP subscription won't be cleared, so clear it on the next startup instead
     if (HttpService.isRunning.value) return
     appScope.launchTry {
         delay(1000)
@@ -196,7 +196,7 @@ private fun CoroutineScope.createServer(port: Int) = embeddedServer(CIO, port) {
                 val data = call.receive<ReqId>()
                 val fp = SnapshotStore.snapshotFile(data.id)
                 if (!fp.exists()) {
-                    throw RpcError("对应快照不存在")
+                    throw RpcError("The corresponding snapshot does not exist")
                 }
                 call.respondFile(fp)
             }
@@ -204,7 +204,7 @@ private fun CoroutineScope.createServer(port: Int) = embeddedServer(CIO, port) {
                 val data = call.receive<ReqId>()
                 val fp = SnapshotStore.screenshotFile(data.id)
                 if (!fp.exists()) {
-                    throw RpcError("对应截图不存在")
+                    throw RpcError("The corresponding screenshot does not exist")
                 }
                 call.respondFile(fp)
             }
@@ -227,9 +227,9 @@ private fun CoroutineScope.createServer(port: Int) = embeddedServer(CIO, port) {
                 val snapshot = allSnapshots.find { it.id == data.id }
                 if (snapshot != null) {
                     SnapshotStore.delete(snapshot)
-                    call.respond(RpcOk("快照删除成功"))
+                    call.respond(RpcOk("Snapshot deleted successfully"))
                 } else {
-                    throw RpcError("快照不存在或已被删除")
+                    throw RpcError("The snapshot does not exist or has already been deleted")
                 }
             }
             post("/updateSubscription") {
@@ -237,7 +237,7 @@ private fun CoroutineScope.createServer(port: Int) = embeddedServer(CIO, port) {
                     RawSubscription.parse(call.receiveText(), json5 = false)
                         .copy(
                             id = LOCAL_HTTP_SUBS_ID,
-                            name = "内存订阅",
+                            name = "In-memory subscription",
                             version = 0,
                             author = "@gkd-kit/inspect"
                         )
@@ -280,13 +280,13 @@ private fun getKtorErrorPlugin() = createApplicationPlugin(name = "KtorErrorPlug
     on(CallFailed) { call, cause ->
         when (cause) {
             is RpcError -> {
-                // 主动抛出的错误
+                // An error thrown intentionally
                 LogUtils.d(call.request.uri, cause.message)
                 call.respond(cause)
             }
 
             is Exception -> {
-                // 未知错误
+                // An unknown error
                 LogUtils.d(call.request.uri, cause.message)
                 cause.printStackTrace()
                 call.respond(RpcError(message = cause.message ?: "unknown error", unknown = true))

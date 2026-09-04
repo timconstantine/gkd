@@ -51,7 +51,7 @@ class ScreenshotService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
     init {
         useLogLifecycle()
         useAliveFlow(isRunning)
-        useAliveToast("截屏服务")
+        useAliveToast("Screenshot service")
         StopServiceReceiver.autoRegister()
         onCreated {
             NotificationCatalog.screenshot().startForeground()
@@ -75,7 +75,7 @@ class ScreenshotService : Service(), OnSimpleLife by DefaultSimpleLifeImpl() {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                LogUtils.d("截取屏幕失败", e)
+                LogUtils.d("Failed to capture screen", e)
                 null
             }
         }

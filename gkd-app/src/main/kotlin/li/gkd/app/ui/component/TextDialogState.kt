@@ -65,7 +65,7 @@ class TextDialogState {
             AppAlertDialog(
                 onDismissRequest = ::dismiss,
                 title = {
-                    Text(text = if (currentRequest.openable) "查看链接" else "查看文本")
+                    Text(text = if (currentRequest.openable) "View link" else "View text")
                 },
                 text = {
                     Surface(
@@ -89,11 +89,11 @@ class TextDialogState {
                         horizontalArrangement = Arrangement.End,
                     ) {
                         TextButton(onClick = throttle(::dismiss)) {
-                            Text(text = "关闭")
+                            Text(text = "Close")
                         }
                         if (currentRequest.openable) {
                             TextButton(onClick = throttle { open(currentRequest) }) {
-                                Text(text = "打开")
+                                Text(text = "Open")
                             }
                         }
                     }

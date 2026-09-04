@@ -75,7 +75,7 @@ class EventService : OverlayWindowService(positionKey = "event") {
                     .padding(4.dp)
             ) {
                 ClosableTitle(
-                    title = if (A11yService.isRunning.collectAsStateWithLifecycle().value || uiAutomationFlow.collectAsStateWithLifecycle().value != null) "事件服务" else "事件服务(无权限)"
+                    title = if (A11yService.isRunning.collectAsStateWithLifecycle().value || uiAutomationFlow.collectAsStateWithLifecycle().value != null) "Event logging service" else "Event logging service (no permission)"
                 )
                 val textStyle = MaterialTheme.typography.labelSmall
                 CompositionLocalProvider(
@@ -148,7 +148,7 @@ class EventService : OverlayWindowService(positionKey = "event") {
 
         useLogLifecycle()
         useAliveFlow(isRunning)
-        useAliveToast("事件服务")
+        useAliveToast("Event logging service")
         StopServiceReceiver.autoRegister()
         onCreated {
             NotificationCatalog.event().startForeground()

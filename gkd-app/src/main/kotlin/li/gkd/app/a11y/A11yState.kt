@@ -140,7 +140,7 @@ sealed class ActivityScene {
     data object TaskStack : ActivityScene()
 }
 
-// 外部必须使用 synchronized(topActivityFlow) 来保证更新的原子性
+// Callers must use synchronized(topActivityFlow) to guarantee atomic updates
 fun updateTopActivity(
     appId: String,
     activityId: String?,
@@ -159,7 +159,7 @@ fun updateTopActivity(
         lastActivityForceUpdateTime = t
     } else if (scene == ActivityScene.A11y) {
         if (idChanged && lastActivityForceUpdateTime > 0) {
-            // ITaskStackListener 大部分场景快于无障碍
+            // ITaskStackListener is faster than accessibility in most scenarios
             if (t - lastActivityForceUpdateTime < 1000) return
             if (activityId != null && t - lastActivityForceUpdateTime < 3000) return
         }

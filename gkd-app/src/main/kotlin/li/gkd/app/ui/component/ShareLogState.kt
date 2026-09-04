@@ -39,7 +39,7 @@ class ShareLogState(
         dismiss()
         scope.launchTry {
             val logZipFile = withContext(Dispatchers.IO) { buildLogFile() }
-            context.shareFile(logZipFile, "分享日志文件")
+            context.shareFile(logZipFile, "Share the log file")
         }
     }
 
@@ -75,19 +75,19 @@ class ShareLogState(
                         .fillMaxWidth()
                         .padding(16.dp)
                     Text(
-                        text = "分享到其他应用",
+                        text = "Share to another app",
                         modifier = Modifier
                             .clickable(onClick = throttle { share(context) })
                             .then(modifier),
                     )
                     Text(
-                        text = "保存到下载",
+                        text = "Save to Downloads",
                         modifier = Modifier
                             .clickable(onClick = throttle { save(context) })
                             .then(modifier),
                     )
                     Text(
-                        text = "生成链接(需科学上网)",
+                        text = "Generate link (requires an unrestricted connection)",
                         modifier = Modifier
                             .clickable(onClick = throttle(::upload))
                             .then(modifier),

@@ -55,17 +55,17 @@ fun SlowGroupPage() {
                         mainVm.popPage()
                     })
                 },
-                title = { Text(text = "缓慢查询") },
+                title = { Text(text = "Slow queries") },
                 actions = {
                     PerfIconButton(
                         imageVector = PerfIcon.Info,
                         onClick = throttle(mainVm.scope.launchAsFn {
                             mainVm.dialogRequests.showMessage(
-                                title = "缓慢查询",
+                                title = "Slow queries",
                                 text = arrayOf(
-                                    "任意单个规则同时满足以下 3 个条件即判定为缓慢查询",
-                                    "1. 选择器右侧无法快速查询且不是主动查询, 或内部使用<<且无法快速查询\n2. preKeys 为空\n3. matchTime 为空或大于 10s",
-                                    "缓慢查询可能导致触发缓慢或更多耗电, 一些可能优化的建议操作\n1. 降低选择器获取新节点次数\n2. 降低或限制规则查询时间或次数"
+                                    "A single rule is considered a slow query if it meets all 3 of the following conditions",
+                                    "1. The selector's right side can't do a fast query and isn't an active query, or it uses << internally and can't do a fast query\n2. preKeys is empty\n3. matchTime is empty or greater than 10s",
+                                    "A slow query may cause slow triggering or extra battery drain. Some possible optimizations\n1. Reduce how often the selector fetches new nodes\n2. Reduce or limit the rule's query time or count"
                                 ).joinToString("\n\n"),
                             )
                         }),
@@ -93,7 +93,7 @@ fun SlowGroupPage() {
                         })
                         .itemPadding(),
                     title = group.name,
-                    desc = "${rule.rawSubs.name}/全局规则"
+                    desc = "${rule.rawSubs.name}/global rule"
                 )
             }
             items(
@@ -113,13 +113,13 @@ fun SlowGroupPage() {
                         })
                         .itemPadding(),
                     title = group.name,
-                    desc = "${rule.rawSubs.name}/应用规则/${appInfoCache[rule.app.id]?.name ?: rule.app.name ?: rule.app.id}"
+                    desc = "${rule.rawSubs.name}/app rule/${appInfoCache[rule.app.id]?.name ?: rule.app.name ?: rule.app.id}"
                 )
             }
             item(ListPlaceholder.KEY, ListPlaceholder.TYPE) {
                 Spacer(modifier = Modifier.height(EmptyHeight))
                 if (ruleSummary.slowGroupCount == 0) {
-                    EmptyText(text = "暂无规则")
+                    EmptyText(text = "No rules yet")
                 }
             }
         }

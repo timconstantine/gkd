@@ -1,53 +1,53 @@
 # Repository Instructions
 
-- 除 `app_icon`、`service` 等 Android 平台必须使用 XML 的场景外，禁止新增 XML 文件。
-- UI、图标及其他能够使用 Kotlin 表达的实现必须使用 `.kt` 文件，不得为其新增 drawable、layout 等 XML 资源。
-- 无法确定是否属于 XML 例外场景时，必须先向用户确认。
+- Except for cases where the Android platform requires XML (`app_icon`, `service`, etc.), adding new XML files is prohibited.
+- UI, icons, and anything else expressible in Kotlin must be implemented using `.kt` files; do not add new drawable, layout, or other XML resources for them.
+- When it is unclear whether something qualifies as an XML exception, confirm with the user first.
 
-## Git 提交与推送
+## Git commits and pushes
 
-- 用户明确要求提交或推送代码时，只执行必要的轻量核对与对应的 Git 操作；不得自动扩展为深度代码审查、临时 worktree 隔离验证、全量构建或测试、Release Gate、发布检查等重量级流程。只有用户明确要求对应检查时才允许执行。
+- When the user explicitly asks to commit or push code, perform only the necessary lightweight checks and the corresponding Git operations; do not automatically expand this into a deep code review, temporary worktree isolation verification, a full build or test run, a Release Gate, a release check, or any other heavyweight process. Only run such checks when the user explicitly requests them.
 
-## Kotlin 可见性
+## Kotlin visibility
 
-- `gkd-app` 模块内禁止使用 `internal` 关键字；由于没有其他模块会引用 `gkd-app` 模块，对外可见的声明应省略可见性修饰符（使用 Kotlin 默认的 `public`），仅在需要收窄作用域时使用 `private`。
-- 与公开属性直接一一对应、仅用于收窄可见性或可变性的 `_xxx` backing property，必须改用 Explicit Backing Fields；不禁止不存在这种直接对应关系的普通私有字段、缓存或生成代码风格命名。未使用的 Lambda 参数占位符 `_` 不受此限制。
+- The `internal` keyword must not be used inside the `gkd-app` module; since no other module references `gkd-app`, externally visible declarations should omit the visibility modifier (using Kotlin's default `public`), and `private` should only be used to narrow scope where needed.
+- A `_xxx` backing property that corresponds one-to-one with a public property and exists only to narrow visibility or mutability must use Explicit Backing Fields instead; ordinary private fields, caches, or generated-code-style naming that have no such direct correspondence are not restricted by this. The unused lambda parameter placeholder `_` is not subject to this restriction either.
 
-## Kotlin 静态初始化
+## Kotlin static initialization
 
-- `companion object` 或 `object` 中由 `object`/`data object` 单例组成的列表、集合、映射及其排序结果必须使用 `by lazy` 初始化；禁止在静态初始化阶段直接构造这类集合，以避免 JVM、JS 和 Wasm 上的循环初始化。
+- Lists, collections, maps, and their sort results composed of `object`/`data object` singletons inside a `companion object` or `object` must be initialized with `by lazy`; constructing such collections directly during static initialization is prohibited, to avoid circular initialization issues on the JVM, JS, and Wasm.
 
-## Compose 与状态边界
+## Compose and state boundaries
 
-- 除悬浮窗 Compose 外，应用 Compose 树中的 Composable 都可以通过 `LocalMainViewModel` 获取 `mainVm`，无需逐层转发导航、全局弹窗、打开 URL 等应用级操作。
-- 路由页面及其私有 Composable 可以直接获取页面 ViewModel，并处理权限和 Activity Result 等平台 UI 行为。可复用组件不得获取页面 ViewModel，只接收所需的状态和事件回调。
-- 应用级只读 Flow 由实际消费它的 Composable 直接收集，不要复制进页面 `UiState` 或 ViewModel。普通 Flow 使用 `collectAsStateWithLifecycle`，Paging 使用专用 API，高频状态放在最小消费子树。
-- Service 启停、持久化和其他业务副作用必须由明确事件触发，并交给 ViewModel、Repository 或 Store 完成；Composable 不得通过状态监听执行写入。
-- `XxxUiState` 和 `XxxUiActions` 只在复用、独立预览或复杂页面契约确有需要时使用。`UiState` 只能表示不可变页面快照，不得包含 Flow、Paging 或高频状态；相同映射存在多个构造路径时再提取私有构建函数。
-- ViewModel 的可变状态必须为 `private`，只暴露不可变状态和明确的业务方法。只读 `StateFlow` 使用 Explicit Backing Fields，禁止 `_xxxFlow`/`xxxFlow` 双属性和 `.asStateFlow()`。
-- 滚动、焦点、菜单、动画、拖拽和多选等纯 UI 状态留在 Compose；可复用交互逻辑可以封装为 `rememberXxxState`，但不得访问 ViewModel、数据库、Store、Service 或导航。需要原子一致性的多个字段必须由事实源提供同一个不可变快照，业务状态不得通过 `CompositionLocal` 传递。
-- Composable 需要根据条件决定是否输出后续 UI 时，禁止使用提前 `return`，必须将 UI 包裹在对应的条件区块中；事件或协程 Lambda 的标记返回不受此限制。
+- Except for overlay-window Compose, any Composable in the app's Compose tree can obtain `mainVm` via `LocalMainViewModel`, without needing to forward app-level operations like navigation, global dialogs, or opening URLs layer by layer.
+- Route pages and their private Composables can obtain the page ViewModel directly, and handle platform UI behaviors such as permissions and Activity Result. Reusable components must not obtain the page ViewModel, and should only receive the state and event callbacks they need.
+- App-level read-only Flows should be collected directly by the Composable that actually consumes them, rather than being copied into the page's `UiState` or ViewModel. Use `collectAsStateWithLifecycle` for ordinary Flows, the dedicated API for Paging, and keep high-frequency state in the smallest consuming subtree.
+- Service start/stop, persistence, and other business side effects must be triggered by explicit events and handled by a ViewModel, Repository, or Store; a Composable must not perform writes by observing state.
+- `XxxUiState` and `XxxUiActions` should only be used when reuse, standalone previews, or a complex page contract genuinely requires them. `UiState` may only represent an immutable page snapshot, and must not contain a Flow, Paging, or high-frequency state; extract a private builder function only when the same mapping has multiple construction paths.
+- A ViewModel's mutable state must be `private`, exposing only immutable state and explicit business methods. Read-only `StateFlow`s should use Explicit Backing Fields; `_xxxFlow`/`xxxFlow` dual properties and `.asStateFlow()` are prohibited.
+- Pure UI state such as scrolling, focus, menus, animation, dragging, and multi-select should stay in Compose; reusable interaction logic can be encapsulated as `rememberXxxState`, but must not access the ViewModel, database, Store, Service, or navigation. Multiple fields that need atomic consistency must be provided as a single immutable snapshot from the source of truth, and business state must not be passed through `CompositionLocal`.
+- When a Composable needs to conditionally decide whether to render subsequent UI, an early `return` must not be used; the UI must instead be wrapped in the corresponding conditional block. This restriction does not apply to a labeled return inside an event or coroutine lambda.
 
-## 状态与副作用
+## State and side effects
 
-- Room 可观察查询应保持为冷 `Flow`，先在 ViewModel 内按页面一致性边界完成聚合，再将最终页面快照转换为 `StateFlow<Loadable<XxxUiState>>`；`Loading` 表示尚未收到完整首发，`Ready(emptyList())` 表示已加载但结果为空。禁止用空集合伪装初始值，也禁止用计数器、`attachLoad` 等旁路状态推断多个查询是否加载完成。
-- `combine`、`map`、`stateIn` 等产生的派生展示状态只能用于渲染和临时 UI 同步，禁止通过 `collect`、`onEach` 或状态 watch 驱动数据库、文件、网络写入以及 Service 启停。
-- 持久化和业务副作用必须由明确的用户事件、系统事件或领域方法触发，并在 Repository/Store 中按业务一致性边界完成。允许将单一权威状态同步到幂等外部投影，但同步回调不得再读取其他状态拼装写入。
-- `debounce`、`conflate`、`collectLatest` 和互斥锁只能控制调度或并发，不能替代多状态源的原子更新；需要一致读取的状态应聚合为同一个不可变状态对象。
+- Room's observable queries should remain a cold `Flow`; aggregate them first inside the ViewModel according to the page's consistency boundary, then convert the final page snapshot into a `StateFlow<Loadable<XxxUiState>>`. `Loading` means the first full emission has not yet been received; `Ready(emptyList())` means loading has completed with an empty result. Do not fake the initial value with an empty collection, and do not use a counter, `attachLoad`, or similar side-channel state to infer whether multiple queries have finished loading.
+- Derived display state produced by `combine`, `map`, `stateIn`, etc. may only be used for rendering and transient UI synchronization; it must not drive database, file, or network writes, or Service start/stop, via `collect`, `onEach`, or a state watch.
+- Persistence and business side effects must be triggered by an explicit user event, system event, or domain method, and completed inside the Repository/Store according to the business consistency boundary. Syncing a single source-of-truth state to an idempotent external projection is allowed, but the sync callback must not read other state to assemble a write.
+- `debounce`, `conflate`, `collectLatest`, and mutexes may only control scheduling or concurrency; they cannot replace an atomic update across multiple state sources. State that needs to be read consistently should be aggregated into a single immutable state object.
 
-## 构建与测试
+## Build and testing
 
-- 常规测试只编译 `gkd` 渠道；若用户没有明确指令，禁止运行任何 `play` 渠道的编译任务。
+- Regular tests only compile the `gkd` flavor; unless the user gives an explicit instruction, running any build task for the `play` flavor is prohibited.
 
-## 测试策略
+## Testing strategy
 
-- 新增测试必须验证可观察行为，明确被测输入、预期输出和要防止的具体回归。优先覆盖纯函数、边界条件、异常路径、平台或版本兼容差异，以及已修复缺陷的回归场景。
-- 禁止仅为增加测试而拆散本应聚合的生产逻辑、扩大声明可见性或暴露测试专用 API；测试必须适配合理的生产设计，而不是反向塑造生产代码。
-- 禁止新增仅复述生产代码静态声明的测试，包括枚举成员、常量取值或集合、连续编号、由同一注册表推导出的成员关系，以及 Kotlin 类型系统已经保证的约束。
-- 只有当常量或标识属于外部协议、持久化格式或跨版本兼容契约时，才允许为其新增稳定性测试，并在测试名称或注释中说明要保护的兼容行为。
+- New tests must verify observable behavior, clearly stating the input under test, the expected output, and the specific regression being guarded against. Prioritize coverage of pure functions, boundary conditions, error paths, platform/version compatibility differences, and regression scenarios for already-fixed defects.
+- Do not split apart production logic that should otherwise be aggregated, widen declaration visibility, or expose test-only APIs just to add a test; tests must adapt to a reasonable production design rather than shaping production code in reverse.
+- Do not add tests that merely restate a static declaration in production code — this includes enum members, constant values or collections, sequential numbering, member relationships derivable from the same registry, and constraints already guaranteed by Kotlin's type system.
+- Only add a stability test for a constant or identifier when it belongs to an external protocol, a persistence format, or a cross-version compatibility contract, and note in the test name or comment which compatibility behavior is being protected.
 
-## Android API 调研
+## Android API research
 
-- 涉及 Android framework Java/AIDL API 的源码定位、跨版本签名或可用性比较、API 缺失原因分析，以及 Java hidden-API 访问代码生成时，必须使用项目内的 `android-api-diff` skill：`.agents/skills/android-api-diff/SKILL.md`。
-- 按该 skill 的路由使用 `android-api-diff` CLI，并保留默认 JSON 输出；不得自行实现或模拟 Android API 版本检查。
-- 安装或更新项目级 skill 时，在项目根目录运行 `android-api-diff skill install`。
+- For locating source for Android framework Java/AIDL APIs, comparing signatures or availability across versions, analyzing why an API is missing, or generating Java hidden-API access code, you must use the project's `android-api-diff` skill: `.agents/skills/android-api-diff/SKILL.md`.
+- Follow that skill's routing to use the `android-api-diff` CLI, and keep its default JSON output; do not implement or simulate Android API version checks yourself.
+- When installing or updating the project-level skill, run `android-api-diff skill install` from the project root.

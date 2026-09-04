@@ -102,13 +102,13 @@ object SnapshotStore {
                 try {
                     FileOutputStream(tempFile).use { stream ->
                         if (!newBitmap.compress(webpLossyCompressFormat, 85, stream)) {
-                            throw IOException("替换截图压缩失败")
+                            throw IOException("Failed to compress the replacement screenshot")
                         }
                         stream.fd.sync()
                     }
                     Os.rename(tempFile.absolutePath, files.webpFile.absolutePath)
                     if (files.legacyPngFile.exists() && !files.legacyPngFile.delete()) {
-                        LogUtils.d("无法删除旧快照截图", files.legacyPngFile.absolutePath)
+                        LogUtils.d("Failed to delete the old snapshot screenshot", files.legacyPngFile.absolutePath)
                     }
                     if (snapshot.githubAssetId != null) {
                         Db.snapshotDao.deleteGithubAssetId(snapshot.id)
@@ -141,31 +141,31 @@ object SnapshotStore {
                 } else {
                     "${snapshotId}.zip"
                 }
-                require(File(filename).name == filename) { "无效压缩包名称" }
+                require(File(filename).name == filename) { "Invalid archive name" }
                 clearCache()
                 val outputDirectory = sharedDir.resolve(
                     "snapshot-$snapshotId-${UUID.randomUUID()}"
                 )
                 if (!outputDirectory.mkdirs()) {
-                    throw IOException("无法创建快照压缩目录")
+                    throw IOException("Failed to create the snapshot archive directory")
                 }
                 val outputFile = outputDirectory.resolve(filename)
                 try {
                     val files = fileLayout.committed(snapshotId)
                     if (!files.hasCompleteFiles) {
-                        throw IOException("快照文件不完整: $snapshotId")
+                        throw IOException("Snapshot files are incomplete: $snapshotId")
                     }
                     if (!ZipUtils.zipFiles(
                             listOf(files.snapshotFile, files.screenshotFile),
                             outputFile,
                         )
                     ) {
-                        throw IOException("快照压缩失败")
+                        throw IOException("Failed to compress the snapshot")
                     }
                     outputFile
                 } catch (e: Throwable) {
                     if (!outputDirectory.deleteRecursively()) {
-                        e.addSuppressed(IOException("无法清理快照压缩目录"))
+                        e.addSuppressed(IOException("Failed to clean up the snapshot archive directory"))
                     }
                     throw e
                 }
@@ -178,7 +178,7 @@ object SnapshotStore {
             return@withContext
         }
         if (directory.exists() && !directory.deleteRecursively()) {
-            LogUtils.d("无法清理快照压缩目录", directory.absolutePath)
+            LogUtils.d("Failed to clean up the snapshot archive directory", directory.absolutePath)
         }
     }
 
@@ -190,7 +190,7 @@ object SnapshotStore {
                 write = { files ->
                     files.webpFile.outputStream().use { stream ->
                         if (!bitmap.compress(webpLossyCompressFormat, 85, stream)) {
-                            throw IOException("快照截图压缩失败")
+                            throw IOException("Failed to compress the snapshot screenshot")
                         }
                     }
                     files.snapshotFile.writeText(
@@ -209,7 +209,7 @@ object SnapshotStore {
 
     private fun File.deleteRecursivelyOrThrow() {
         if (exists() && !deleteRecursively()) {
-            throw IOException("无法删除快照文件: $name")
+            throw IOException("Failed to delete snapshot file: $name")
         }
     }
 }

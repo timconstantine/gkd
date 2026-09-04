@@ -36,8 +36,8 @@ fun PerfTopAppBar(
             }
         }
     }
-    // SingleRowTopAppBar 内部 containerColor+scrolledContainerColor 合成了一个动画
-    // 应用主题颜色更新时形成叠加动画，导致和周围正常组件视觉变换效果表现割裂
+    // SingleRowTopAppBar internally composes an animation from containerColor+scrolledContainerColor.
+    // When the app theme color updates, this creates a compounded animation, causing it to look visually disjointed from the transition of surrounding normal components.
     key(MaterialTheme.colorScheme.surface) {
         TopAppBar(
             title = title,

@@ -54,7 +54,7 @@ object SnapshotCapture {
             textAlign = Paint.Align.CENTER
         }
         val canvas = Canvas(bitmap)
-        val lines = listOf("未获取到屏幕画面", "请手动替换截图")
+        val lines = listOf("Could not capture the screen", "Please replace the screenshot manually")
         lines.forEachIndexed { index, line ->
             canvas.drawText(
                 line,
@@ -156,7 +156,7 @@ object SnapshotCapture {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                LogUtils.d("读取前台窗口 FLAG_SECURE 失败", e)
+                LogUtils.d("Failed to read the foreground window's FLAG_SECURE", e)
                 null
             }
         }
@@ -166,9 +166,10 @@ object SnapshotCapture {
         automatorMode: AutomatorModeOption,
         forcedCropStatusBar: Boolean,
     ): ScreenResult {
-        // Android 14+ 的部分 ROM（已在 Android 16 HyperOS 上复现）不会在 FLAG_SECURE
-        // 窗口下回调 IWindowManager.captureDisplay 的 listener，读取 buffer 会等待系统 4 秒后超时。
-        // 自动化模式先检查窗口标志，命中后跳过特权截图，避免无意义的等待。
+        // On some Android 14+ ROMs (reproduced on Android 16 HyperOS), IWindowManager.captureDisplay's
+        // listener callback doesn't fire under a FLAG_SECURE window, so reading the buffer waits for the
+        // system's 4-second timeout. Automation mode checks the window flag first, and skips privileged
+        // capture on a hit to avoid a pointless wait.
         val checkSecureBeforeCapture =
             automatorMode == AutomatorModeOption.AutomationMode && AndroidTarget.UPSIDE_DOWN_CAKE
         val focusedWindowSecure = if (checkSecureBeforeCapture) {
@@ -184,7 +185,7 @@ object SnapshotCapture {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                LogUtils.d("无障碍截图失败", e)
+                LogUtils.d("Accessibility screenshot failed", e)
                 null
             }
         }
@@ -231,13 +232,13 @@ object SnapshotCapture {
     }
 
     suspend fun capture(forcedCropStatusBar: Boolean = false): ComplexSnapshot {
-        val engine = A11yRuleEngine.instance ?: throw RpcError("服务不可用，请先授权")
+        val engine = A11yRuleEngine.instance ?: throw RpcError("Service unavailable, please authorize first")
         if (!captureMutex.tryLock()) {
-            throw RpcError("正在保存快照，不可重复操作")
+            throw RpcError("A snapshot is already being saved, cannot repeat this action")
         }
         try {
             val rootNode = engine.safeActiveWindow
-                ?: throw RpcError("当前应用没有无障碍信息，捕获失败")
+                ?: throw RpcError("The current app has no accessibility info, capture failed")
             val snapshotId = System.currentTimeMillis()
             val appId = rootNode.packageName.toString()
             val screenHeight = ScreenUtils.getScreenHeight()
@@ -288,7 +289,7 @@ object SnapshotCapture {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    LogUtils.d("自动保存快照至下载失败", e)
+                    LogUtils.d("Failed to auto-save the snapshot to Downloads", e)
                     false
                 }
             } else {
@@ -303,9 +304,9 @@ object SnapshotCapture {
             ).post()
             val statusDetail = screenResult.status.detailText()
             val toastText = if (statusDetail == null) {
-                "快照已保存"
+                "Snapshot saved"
             } else {
-                "快照已保存 ($statusDetail)"
+                "Snapshot saved ($statusDetail)"
             }
             toast(toastText, forced = true)
             return snapshot

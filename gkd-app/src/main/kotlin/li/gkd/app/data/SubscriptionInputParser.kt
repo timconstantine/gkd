@@ -51,14 +51,14 @@ class SubscriptionInputParser private constructor(
     }
 
     private fun requireExpectedAppId(expectedAppId: String) {
-        val id = jsonObject["id"] ?: error("缺少id")
+        val id = jsonObject["id"] ?: error("Missing id")
         if (id !is JsonPrimitive || !id.isString || id.content != expectedAppId) {
-            error("id与当前应用不一致")
+            error("id does not match the current app")
         }
     }
 
     private fun RawSubscription.RawApp.requireGroups(): RawSubscription.RawApp {
-        if (groups.isEmpty()) error("至少输入一个规则")
+        if (groups.isEmpty()) error("Enter at least one rule")
         return this
     }
 
@@ -70,7 +70,7 @@ class SubscriptionInputParser private constructor(
     private fun <T> parseRule(block: () -> T): T = try {
         block()
     } catch (e: Exception) {
-        error("非法规则\n${e.message}")
+        error("Invalid rule\n${e.message}")
     }
 
     companion object {
@@ -81,9 +81,9 @@ class SubscriptionInputParser private constructor(
             val element = try {
                 Json5.parseToJsonElement(source)
             } catch (e: Exception) {
-                error("非法格式\n${e.message}")
+                error("Invalid format\n${e.message}")
             }
-            if (element !is JsonObject) error("规则应为对象格式")
+            if (element !is JsonObject) error("Rule must be an object")
             return SubscriptionInputParser(element.fillGroupKeys(defaultGroupKey))
         }
 

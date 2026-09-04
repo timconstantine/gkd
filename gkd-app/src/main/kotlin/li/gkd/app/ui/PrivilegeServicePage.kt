@@ -64,12 +64,12 @@ fun PrivilegeServicePage() {
                     )
                 },
                 title = {
-                    Text(text = "特权服务")
+                    Text(text = "Privileged service")
                 },
                 actions = {
                     PerfIconButton(
                         imageVector = PerfIcon.Info,
-                        contentDescription = "页面说明",
+                        contentDescription = "Page info",
                         onClick = throttle {
                             privilegeVm.setInfoDialogVisible(true)
                         },
@@ -91,18 +91,18 @@ private fun PrivilegeServiceInfoDialog(onDismissRequest: () -> Unit) {
     AppAlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(text = "特权服务")
+            Text(text = "Privileged service")
         },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    text = "此页面用于启动和管理特权服务。连接后，可为 GKD 提供自动化、必要权限授予等需要系统级能力的功能；断开后，依赖特权服务的功能将不可用。",
+                    text = "This page is used to start and manage the privileged service. Once connected, it provides GKD with system-level capabilities such as automation and necessary permission grants; once disconnected, features that depend on the privileged service will be unavailable.",
                 )
                 Text(
                     text = buildAnnotatedString {
-                        append("特权服务基于开源项目 ")
+                        append("The privileged service is built on the open-source project ")
                         withLink(
                             LinkAnnotation.Url(
                                 url = "https://github.com/priv-kit/priv-kit",
@@ -111,14 +111,14 @@ private fun PrivilegeServiceInfoDialog(onDismissRequest: () -> Unit) {
                         ) {
                             append("priv-kit")
                         }
-                        append(" (自有特权运行时) 实现不依赖外部授权器提权")
+                        append(" (its own privileged runtime), gaining elevated privileges without relying on an external authorizer")
                     },
                 )
             }
         },
         confirmButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(text = "我知道了")
+                Text(text = "Got it")
             }
         },
     )

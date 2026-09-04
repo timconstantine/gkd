@@ -17,13 +17,13 @@ fun formatTimeAgo(timestamp: Long): String {
     val months = (days / 30)
     val years = (days / 365)
     return when {
-        years > 0 -> "${years}年前"
-        months > 0 -> "${months}月前"
-        weeks > 0 -> "${weeks}周前"
-        days > 0 -> "${days}天前"
-        hours > 0 -> "${hours}小时前"
-        minutes > 0 -> "${minutes}分钟前"
-        else -> "刚刚"
+        years > 0 -> "${years}y ago"
+        months > 0 -> "${months}mo ago"
+        weeks > 0 -> "${weeks}w ago"
+        days > 0 -> "${days}d ago"
+        hours > 0 -> "${hours}h ago"
+        minutes > 0 -> "${minutes}m ago"
+        else -> "just now"
     }
 }
 

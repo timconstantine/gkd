@@ -37,8 +37,8 @@ fun EditBlockAppListPage() {
         if (vm.getChangedSet() != null) {
             context.imeController.requestHide()
             if (!mainVm.dialogRequests.confirm(
-                title = "提示",
-                text = "当前内容未保存，是否放弃编辑？",
+                title = "Notice",
+                text = "The current content is unsaved. Discard changes?",
             )) return@launchAsFn
         } else {
             context.imeController.hideAndAwait()
@@ -55,7 +55,7 @@ fun EditBlockAppListPage() {
                     onClick = onBack,
                 )
             },
-            title = { Text(text = "应用白名单") },
+            title = { Text(text = "App allowlist") },
             actions = {
                 PerfIconButton(
                     imageVector = PerfIcon.Save,
@@ -63,9 +63,9 @@ fun EditBlockAppListPage() {
                         val newSet = vm.getChangedSet()
                         if (newSet != null) {
                             blockMatchAppListFlow.value = newSet
-                            toast("更新成功")
+                            toast("Updated successfully")
                         } else {
-                            toast("未修改")
+                            toast("No changes")
                         }
                         context.imeController.hideAndAwait()
                         mainVm.popPage()

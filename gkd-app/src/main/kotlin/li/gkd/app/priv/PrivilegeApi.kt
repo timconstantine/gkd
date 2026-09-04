@@ -52,7 +52,7 @@ private suspend fun updatePrivilegeContext(serverInfo: PrivilegeServerInfo?) =
             }
 
             if (!app.justStarted) {
-                toast("正在连接特权服务...")
+                toast("Connecting to the privileged service...")
             }
             val userServiceConnection = Privilege.bindUserService(userServiceSpec)
             val privilegeContext = PrivilegeContext.create(serverInfo, userServiceConnection)
@@ -74,11 +74,11 @@ private suspend fun updatePrivilegeContext(serverInfo: PrivilegeServerInfo?) =
                 )
             }
             val delayMillis = if (app.justStarted) 1200L else 0L
-            toast("特权服务连接成功", delayMillis = delayMillis)
+            toast("Connected to the privileged service", delayMillis = delayMillis)
         } else if (oldContext != null) {
             clearPrivilegeContext(oldContext)
             PermissionStates.refreshAll()
-            toast("特权服务已断开")
+            toast("Disconnected from the privileged service")
         }
     }
 
@@ -92,7 +92,7 @@ fun initPrivilege() {
                 throw e
             } catch (e: Throwable) {
                 LogUtils.d("update PrivilegeContext failed", e)
-                toast("特权服务状态更新失败：${e.message}")
+                toast("Failed to update privileged service state: ${e.message}")
             }
         }
     }

@@ -69,8 +69,8 @@ fun UpsertRuleGroupPage(route: UpsertRuleGroupRoute) {
                     context.imeController.requestHide()
                 }
                 if (!mainVm.dialogRequests.confirm(
-                        title = "提示",
-                        text = "当前内容未保存，是否放弃编辑？",
+                        title = "Notice",
+                        text = "The current content is unsaved. Discard changes?",
                     )
                 ) {
                     return@launchAsFn
@@ -111,7 +111,7 @@ fun UpsertRuleGroupPage(route: UpsertRuleGroupRoute) {
                     PerfIconButton(imageVector = PerfIcon.ArrowBack, onClick = checkIfSaveText)
                 },
                 title = {
-                    Text(text = if (vm.isEdit) "编辑规则" else "添加规则")
+                    Text(text = if (vm.isEdit) "Edit rule" else "Add rule")
                 },
                 actions = {
                     PerfIconButton(
@@ -153,7 +153,7 @@ fun UpsertRuleGroupPage(route: UpsertRuleGroupRoute) {
                         colors = textColors,
                         visualTransformation = getJson5Transformation(LocalDarkTheme.current),
                         placeholder = {
-                            Text(text = if (vm.isApp) "请输入应用规则\n" else "请输入全局规则\n")
+                            Text(text = if (vm.isApp) "Enter an app rule\n" else "Enter a global rule\n")
                         },
                     )
                 }

@@ -56,10 +56,10 @@ class SubsCategoryVm(val route: SubsCategoryRoute) : BaseViewModel() {
         enabled: Boolean?,
     ): String {
         val option = EnableGroupOption.objects.findOption(enabled)
-        val state = uiState.value.value ?: error("订阅尚未加载")
+        val state = uiState.value.value ?: error("The subscription hasn't loaded yet")
         val rawSubscription = subscription.requireValue()
         val categoryConfigMap = state.categoryConfigMap.value
-            ?: error("类别配置尚未加载")
+            ?: error("The category config hasn't loaded yet")
         val oldConfig = categoryConfigMap[category.key]
         Db.categoryConfigDao.insert(
             (oldConfig ?: CategoryConfig(
@@ -74,7 +74,7 @@ class SubsCategoryVm(val route: SubsCategoryRoute) : BaseViewModel() {
     suspend fun addCategory(name: String, description: String): String {
         subscription.update { current ->
             if (current.categories.any { category -> category.name == name }) {
-                error("不可添加同名类别")
+                error("Cannot add a category with the same name")
             }
             current.edit {
                 putCategory(
@@ -87,6 +87,6 @@ class SubsCategoryVm(val route: SubsCategoryRoute) : BaseViewModel() {
                 )
             }
         }
-        return "添加成功"
+        return "Added successfully"
     }
 }

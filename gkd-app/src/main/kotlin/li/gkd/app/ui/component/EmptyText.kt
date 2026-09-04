@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun EmptyText(text: String = "暂无数据") {
+fun EmptyText(text: String = "No data yet") {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),

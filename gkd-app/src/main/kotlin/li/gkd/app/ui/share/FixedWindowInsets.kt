@@ -3,7 +3,7 @@ package li.gkd.app.ui.share
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.ui.unit.Density
 
-// 解决 val obj = TopAppBarDefaults.windowInsets 在不同时机返回不一致的问题
+// Works around val obj = TopAppBarDefaults.windowInsets returning inconsistent values at different times
 class FixedWindowInsets(
     val insets: WindowInsets
 ) : WindowInsets by insets {

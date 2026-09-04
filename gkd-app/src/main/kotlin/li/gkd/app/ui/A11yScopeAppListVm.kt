@@ -81,9 +81,9 @@ class A11yScopeAppListVm(mainVm: MainViewModel) : BaseViewModel() {
     fun saveText() {
         if (textChanged) {
             a11yScopeAppListFlow.value = AppListString.decode(textFlow.value)
-            toast("更新成功")
+            toast("Updated successfully")
         } else {
-            toast("未修改")
+            toast("No changes")
         }
         editableFlow.value = false
     }
