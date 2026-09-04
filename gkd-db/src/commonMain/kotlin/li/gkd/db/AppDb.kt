@@ -13,7 +13,7 @@ import androidx.room3.migration.AutoMigrationSpec
 import kotlinx.serialization.json.Json
 
 @Database(
-    version = 14,
+    version = 15,
     entities = [
         SubsItem::class,
         Snapshot::class,
@@ -24,6 +24,7 @@ import kotlinx.serialization.json.Json
         AppConfig::class,
         AppVisitLog::class,
         A11yEventLog::class,
+        SelectorLibraryItem::class,
     ],
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -39,6 +40,7 @@ import kotlinx.serialization.json.Json
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15),
     ]
 )
 @ColumnTypeConverters(DbConverters::class)
@@ -53,6 +55,7 @@ abstract class AppDb : RoomDatabase() {
     abstract fun activityLogDao(): ActivityLog.ActivityLogDao
     abstract fun appVisitLogDao(): AppVisitLog.AppLogDao
     abstract fun a11yEventLogDao(): A11yEventLog.A11yEventLogDao
+    abstract fun selectorLibraryDao(): SelectorLibraryItem.SelectorLibraryDao
 }
 
 @Suppress("KotlinNoActualForExpect")

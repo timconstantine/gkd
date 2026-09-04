@@ -172,6 +172,15 @@ fun SnapshotPage() {
                 )
                 HorizontalDivider()
                 Text(
+                    text = "Inspect nodes", modifier = Modifier
+                        .clickable(onClick = throttle {
+                            selectedSnapshot = null
+                            mainVm.navigatePage(SnapshotInspectorRoute(snapshotId = snapshotVal.id))
+                        })
+                        .then(modifier)
+                )
+                HorizontalDivider()
+                Text(
                     text = "Share to another app",
                     modifier = Modifier
                         .clickable(onClick = throttle {

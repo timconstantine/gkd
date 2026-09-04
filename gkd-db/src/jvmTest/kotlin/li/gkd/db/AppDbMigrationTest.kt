@@ -57,12 +57,12 @@ class AppDbMigrationTest {
     }
 
     @Test
-    fun everyExportedSchemaMigratesToVersion14() = runBlocking {
+    fun everyExportedSchemaMigratesToVersion15() = runBlocking {
         // Protects the persisted schema compatibility contract for every released version.
-        for (startVersion in 1 until 14) {
+        for (startVersion in 1 until 15) {
             val helper = migrationHelper("all-migrations-$startVersion.db")
             helper.createDatabase(startVersion).close()
-            helper.runMigrationsAndValidate(14, emptyList()).close()
+            helper.runMigrationsAndValidate(15, emptyList()).close()
         }
     }
 
