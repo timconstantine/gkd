@@ -41,3 +41,9 @@ screen if something isn't matching (or is matching when it shouldn't).
 
 Found a bad match or want a new category covered? Open an issue at
 https://github.com/timconstantine/gkd/issues.
+
+### Want to add or fix a rule?
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the actual workflow (capture a
+snapshot on-device, read the real node attributes, test the selector live in
+GKD before committing it) and the selector syntax reference.
