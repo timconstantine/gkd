@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
+import li.gkd.app.data.pasteRuleFromClipboard
 import li.gkd.app.ui.component.AddRuleEntryDialog
 import li.gkd.app.ui.component.AnimationFloatingActionButton
 import li.gkd.app.ui.component.BatchActionButtonGroup
@@ -313,6 +314,12 @@ fun SubsAppGroupListPage(route: SubsAppGroupListRoute) {
                 },
                 onStartCapture = {
                     mainVm.navigatePage(CaptureWaitRoute(isGlobal = false, subsId = subsItemId))
+                },
+                onPasteRule = {
+                    scope.launchTry {
+                        val error = pasteRuleFromClipboard(subsItemId, appId)
+                        toast(error ?: "Pasted successfully")
+                    }
                 },
             )
         }

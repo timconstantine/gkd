@@ -39,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import li.gkd.db.ActionLog
 import li.gkd.app.data.RawSubscription
+import li.gkd.app.data.pasteRuleFromClipboard
 import li.gkd.app.store.storeFlow
 import li.gkd.app.ui.component.AddRuleEntryDialog
 import li.gkd.app.ui.component.AnimatedBooleanContent
@@ -429,6 +430,12 @@ fun AppConfigPage(route: AppConfigRoute) {
             },
             onStartCapture = {
                 mainVm.navigatePage(CaptureWaitRoute(isGlobal = false, subsId = LOCAL_SUBS_ID))
+            },
+            onPasteRule = {
+                scope.launchTry {
+                    val error = pasteRuleFromClipboard(LOCAL_SUBS_ID, appId)
+                    toast(error ?: "Pasted successfully")
+                }
             },
         )
     }

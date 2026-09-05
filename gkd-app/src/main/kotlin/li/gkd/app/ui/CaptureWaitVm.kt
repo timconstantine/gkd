@@ -11,7 +11,27 @@ import li.gkd.app.util.findOption
 import li.gkd.db.Db
 import li.gkd.db.Snapshot
 
+/**
+ * Whether [CaptureWaitPage] is currently alive and watching for a snapshot —
+ * checked by [li.gkd.app.service.ButtonService] and the volume-key capture
+ * so they don't *also* auto-navigate to the inspector when this page's own
+ * (correctly-scoped, isGlobal/subsId-aware) navigation is about to fire for
+ * the same snapshot.
+ */
+object CaptureWaitState {
+    val isActive = MutableStateFlow(false)
+}
+
 class CaptureWaitVm : BaseViewModel() {
+    init {
+        CaptureWaitState.isActive.value = true
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        CaptureWaitState.isActive.value = false
+    }
+
     // Only snapshots captured after the wait started count as "the" capture —
     // otherwise an old one already in the list would immediately match.
     private val baselineId = System.currentTimeMillis()

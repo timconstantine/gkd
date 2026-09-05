@@ -54,7 +54,6 @@ import li.gkd.app.util.appInfoMapFlow
 import li.gkd.app.util.findOption
 import li.gkd.app.util.launchTry
 import li.gkd.app.util.throttle
-import li.gkd.db.LOCAL_SUBS_IDS
 
 @Serializable
 data class SubsAppListRoute(val subsItemId: Long) : NavKey
@@ -191,7 +190,7 @@ fun SubsAppListPage(route: SubsAppListRoute) {
             })
         },
         floatingActionButton = {
-            if (LOCAL_SUBS_IDS.contains(subsItemId)) {
+            if (subscription?.isLocal == true) {
                 FloatingActionButton(onClick = throttle { showAddRuleDialog = true }) {
                     PerfIcon(
                         imageVector = PerfIcon.Add,

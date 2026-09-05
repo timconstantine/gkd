@@ -14,7 +14,9 @@ import li.gkd.app.notif.StopServiceReceiver
 import li.gkd.app.permission.PermissionStates
 import li.gkd.app.ui.component.PerfIcon
 import li.gkd.app.snapshot.SnapshotCapture
+import li.gkd.app.ui.CaptureWaitState
 import li.gkd.app.util.launchTry
+import li.gkd.app.util.openSnapshotInspector
 import li.gkd.app.util.startForegroundServiceByClass
 import li.gkd.app.util.stopServiceByClass
 
@@ -26,12 +28,19 @@ class ButtonService : OverlayWindowService(
     override fun onClickView() {
         if (isOverlayContentHidden) return
         scope.launchTry {
-            withAllOverlaysHidden {
+            val snapshot = withAllOverlaysHidden {
                 SnapshotCapture.capture()
             }
             // A one-shot button: once it's done its job, get out of the way
             // instead of sitting on screen waiting for another tap.
             stopSelf()
+            // CaptureWaitPage (started from "Add rule") already navigates to
+            // the inspector itself, correctly scoped to isGlobal/subsId — skip
+            // this generic one then, or the two would race and this one would
+            // clobber that scoping with defaults.
+            if (!CaptureWaitState.isActive.value) {
+                openSnapshotInspector(snapshot.id)
+            }
         }
     }
 

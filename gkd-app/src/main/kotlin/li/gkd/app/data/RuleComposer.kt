@@ -4,7 +4,10 @@ import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
+import li.gkd.app.util.SubscriptionStore
 import li.gkd.app.util.format
+import li.gkd.app.util.pasteText
 import li.gkd.app.util.toJson5String
 
 /**
@@ -70,6 +73,15 @@ object RuleComposer {
             if (formState.action == "setText") {
                 formState.text.takeIf { it.isNotBlank() }?.let { put("text", it) }
             }
+            if (formState.action == "swipe") {
+                val (start, end) = swipePositionsFor(formState.swipeDirection)
+                val duration = formState.swipeDuration.trim().toLongOrNull() ?: 300L
+                putJsonObject("swipeArg") {
+                    putJsonObject("start") { put("x", start.first); put("y", start.second) }
+                    putJsonObject("end") { put("x", end.first); put("y", end.second) }
+                    put("duration", duration)
+                }
+            }
             formState.matchDelay.trim().toLongOrNull()?.let { put("matchDelay", it) }
             formState.matchTime.trim().toLongOrNull()?.let { put("matchTime", it) }
             formState.actionCd.trim().toLongOrNull()?.let { put("actionCd", it) }
@@ -91,6 +103,69 @@ object RuleComposer {
 }
 
 /**
+ * Parses the clipboard's text as a single rule group — the same bare-group
+ * JSON5 shape [composeGroupText] produces, and what tapping the copy button
+ * on an existing rule's detail dialog puts on the clipboard — and appends it
+ * to [subsId], scoped to [appId] (global when null). Runs through the exact
+ * same [SubscriptionInputParser]/[SubscriptionEditor] pipeline as every
+ * other way of adding a rule, so a pasted rule can't skip validation.
+ *
+ * Returns a user-facing error message, or null on success.
+ */
+suspend fun pasteRuleFromClipboard(subsId: Long, appId: String?): String? {
+    val text = pasteText() ?: return "Clipboard is empty"
+    return try {
+        val input = SubscriptionInputParser.parse(text, 0)
+        SubscriptionStore.update(subsId) { subscription ->
+            subscription.edit {
+                if (appId == null) {
+                    appendGlobalGroup(input.parseGlobalGroup())
+                } else {
+                    appendAppGroups(
+                        targetApp = subscription.getApp(appId),
+                        groups = input.parseAppGroups(appId),
+                    )
+                }
+            }
+        }
+        null
+    } catch (e: Exception) {
+        e.message ?: "Failed to paste the rule"
+    }
+}
+
+/**
+ * The 4 directions the guided form's "Swipe" action offers. Each resolves to
+ * a start/end point using the same `Position` expression syntax the JSON5
+ * schema already supports for clickCenter/swipe (variables `left/top/right/
+ * bottom/width/height`, evaluated against the matched element's own bounds
+ * at the moment the rule fires) — inset 10% from the edge on both ends so
+ * the gesture stays reliably inside the element rather than starting/ending
+ * exactly on its border.
+ */
+enum class SwipeDirectionOption(val value: String, val label: String) {
+    UP("up", "Up"),
+    DOWN("down", "Down"),
+    LEFT("left", "Left"),
+    RIGHT("right", "Right"),
+}
+
+private fun swipePositionsFor(direction: String): Pair<Pair<String, String>, Pair<String, String>> {
+    val midX = "(left+right)/2"
+    val midY = "(top+bottom)/2"
+    val nearTop = "top + height*0.1"
+    val nearBottom = "bottom - height*0.1"
+    val nearLeft = "left + width*0.1"
+    val nearRight = "right - width*0.1"
+    return when (direction) {
+        "down" -> (midX to nearTop) to (midX to nearBottom)
+        "left" -> (nearRight to midY) to (nearLeft to midY)
+        "right" -> (nearLeft to midY) to (nearRight to midY)
+        else -> (midX to nearBottom) to (midX to nearTop) // "up"
+    }
+}
+
+/**
  * Form state collected by [RuleBuilderPage]. String fields that represent
  * numbers are kept as strings so the text fields can hold intermediate/
  * invalid input while typing; [RuleComposer.composeGroupText] only emits
@@ -102,6 +177,8 @@ data class RuleFormState(
     val selector: String = "",
     val action: String = "click",
     val text: String = "",
+    val swipeDirection: String = "up",
+    val swipeDuration: String = "300",
     val scopeToActivity: Boolean = true,
     val activityId: String? = null,
     val matchDelay: String = "",

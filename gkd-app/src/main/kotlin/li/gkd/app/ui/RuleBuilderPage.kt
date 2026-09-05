@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -37,7 +42,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import li.gkd.app.data.SwipeDirectionOption
 import li.gkd.app.data.TextTemplateToken
+import li.gkd.app.ui.component.AppDialog
 import li.gkd.app.ui.component.PerfIcon
 import li.gkd.app.ui.component.PerfIconButton
 import li.gkd.app.ui.component.PerfTopAppBar
@@ -45,19 +52,19 @@ import li.gkd.app.ui.component.TextSwitch
 import li.gkd.app.ui.share.LocalMainViewModel
 import li.gkd.app.ui.style.itemHorizontalPadding
 import li.gkd.app.ui.style.scaffoldPadding
+import li.gkd.app.util.appInfoMapFlow
 import li.gkd.app.util.launchAsFn
 import li.gkd.app.util.throttle
 
 private data class ActionOption(val value: String, val label: String, val description: String)
 
 // clickCenter/longClickCenter fall back to the node's own bounds when no
-// custom position is set, and swipe needs a start/end drag the guided form
-// doesn't collect — so those two are omitted here; both are still reachable
-// through the JSON5 editor for anyone who needs them.
+// custom position is set, so a custom one is omitted here (still reachable
+// through the JSON5 editor for anyone who needs it).
 //
-// The first three options (click, long click, enter text) are shown as
-// essentials; the rest live under "Advanced" — see the take(3)/drop(3) split
-// below.
+// The first four options (click, long click, enter text, swipe) are shown
+// as essentials; the rest live under "Advanced" — see the take(4)/drop(4)
+// split below.
 private val actionOptions = listOf(
     ActionOption(
         "click", "Click",
@@ -70,6 +77,10 @@ private val actionOptions = listOf(
     ActionOption(
         "setText", "Enter text",
         "Types the given text into the element, if it's an editable field.",
+    ),
+    ActionOption(
+        "swipe", "Swipe",
+        "Swipes across the element in a chosen direction.",
     ),
     ActionOption(
         "clickNode", "Click (element only)",
@@ -121,12 +132,17 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
     val scope = vm.scope
     val form by vm.formFlow.collectAsStateWithLifecycle()
     val selectorError by vm.selectorErrorFlow.collectAsStateWithLifecycle()
+    val isGlobal by vm.isGlobalFlow.collectAsStateWithLifecycle()
+    val selectedAppId by vm.selectedAppIdFlow.collectAsStateWithLifecycle()
+    val appInfoMap by appInfoMapFlow.collectAsStateWithLifecycle()
     var advancedExpanded by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
+    var showAppPicker by remember { mutableStateOf(false) }
 
     val canSave = form.name.isNotBlank() && form.selector.isNotBlank() && selectorError == null &&
-        (form.action != "setText" || form.text.isNotBlank()) && !saving
+        (form.action != "setText" || form.text.isNotBlank()) &&
+        (isGlobal || !selectedAppId.isNullOrBlank()) && !saving
 
     val onSave = throttle(scope.launchAsFn(Dispatchers.Main) {
         saving = true
@@ -139,14 +155,14 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
         errorText = null
         if (vm.isEdit) {
             mainVm.popPage()
-        } else if (route.isGlobal) {
+        } else if (isGlobal) {
             mainVm.navigatePage(
                 SubsGlobalGroupListRoute(subsItemId = route.subsId),
                 replaced = true,
             )
         } else {
             mainVm.navigatePage(
-                SubsAppGroupListRoute(subsItemId = route.subsId, appId = requireNotNull(route.appId)),
+                SubsAppGroupListRoute(subsItemId = route.subsId, appId = requireNotNull(selectedAppId)),
                 replaced = true,
             )
         }
@@ -167,6 +183,38 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = itemHorizontalPadding, vertical = 4.dp),
         ) {
+            if (!vm.isEdit) {
+                SectionLabel(text = "Rule type", showTop = false)
+                OptionRow(
+                    title = "Global",
+                    description = "Runs across every app (or one you pick below), not just one screen.",
+                    selected = isGlobal,
+                    onClick = { vm.setIsGlobal(true) },
+                )
+                OptionRow(
+                    title = "This app",
+                    description = "Runs only inside a single app you choose.",
+                    selected = !isGlobal,
+                    onClick = { vm.setIsGlobal(false) },
+                )
+                if (!isGlobal) {
+                    val appName = selectedAppId?.let { id -> appInfoMap[id]?.name ?: id }
+                    Text(
+                        text = appName ?: "Choose an app",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.small)
+                            .clickable(onClick = throttle { showAppPicker = true })
+                            .padding(start = 32.dp, top = 4.dp, bottom = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (appName != null) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.error
+                        },
+                    )
+                }
+            }
             OutlinedTextField(
                 value = form.name,
                 onValueChange = vm::setName,
@@ -195,7 +243,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             )
 
             SectionLabel(text = "Action")
-            actionOptions.take(3).forEach { option ->
+            actionOptions.take(4).forEach { option ->
                 OptionRow(
                     title = option.label,
                     description = option.description,
@@ -206,6 +254,14 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
 
             if (form.action == "setText") {
                 TextToEnterField(text = form.text, onTextChange = vm::setText)
+            }
+            if (form.action == "swipe") {
+                SwipeFields(
+                    direction = form.swipeDirection,
+                    onDirectionChange = vm::setSwipeDirection,
+                    duration = form.swipeDuration,
+                    onDurationChange = vm::setSwipeDuration,
+                )
             }
 
             if (!form.activityId.isNullOrBlank()) {
@@ -230,7 +286,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
 
             if (advancedExpanded) {
                 SectionLabel(text = "More actions", showTop = false)
-                actionOptions.drop(3).forEach { option ->
+                actionOptions.drop(4).forEach { option ->
                     OptionRow(
                         title = option.label,
                         description = option.description,
@@ -318,6 +374,16 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    if (showAppPicker) {
+        AppPickerDialog(
+            onDismissRequest = { showAppPicker = false },
+            onPick = { appId ->
+                vm.setSelectedAppId(appId)
+                showAppPicker = false
+            },
+        )
     }
 }
 
@@ -420,6 +486,102 @@ private fun TextToEnterField(
         }
     }
     Spacer(modifier = Modifier.height(8.dp))
+}
+
+/**
+ * Direction picker + duration for the "Swipe" action. The 4 directions cover
+ * the common cases (scroll/dismiss/reveal) without asking the user to place
+ * raw start/end coordinates by hand; [li.gkd.app.data.RuleComposer] turns
+ * the chosen direction into the actual start/end position expressions.
+ */
+@Composable
+private fun SwipeFields(
+    direction: String,
+    onDirectionChange: (String) -> Unit,
+    duration: String,
+    onDurationChange: (String) -> Unit,
+) {
+    SwipeDirectionOption.entries.forEach { option ->
+        OptionRow(
+            title = option.label,
+            description = "Swipe ${option.label.lowercase()} across the element.",
+            selected = direction == option.value,
+            onClick = { onDirectionChange(option.value) },
+        )
+    }
+    NumberField(
+        value = duration,
+        onValueChange = onDurationChange,
+        label = "Swipe duration (ms)",
+        helper = "How long the swipe gesture takes",
+    )
+}
+
+/**
+ * A minimal searchable app list for scoping a new rule to a single app.
+ * Sourced from [appInfoMapFlow] (every installed app the accessibility
+ * service already knows about) — picking one that has no rules yet is fine,
+ * [li.gkd.app.data.RawSubscription.getApp] creates its entry on save.
+ */
+@Composable
+private fun AppPickerDialog(
+    onDismissRequest: () -> Unit,
+    onPick: (String) -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    val appInfoMap by appInfoMapFlow.collectAsStateWithLifecycle()
+    val apps = remember(appInfoMap, query) {
+        appInfoMap.values
+            .filter {
+                query.isBlank() ||
+                    it.name.contains(query, ignoreCase = true) ||
+                    it.id.contains(query, ignoreCase = true)
+            }
+            .sortedBy { it.name.lowercase() }
+    }
+    AppDialog(onDismissRequest = onDismissRequest) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Choose an app", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = "Search apps") },
+                    singleLine = true,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyColumn(modifier = Modifier.heightIn(max = 360.dp)) {
+                    items(apps, key = { it.id }) { app ->
+                        Text(
+                            text = app.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = throttle { onPick(app.id) })
+                                .padding(vertical = 12.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                    if (apps.isEmpty()) {
+                        item {
+                            Text(
+                                text = "No matching apps",
+                                modifier = Modifier.padding(vertical = 12.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

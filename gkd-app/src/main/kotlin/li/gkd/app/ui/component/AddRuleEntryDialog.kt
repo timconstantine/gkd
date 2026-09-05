@@ -15,14 +15,17 @@ import li.gkd.app.util.throttle
 
 /**
  * Shown whenever the user starts adding a rule, before anything else — lets
- * them choose between the existing raw-JSON5 editor and starting a screen
- * capture, which leads into the guided rule builder instead.
+ * them choose between the existing raw-JSON5 editor, starting a screen
+ * capture (which leads into the guided rule builder), or pasting one copied
+ * from elsewhere. [onPasteRule] is omitted at entry points that have no
+ * single, unambiguous app to attach a pasted app-rule to.
  */
 @Composable
 fun AddRuleEntryDialog(
     onDismissRequest: () -> Unit,
     onTypeManually: () -> Unit,
     onStartCapture: () -> Unit,
+    onPasteRule: (() -> Unit)? = null,
 ) {
     AppDialog(onDismissRequest = onDismissRequest) {
         Card(
@@ -65,6 +68,24 @@ fun AddRuleEntryDialog(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (onPasteRule != null) {
+                HorizontalDivider()
+                Text(
+                    text = "Paste rule",
+                    modifier = Modifier
+                        .clickable(onClick = throttle {
+                            onDismissRequest()
+                            onPasteRule()
+                        })
+                        .then(itemModifier),
+                )
+                Text(
+                    text = "Add a rule copied from another app, screen, or subscription.",
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

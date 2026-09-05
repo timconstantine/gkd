@@ -26,6 +26,7 @@ import li.gkd.app.ui.share.LocalDarkTheme
 import li.gkd.app.ui.share.LocalMainViewModel
 import li.gkd.app.ui.style.JSON5_LARGE_TEXT_THRESHOLD
 import li.gkd.app.ui.style.getJson5AnnotatedString
+import li.gkd.app.util.copyText
 import li.gkd.app.util.throttle
 
 @Composable
@@ -129,6 +130,11 @@ fun RuleGroupDialog(
                 if (subs.isLocal) {
                     PerfIconButton(imageVector = PerfIcon.Edit, onClick = throttle(onClickEdit))
                 }
+                PerfIconButton(
+                    imageVector = PerfIcon.ContentCopy,
+                    onClickLabel = "Copy this rule's JSON5 text",
+                    onClick = throttle { copyText(source) },
+                )
                 PerfIconButton(
                     imageVector = PerfIcon.Block,
                     onClickLabel = "Edit the rule exclusion list",

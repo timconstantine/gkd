@@ -276,6 +276,41 @@ object SubscriptionStore {
             result
         }
 
+    // A subscription with no update source at all — the user's own named
+    // collection of rules, alongside the one built-in "Local subscription"
+    // (LOCAL_SUBS_ID). Reuses the exact same file-backed save path as every
+    // other subscription; the only thing that makes one "local" is having
+    // no updateUrl (see RawSubscription.isLocal), so this needs nothing
+    // beyond a fresh id and an empty starting subscription.
+    suspend fun createLocalSubscription(name: String): SubscriptionResult = withContext(Dispatchers.IO) {
+        if (updateMutex.mutex.isLocked) return@withContext SubscriptionResult.Busy
+        var result: SubscriptionResult = SubscriptionResult.Busy
+        updateMutex.withStateLock {
+            val items = Db.subsItemDao.queryAll()
+            val id = System.currentTimeMillis()
+            val newItem = SubsItem(
+                id = id,
+                enable = true,
+                order = if (items.isEmpty()) 1 else items.maxOf { it.order } + 1,
+            )
+            try {
+                saveLocked(
+                    subscription = RawSubscription(id = id, name = name, version = 0),
+                    newItem = newItem,
+                    insertItem = true,
+                )
+            } catch (e: Exception) {
+                result = SubscriptionResult.Failure(
+                    "Failed to create subscription\n${e.message}".trimEnd(),
+                    e,
+                )
+                return@withStateLock
+            }
+            result = SubscriptionResult.Success("Subscription created successfully")
+        }
+        result
+    }
+
     suspend fun addOrModifyRemote(
         url: String,
         oldItem: SubsItem? = null,

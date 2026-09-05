@@ -25,20 +25,24 @@ data class SnapshotInspectorUiState(
 
 /**
  * The action types a node can be filtered by in the inspector's node list.
- * Only click/long-click map to a per-node capability flag on [li.gkd.app.data.AttrInfo]
- * ([li.gkd.app.data.AttrInfo.clickable]/[li.gkd.app.data.AttrInfo.longClickable]) —
- * other [li.gkd.app.data.GkdAction] variants either act on raw coordinates
- * (clickCenter/longClickCenter/swipe) or don't target a node at all
- * (back/none), so they have nothing node-specific to filter by.
+ * Each maps to a per-node capability flag on [li.gkd.app.data.AttrInfo] —
+ * [li.gkd.app.data.AttrInfo.clickable], [li.gkd.app.data.AttrInfo.longClickable],
+ * [li.gkd.app.data.AttrInfo.editable] (for the `setText` action) — since those
+ * are the only [li.gkd.app.data.GkdAction] variants that require a specific
+ * per-node capability; the rest either act on raw coordinates (clickCenter/
+ * longClickCenter/swipe) or don't target a node at all (back/none), so they
+ * have nothing node-specific to filter by.
  */
 enum class NodeActionTypeFilter(val label: String) {
     CLICKABLE("Clickable"),
     LONG_CLICKABLE("Long-clickable"),
+    EDITABLE("Enter text"),
 }
 
 fun NodeInfo.matchesActionType(type: NodeActionTypeFilter): Boolean = when (type) {
     NodeActionTypeFilter.CLICKABLE -> attr.clickable
     NodeActionTypeFilter.LONG_CLICKABLE -> attr.longClickable
+    NodeActionTypeFilter.EDITABLE -> attr.editable
 }
 
 class SnapshotInspectorVm(private val snapshotId: Long) : BaseViewModel() {

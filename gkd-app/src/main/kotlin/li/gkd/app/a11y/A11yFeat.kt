@@ -16,11 +16,13 @@ import li.gkd.app.store.storeFlow
 import li.gkd.app.util.LogUtils
 import li.gkd.app.util.ScreenUtils
 import li.gkd.app.snapshot.SnapshotCapture
+import li.gkd.app.ui.CaptureWaitState
 import li.gkd.app.util.SubscriptionResult
 import li.gkd.app.util.SubscriptionStore
 import li.gkd.app.util.UpdateTimeOption
 import li.gkd.app.util.launchTry
 import li.gkd.app.util.mapState
+import li.gkd.app.util.openSnapshotInspector
 import li.gkd.selector.MatchOptions
 import li.gkd.selector.Selector
 import li.gkd.selector.SelectorCompileResult
@@ -140,7 +142,10 @@ private fun createVolumeReceiver() = object : BroadcastReceiver() {
             if (t - lastVolumeTriggerTime > 3000 && !ScreenUtils.isScreenLock()) {
                 lastVolumeTriggerTime = t
                 appScope.launchTry {
-                    SnapshotCapture.capture()
+                    val snapshot = SnapshotCapture.capture()
+                    if (!CaptureWaitState.isActive.value) {
+                        openSnapshotInspector(snapshot.id)
+                    }
                 }
             }
         }
