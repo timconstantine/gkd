@@ -23,12 +23,34 @@ data class SnapshotInspectorUiState(
     val nodes: List<NodeInfo>,
 )
 
+/**
+ * The action types a node can be filtered by in the inspector's node list.
+ * Only click/long-click map to a per-node capability flag on [li.gkd.app.data.AttrInfo]
+ * ([li.gkd.app.data.AttrInfo.clickable]/[li.gkd.app.data.AttrInfo.longClickable]) —
+ * other [li.gkd.app.data.GkdAction] variants either act on raw coordinates
+ * (clickCenter/longClickCenter/swipe) or don't target a node at all
+ * (back/none), so they have nothing node-specific to filter by.
+ */
+enum class NodeActionTypeFilter(val label: String) {
+    CLICKABLE("Clickable"),
+    LONG_CLICKABLE("Long-clickable"),
+}
+
+fun NodeInfo.matchesActionType(type: NodeActionTypeFilter): Boolean = when (type) {
+    NodeActionTypeFilter.CLICKABLE -> attr.clickable
+    NodeActionTypeFilter.LONG_CLICKABLE -> attr.longClickable
+}
+
 class SnapshotInspectorVm(private val snapshotId: Long) : BaseViewModel() {
     val uiState = flow {
         emit(loadSnapshot())
     }.stateLoadable()
 
     val filterFlow = MutableStateFlow("")
+
+    // Empty means "no action-type filter" (show every node); otherwise a
+    // node is shown if it matches ANY selected type.
+    val actionTypeFilterFlow = MutableStateFlow<Set<NodeActionTypeFilter>>(emptySet())
 
     val selectedNodeFlow = MutableStateFlow<NodeInfo?>(null)
 
@@ -61,6 +83,15 @@ class SnapshotInspectorVm(private val snapshotId: Long) : BaseViewModel() {
 
     fun updateFilter(value: String) {
         filterFlow.value = value
+    }
+
+    fun toggleActionTypeFilter(type: NodeActionTypeFilter) {
+        val current = actionTypeFilterFlow.value
+        actionTypeFilterFlow.value = if (current.contains(type)) {
+            current - type
+        } else {
+            current + type
+        }
     }
 
     fun selectNode(node: NodeInfo?) {

@@ -52,7 +52,10 @@ class ButtonService : OverlayWindowService(
 
     init {
         useAliveFlow(isRunning)
-        useAliveToast("Snapshot button service")
+        // No useAliveToast here: this button is expected to start/stop
+        // frequently (auto-hides after a capture, and can be dragged to the
+        // trash to dismiss it), so a "stopped" toast on every one of those
+        // would be more noise than signal.
         onCreated {
             NotificationCatalog.button().startForeground()
         }

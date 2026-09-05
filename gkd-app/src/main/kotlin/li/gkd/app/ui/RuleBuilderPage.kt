@@ -249,7 +249,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                     value = form.actionMaximum,
                     onValueChange = vm::setActionMaximum,
                     label = "Maximum triggers",
-                    helper = "Stop acting after this many successful triggers",
+                    helper = "Stop acting after this many successful triggers; clear this to allow unlimited triggers",
                 )
 
                 SectionLabel(text = "Reset trigger count")

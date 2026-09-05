@@ -104,7 +104,7 @@ data class RuleFormState(
     val matchTime: String = "",
     val actionCd: String = "",
     val actionDelay: String = "",
-    val actionMaximum: String = "",
+    val actionMaximum: String = "1",
     val resetMatch: String? = null,
     val fastQuery: Boolean = false,
     val matchRoot: Boolean = false,

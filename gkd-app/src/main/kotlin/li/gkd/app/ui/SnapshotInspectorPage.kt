@@ -70,6 +70,7 @@ fun SnapshotInspectorPage(route: SnapshotInspectorRoute) {
     val vm = viewModel { SnapshotInspectorVm(route.snapshotId) }
     val loadableState by vm.uiState.collectAsStateWithLifecycle()
     val filter by vm.filterFlow.collectAsStateWithLifecycle()
+    val actionTypeFilter by vm.actionTypeFilterFlow.collectAsStateWithLifecycle()
     val selectedNode by vm.selectedNodeFlow.collectAsStateWithLifecycle()
 
     Scaffold(topBar = {
@@ -104,12 +105,13 @@ fun SnapshotInspectorPage(route: SnapshotInspectorRoute) {
 
             is Loadable.Ready -> {
                 val state = current.value
-                val filteredNodes = remember(state.nodes, filter) {
-                    if (filter.isBlank()) {
-                        state.nodes
-                    } else {
-                        state.nodes.filter { it.matchesFilter(filter) }
-                    }
+                val filteredNodes = remember(state.nodes, filter, actionTypeFilter) {
+                    state.nodes
+                        .filter { filter.isBlank() || it.matchesFilter(filter) }
+                        .filter { node ->
+                            actionTypeFilter.isEmpty() ||
+                                actionTypeFilter.any { node.matchesActionType(it) }
+                        }
                 }
                 LazyColumn(modifier = Modifier.scaffoldPadding(contentPadding).fillMaxSize()) {
                     item {
@@ -120,12 +122,34 @@ fun SnapshotInspectorPage(route: SnapshotInspectorRoute) {
                             modifier = Modifier.padding(horizontal = itemHorizontalPadding, vertical = 8.dp),
                         )
                     }
+                    item {
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = itemHorizontalPadding, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            NodeActionTypeFilter.entries.forEach { type ->
+                                FilterChip(
+                                    selected = actionTypeFilter.contains(type),
+                                    onClick = { vm.toggleActionTypeFilter(type) },
+                                    label = { Text(text = type.label) },
+                                )
+                            }
+                        }
+                    }
                     items(filteredNodes, key = { it.id }) { node ->
                         NodeRow(node = node, onClick = { vm.selectNode(node) })
                     }
                     item {
                         if (filteredNodes.isEmpty()) {
-                            EmptyText(text = if (filter.isBlank()) "No nodes captured" else "No matches")
+                            EmptyText(
+                                text = if (filter.isBlank() && actionTypeFilter.isEmpty()) {
+                                    "No nodes captured"
+                                } else {
+                                    "No matches"
+                                },
+                            )
                         }
                     }
                 }
