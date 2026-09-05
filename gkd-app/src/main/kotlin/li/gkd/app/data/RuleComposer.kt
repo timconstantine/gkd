@@ -67,6 +67,9 @@ object RuleComposer {
                     putJsonArray("activityIds") { add(scopedActivityId) }
                 }
             }
+            if (formState.action == "setText") {
+                formState.text.takeIf { it.isNotBlank() }?.let { put("text", it) }
+            }
             formState.matchDelay.trim().toLongOrNull()?.let { put("matchDelay", it) }
             formState.matchTime.trim().toLongOrNull()?.let { put("matchTime", it) }
             formState.actionCd.trim().toLongOrNull()?.let { put("actionCd", it) }
@@ -98,6 +101,7 @@ data class RuleFormState(
     val desc: String = "",
     val selector: String = "",
     val action: String = "click",
+    val text: String = "",
     val scopeToActivity: Boolean = true,
     val activityId: String? = null,
     val matchDelay: String = "",
@@ -196,6 +200,7 @@ fun RawSubscription.RawGroupProps.toRuleEditFormOrNull(contextAppId: String?): R
         desc = desc.orEmpty(),
         selector = selector,
         action = action ?: "click",
+        text = rule.text.orEmpty(),
         scopeToActivity = activityId != null,
         activityId = activityId,
         matchDelay = rule.matchDelay?.toString().orEmpty(),

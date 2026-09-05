@@ -342,6 +342,9 @@ data class RawSubscription(
 
         // swipe
         val swipeArg: SwipeArg?
+
+        // setText
+        val text: String?
     }
 
     sealed interface RawRuleProps : RawCommonProps, LocationProps {
@@ -509,6 +512,7 @@ data class RawSubscription(
         override val action: String?,
         override val position: Position?,
         override val swipeArg: SwipeArg?,
+        override val text: String?,
         override val matches: List<String>?,
         override val excludeMatches: List<String>?,
         override val excludeAllMatches: List<String>?,
@@ -570,6 +574,7 @@ data class RawSubscription(
         override val action: String?,
         override val position: Position?,
         override val swipeArg: SwipeArg?,
+        override val text: String?,
         override val matches: List<String>?,
         override val excludeMatches: List<String>?,
         override val excludeAllMatches: List<String>?,
@@ -879,6 +884,7 @@ data class RawSubscription(
                 versionName = getCompatVersionName(jsonObject),
                 position = getPosition(jsonObject),
                 swipeArg = getSwipeArg(jsonObject),
+                text = getString(jsonObject, "text"),
                 forcedTime = getLong(jsonObject, "forcedTime"),
                 priorityTime = getLong(jsonObject, "priorityTime"),
                 priorityActionMaximum = getInt(jsonObject, "priorityActionMaximum"),
@@ -997,6 +1003,7 @@ data class RawSubscription(
                 forcedTime = getLong(jsonObject, "forcedTime"),
                 position = getPosition(jsonObject),
                 swipeArg = getSwipeArg(jsonObject),
+                text = getString(jsonObject, "text"),
                 priorityTime = getLong(jsonObject, "priorityTime"),
                 priorityActionMaximum = getInt(jsonObject, "priorityActionMaximum"),
             )

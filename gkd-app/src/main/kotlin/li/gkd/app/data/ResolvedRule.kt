@@ -165,6 +165,8 @@ sealed class ResolvedRule(
         ActionPerformer.ClickCenter.action
     } ?: rule.swipeArg?.let {
         ActionPerformer.Swipe.action
+    } ?: rule.text?.let {
+        ActionPerformer.SetText.action
     })
 
     suspend fun performAction(node: AccessibilityNodeInfo) = performer.perform(node, rule)

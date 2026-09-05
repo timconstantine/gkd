@@ -1,7 +1,9 @@
 package li.gkd.app.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -26,12 +29,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import li.gkd.app.data.TextTemplateToken
 import li.gkd.app.ui.component.PerfIcon
 import li.gkd.app.ui.component.PerfIconButton
 import li.gkd.app.ui.component.PerfTopAppBar
@@ -48,6 +54,10 @@ private data class ActionOption(val value: String, val label: String, val descri
 // custom position is set, and swipe needs a start/end drag the guided form
 // doesn't collect — so those two are omitted here; both are still reachable
 // through the JSON5 editor for anyone who needs them.
+//
+// The first three options (click, long click, enter text) are shown as
+// essentials; the rest live under "Advanced" — see the take(3)/drop(3) split
+// below.
 private val actionOptions = listOf(
     ActionOption(
         "click", "Click",
@@ -56,6 +66,10 @@ private val actionOptions = listOf(
     ActionOption(
         "longClick", "Long click",
         "Long-presses the element, or its center point if it isn't directly tappable.",
+    ),
+    ActionOption(
+        "setText", "Enter text",
+        "Types the given text into the element, if it's an editable field.",
     ),
     ActionOption(
         "clickNode", "Click (element only)",
@@ -111,7 +125,8 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
     var errorText by remember { mutableStateOf<String?>(null) }
     var saving by remember { mutableStateOf(false) }
 
-    val canSave = form.name.isNotBlank() && form.selector.isNotBlank() && selectorError == null && !saving
+    val canSave = form.name.isNotBlank() && form.selector.isNotBlank() && selectorError == null &&
+        (form.action != "setText" || form.text.isNotBlank()) && !saving
 
     val onSave = throttle(scope.launchAsFn(Dispatchers.Main) {
         saving = true
@@ -180,13 +195,17 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             )
 
             SectionLabel(text = "Action")
-            actionOptions.take(2).forEach { option ->
+            actionOptions.take(3).forEach { option ->
                 OptionRow(
                     title = option.label,
                     description = option.description,
                     selected = form.action == option.value,
                     onClick = { vm.setAction(option.value) },
                 )
+            }
+
+            if (form.action == "setText") {
+                TextToEnterField(text = form.text, onTextChange = vm::setText)
             }
 
             if (!form.activityId.isNullOrBlank()) {
@@ -211,7 +230,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
 
             if (advancedExpanded) {
                 SectionLabel(text = "More actions", showTop = false)
-                actionOptions.drop(2).forEach { option ->
+                actionOptions.drop(3).forEach { option ->
                     OptionRow(
                         title = option.label,
                         description = option.description,
@@ -347,6 +366,60 @@ private fun OptionRow(
             )
         }
     }
+}
+
+/**
+ * The text field for the "Enter text" action, plus a row of chips for
+ * inserting a live-value placeholder (today's date, the current time, …) at
+ * the cursor — so building something like "Checked in on [today]" doesn't
+ * require typing the bracket syntax by hand. [TextTemplateToken] defines
+ * what each placeholder expands to when the rule actually runs.
+ */
+@Composable
+private fun TextToEnterField(
+    text: String,
+    onTextChange: (String) -> Unit,
+) {
+    var fieldValue by remember { mutableStateOf(TextFieldValue(text)) }
+    OutlinedTextField(
+        value = fieldValue,
+        onValueChange = { new ->
+            fieldValue = new
+            onTextChange(new.text)
+        },
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(text = "Text to enter") },
+        supportingText = { Text(text = "What to type into the matched element") },
+    )
+    Spacer(modifier = Modifier.height(6.dp))
+    Text(
+        text = "Insert a live value:",
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Spacer(modifier = Modifier.height(4.dp))
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        TextTemplateToken.entries.forEach { token ->
+            AssistChip(
+                onClick = {
+                    val selection = fieldValue.selection
+                    val newText = fieldValue.text.replaceRange(
+                        selection.min,
+                        selection.max,
+                        token.token,
+                    )
+                    val newCursor = selection.min + token.token.length
+                    fieldValue = TextFieldValue(newText, TextRange(newCursor))
+                    onTextChange(newText)
+                },
+                label = { Text(text = token.label) },
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable

@@ -77,6 +77,7 @@ class RuleBuilderVm(private val route: RuleBuilderRoute) : BaseViewModel() {
     fun setDesc(value: String) = update { it.copy(desc = value) }
     fun setSelector(value: String) = update { it.copy(selector = value) }
     fun setAction(value: String) = update { it.copy(action = value) }
+    fun setText(value: String) = update { it.copy(text = value) }
     fun setScopeToActivity(value: Boolean) = update { it.copy(scopeToActivity = value) }
     fun setMatchDelay(value: String) = update { it.copy(matchDelay = value) }
     fun setMatchTime(value: String) = update { it.copy(matchTime = value) }
@@ -97,6 +98,9 @@ class RuleBuilderVm(private val route: RuleBuilderRoute) : BaseViewModel() {
         if (state.selector.isBlank()) return "Selector is required"
         if (validateSelectorExpression(state.selector) != null) {
             return "The selector is invalid"
+        }
+        if (state.action == "setText" && state.text.isBlank()) {
+            return "Text to enter is required"
         }
         val text = try {
             RuleComposer.composeGroupText(state, appId = effectiveAppId, isGlobal = route.isGlobal)
