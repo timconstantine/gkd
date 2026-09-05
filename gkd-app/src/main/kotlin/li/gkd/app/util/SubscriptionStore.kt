@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import li.gkd.app.data.RawSubscription
 import li.gkd.db.SubsConfig
@@ -16,6 +17,7 @@ import li.gkd.db.Db
 import li.gkd.app.ui.share.Loadable
 import li.gkd.db.LOCAL_HTTP_SUBS_ID
 import li.gkd.db.LOCAL_SUBS_ID
+import li.gkd.app.store.storeFlow
 import li.songe.json5.decodeFromJson5String
 import java.io.File
 import java.io.FileOutputStream
@@ -70,6 +72,42 @@ object SubscriptionStore {
             }
         }
         ensureLocalSubscription()
+        ensureDefaultRemoteSubscription()
+    }
+
+    // The repo's own curated rule set (see subscriptions/README.md) — installed
+    // once, automatically, as the first subscription a fresh install sees, so
+    // trying the app out doesn't require knowing "Add subscription" exists.
+    // Guarded by a settings flag rather than "no subscriptions yet", so a user
+    // who later removes it isn't handed it right back on the next launch.
+    private const val DEFAULT_REMOTE_SUBS_URL =
+        "https://raw.githubusercontent.com/timconstantine/gkd/main/subscriptions/english-ui-rules.gkd.json5"
+
+    private suspend fun ensureDefaultRemoteSubscription() = withContext(Dispatchers.IO) {
+        if (storeFlow.value.installedDefaultSubs) return@withContext
+        storeFlow.update { it.copy(installedDefaultSubs = true) }
+        try {
+            val items = Db.subsItemDao.queryAll()
+            if (items.any { it.updateUrl == DEFAULT_REMOTE_SUBS_URL }) return@withContext
+            val result = addOrModifyRemote(DEFAULT_REMOTE_SUBS_URL)
+            if (result !is SubscriptionResult.Success) {
+                if (result is SubscriptionResult.Failure) {
+                    LogUtils.d("Failed to install the default subscription", result.message)
+                }
+                return@withContext
+            }
+            val current = Db.subsItemDao.queryAll()
+            val newItem = current.find { it.updateUrl == DEFAULT_REMOTE_SUBS_URL } ?: return@withContext
+            val minOrder = current.minOfOrNull { it.order } ?: 0
+            Db.subsItemDao.update(
+                newItem.copy(
+                    enable = true,
+                    order = if (newItem.order > minOrder) minOrder - 1 else newItem.order,
+                ),
+            )
+        } catch (e: Exception) {
+            LogUtils.d(e)
+        }
     }
 
     private suspend fun ensureLocalSubscription() = withContext(Dispatchers.IO) {
@@ -237,6 +275,41 @@ object SubscriptionStore {
             }
             result
         }
+
+    // A subscription with no update source at all — the user's own named
+    // collection of rules, alongside the one built-in "Local subscription"
+    // (LOCAL_SUBS_ID). Reuses the exact same file-backed save path as every
+    // other subscription; the only thing that makes one "local" is having
+    // no updateUrl (see RawSubscription.isLocal), so this needs nothing
+    // beyond a fresh id and an empty starting subscription.
+    suspend fun createLocalSubscription(name: String): SubscriptionResult = withContext(Dispatchers.IO) {
+        if (updateMutex.mutex.isLocked) return@withContext SubscriptionResult.Busy
+        var result: SubscriptionResult = SubscriptionResult.Busy
+        updateMutex.withStateLock {
+            val items = Db.subsItemDao.queryAll()
+            val id = System.currentTimeMillis()
+            val newItem = SubsItem(
+                id = id,
+                enable = true,
+                order = if (items.isEmpty()) 1 else items.maxOf { it.order } + 1,
+            )
+            try {
+                saveLocked(
+                    subscription = RawSubscription(id = id, name = name, version = 0),
+                    newItem = newItem,
+                    insertItem = true,
+                )
+            } catch (e: Exception) {
+                result = SubscriptionResult.Failure(
+                    "Failed to create subscription\n${e.message}".trimEnd(),
+                    e,
+                )
+                return@withStateLock
+            }
+            result = SubscriptionResult.Success("Subscription created successfully")
+        }
+        result
+    }
 
     suspend fun addOrModifyRemote(
         url: String,

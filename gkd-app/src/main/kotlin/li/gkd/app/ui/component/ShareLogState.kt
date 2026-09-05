@@ -55,7 +55,9 @@ class ShareLogState(
         dismiss()
         githubUpload.startTask(
             getFile = { buildLogFile() },
-            showHref = { "http://i.gkd.li/log/${it.id}" },
+            // This fork's translated build of the inspect web tool, not
+            // upstream's i.gkd.li — see IMPORT_SHORT_URL in Constants.kt.
+            showHref = { "https://timconstantine.github.io/inspect/log/${it.id}" },
         )
     }
 

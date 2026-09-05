@@ -32,6 +32,7 @@ import li.gkd.app.store.storeFlow
 import li.gkd.app.ui.AdvancedPageRoute
 import li.gkd.app.ui.CrashReportRoute
 import li.gkd.app.ui.PrivilegeServiceRoute
+import li.gkd.app.ui.SnapshotInspectorRoute
 import li.gkd.app.ui.SnapshotPageRoute
 import li.gkd.app.ui.WebViewRoute
 import li.gkd.app.ui.component.DialogRequests
@@ -62,6 +63,7 @@ import li.gkd.app.util.findOption
 import li.gkd.app.util.json
 import li.gkd.app.util.launchTry
 import li.gkd.app.util.openWeChatScaner
+import li.gkd.app.util.SNAPSHOT_INSPECTOR_ID_EXTRA
 import li.gkd.app.util.runMainPost
 import li.gkd.app.util.toast
 import li.songe.codeorigin.CallSite
@@ -248,7 +250,10 @@ class MainViewModel : BaseViewModel(), OnSimpleLife by DefaultSimpleLifeImpl() {
         LogUtils.d(intent)
         val uri = intent.data?.normalizeScheme()
         val source = intent.getStringExtra(EntryActivity.activityNavSourceName)
-        if (uri?.scheme == "gkd") {
+        val snapshotInspectorId = intent.getLongExtra(SNAPSHOT_INSPECTOR_ID_EXTRA, -1L)
+        if (snapshotInspectorId > 0) {
+            navigatePage(SnapshotInspectorRoute(snapshotId = snapshotInspectorId))
+        } else if (uri?.scheme == "gkd") {
             handleGkdUri(uri)
         } else if (source == OpenFileActivity::class.jvmName && uri != null) {
             withContext(Dispatchers.IO) { BackupUtils.importBackUpData(uri) }

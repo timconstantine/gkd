@@ -2,9 +2,11 @@ package li.gkd.app.ui.component
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -30,7 +33,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import li.gkd.app.META
 import li.gkd.app.data.RawSubscription
 import li.gkd.db.SubsItem
 import li.gkd.app.util.formatTimeAgo
@@ -119,9 +121,10 @@ fun SubsItemCard(
                         }
                     )
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (subsItem.id >= 0) {
+                        if (!subsItem.isLocal) {
                             if (subscription.author != null) {
                                 Text(
                                     modifier = Modifier.semantics {
@@ -139,12 +142,25 @@ fun SubsItemCard(
                                 style = MaterialTheme.typography.labelSmall,
                             )
                         } else {
-                            Text(
-                                modifier = Modifier.clearAndSetSemantics {},
-                                text = META.appName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.secondary,
-                            )
+                            // Visually calls out a locally-editable rule
+                            // collection (the built-in one, or one the user
+                            // created by name) against a remote subscription,
+                            // which shows author/version above instead.
+                            Box(
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.extraSmall)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                                    .padding(horizontal = 6.dp, vertical = 1.dp),
+                            ) {
+                                Text(
+                                    modifier = Modifier.clearAndSetSemantics {
+                                        contentDescription = "Your own editable rule collection"
+                                    },
+                                    text = "Your rules",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
                         }
                         val timeStr = formatTimeAgo(subsItem.mtime)
                         Text(

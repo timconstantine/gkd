@@ -196,6 +196,17 @@ fun copyText(text: String) {
     toast("Copied")
 }
 
+/**
+ * The current clipboard's plain-text content, or null if the clipboard is
+ * empty or holds something that can't be coerced to text. Used by "Paste
+ * rule" to accept whatever a "Copy" action put there.
+ */
+fun pasteText(): String? {
+    val clip = app.clipboardManager.primaryClip
+    if (clip == null || clip.itemCount == 0) return null
+    return clip.getItemAt(0).coerceToText(app)?.toString()?.takeIf { it.isNotBlank() }
+}
+
 fun initToast() {
     Toaster.init(app)
     Toaster.setDebugMode(false)

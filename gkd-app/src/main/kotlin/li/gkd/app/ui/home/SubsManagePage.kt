@@ -42,17 +42,21 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import li.gkd.app.R
+import li.gkd.app.data.pasteRuleFromClipboard
 import li.gkd.app.store.storeFlow
+import li.gkd.app.ui.CaptureWaitRoute
 import li.gkd.app.ui.SelectorLibraryRoute
 import li.gkd.app.ui.SlowGroupRoute
 import li.gkd.app.ui.UpsertRuleGroupRoute
 import li.gkd.app.ui.WebViewRoute
+import li.gkd.app.ui.component.AddRuleEntryDialog
 import li.gkd.app.ui.component.AnimationFloatingActionButton
 import li.gkd.app.ui.component.AppAlertDialog
 import li.gkd.app.ui.component.PerfIcon
 import li.gkd.app.ui.component.PerfIconButton
 import li.gkd.app.ui.component.PerfTopAppBar
 import li.gkd.app.ui.component.SettingsDialog
+import li.gkd.app.ui.component.SubsAddInput
 import li.gkd.app.ui.component.SubsItemCard
 import li.gkd.app.ui.component.TextMenu
 import li.gkd.app.ui.component.TextSwitch
@@ -125,6 +129,8 @@ private fun useLoadedSubsManagePage(
     val subItems = state.subItems
     val subsIdToRaw = state.subscriptions
     val scope = vm.scope
+    // null = hidden, false = "Add app rule" was tapped, true = "Add global rule" was tapped
+    var addRuleFor by remember { mutableStateOf<Boolean?>(null) }
 
     val refreshing = state.refreshing
     val pullToRefreshState = rememberPullToRefreshState()
@@ -196,6 +202,37 @@ private fun useLoadedSubsManagePage(
                 TextButton(onClick = vm::dismissPowerWarning) {
                     Text(text = "Cancel")
                 }
+            },
+        )
+    }
+
+    addRuleFor?.let { isGlobal ->
+        AddRuleEntryDialog(
+            onDismissRequest = { addRuleFor = null },
+            onTypeManually = {
+                mainVm.navigatePage(
+                    UpsertRuleGroupRoute(
+                        subsId = LOCAL_SUBS_ID,
+                        groupKey = null,
+                        appId = if (isGlobal) null else "",
+                        forward = true,
+                    )
+                )
+            },
+            onStartCapture = {
+                mainVm.navigatePage(CaptureWaitRoute(isGlobal = isGlobal, subsId = LOCAL_SUBS_ID))
+            },
+            // Only offered for a global rule — there's no single app to
+            // attach a pasted app-rule to from this "any app" entry point.
+            onPasteRule = if (isGlobal) {
+                {
+                    scope.launchTry {
+                        val error = pasteRuleFromClipboard(LOCAL_SUBS_ID, null)
+                        toast(error ?: "Pasted successfully")
+                    }
+                }
+            } else {
+                null
             },
         )
     }
@@ -344,28 +381,14 @@ private fun useLoadedSubsManagePage(
                                     text = { Text(text = "Add app rule") },
                                     onClick = throttle {
                                         expanded = false
-                                        mainVm.navigatePage(
-                                            UpsertRuleGroupRoute(
-                                                subsId = LOCAL_SUBS_ID,
-                                                groupKey = null,
-                                                appId = "",
-                                                forward = true,
-                                            )
-                                        )
+                                        addRuleFor = false
                                     },
                                 )
                                 DropdownMenuItem(
                                     text = { Text(text = "Add global rule") },
                                     onClick = throttle {
                                         expanded = false
-                                        mainVm.navigatePage(
-                                            UpsertRuleGroupRoute(
-                                                subsId = LOCAL_SUBS_ID,
-                                                groupKey = null,
-                                                appId = null,
-                                                forward = true,
-                                            )
-                                        )
+                                        addRuleFor = true
                                     },
                                 )
                                 DropdownMenuItem(
@@ -391,8 +414,13 @@ private fun useLoadedSubsManagePage(
                         toast("The subscription is being refreshed, please try again later")
                     } else {
                         scope.launchTry {
-                            val url = mainVm.subsLinkDialog.request() ?: return@launchTry
-                            vm.addOrModifySubscription(url).message?.let { toast(it) }
+                            when (val input = mainVm.subsLinkDialog.requestNew() ?: return@launchTry) {
+                                is SubsAddInput.Url -> vm.addOrModifySubscription(input.value).message
+                                    ?.let { toast(it) }
+
+                                is SubsAddInput.Name -> vm.createLocalSubscription(input.value).message
+                                    ?.let { toast(it) }
+                            }
                         }
                     }
                 },

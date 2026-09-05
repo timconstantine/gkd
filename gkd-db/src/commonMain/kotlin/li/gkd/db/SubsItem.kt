@@ -33,8 +33,10 @@ data class SubsItem(
 
     ) {
 
+    // See the matching comment on RawSubscription.isLocal — this covers any
+    // subscription with no update source, not just the two built-in ids.
     val isLocal: Boolean
-        get() = LOCAL_SUBS_IDS.contains(id)
+        get() = updateUrl == null
 
     @Dao
     interface SubsItemDao {

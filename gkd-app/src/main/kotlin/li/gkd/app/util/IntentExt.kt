@@ -7,11 +7,32 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.core.net.toUri
+import li.gkd.app.MainActivity
 import li.gkd.app.META
 import li.gkd.app.app
 import li.gkd.app.isActivityVisible
 import li.gkd.app.permission.PermissionStates
 import kotlin.reflect.KClass
+
+// Carries a snapshot id from a manual capture (floating button/volume key)
+// through a fresh Intent to MainActivity, so [li.gkd.app.MainViewModel.handleIntent]
+// can bring up the node inspector for it — see [openSnapshotInspector].
+const val SNAPSHOT_INSPECTOR_ID_EXTRA = "snapshotInspectorId"
+
+/**
+ * Brings the app to the foreground (or starts it fresh) and opens the
+ * snapshot node inspector for [snapshotId]. Used after a manually-triggered
+ * capture (the floating button or the volume-key shortcut) so the user lands
+ * straight on the element list instead of having to dig it up from the
+ * snapshot history afterward.
+ */
+fun openSnapshotInspector(snapshotId: Long) {
+    val intent = Intent(app, MainActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(SNAPSHOT_INSPECTOR_ID_EXTRA, snapshotId)
+    }
+    app.tryStartActivity(intent)
+}
 
 fun Context.tryStartActivity(intent: Intent) {
     try {

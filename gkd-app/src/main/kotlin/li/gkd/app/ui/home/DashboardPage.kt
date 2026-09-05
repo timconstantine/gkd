@@ -55,7 +55,6 @@ import li.gkd.app.ui.ActionLogRoute
 import li.gkd.app.ui.ActivityLogRoute
 import li.gkd.app.ui.AppConfigRoute
 import li.gkd.app.ui.PrivilegeServiceRoute
-import li.gkd.app.ui.WebViewRoute
 import li.gkd.app.ui.WorkModeRoute
 import li.gkd.app.ui.component.GroupNameText
 import li.gkd.app.ui.component.PerfIcon
@@ -69,7 +68,7 @@ import li.gkd.app.ui.style.EmptyHeight
 import li.gkd.app.ui.style.itemHorizontalPadding
 import li.gkd.app.ui.style.itemVerticalPadding
 import li.gkd.app.ui.style.surfaceCardColors
-import li.gkd.app.util.HOME_PAGE_URL
+import li.gkd.app.util.REPOSITORY_URL
 import li.gkd.app.util.latestRecordDescFlow
 import li.gkd.app.util.latestRecordFlow
 import li.gkd.app.util.launchTry
@@ -257,11 +256,11 @@ fun useDashboardPage(): ScaffoldExt {
 
             PageItemCard(
                 title = "Learn about GKD",
-                subtitle = "Read the rule docs and FAQ",
+                subtitle = "View this app's source, rules, and README on GitHub",
                 imageVector = PerfIcon.HelpOutline,
-                onClickLabel = "Open the GKD docs page",
+                onClickLabel = "Open this repository on GitHub",
                 onClick = {
-                    mainVm.navigatePage(WebViewRoute(initUrl = HOME_PAGE_URL))
+                    mainVm.openUrl(REPOSITORY_URL)
                 })
             Spacer(modifier = Modifier.height(EmptyHeight))
         }

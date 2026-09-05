@@ -239,7 +239,7 @@ private fun CoroutineScope.createServer(port: Int) = embeddedServer(CIO, port) {
                             id = LOCAL_HTTP_SUBS_ID,
                             name = "In-memory subscription",
                             version = 0,
-                            author = "@gkd-kit/inspect"
+                            author = "@timconstantine/inspect"
                         )
                 SubscriptionStore.saveWithItem(subscription, httpSubsItem)
                 call.respond(RpcOk())

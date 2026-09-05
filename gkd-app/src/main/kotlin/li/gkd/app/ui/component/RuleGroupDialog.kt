@@ -2,10 +2,14 @@ package li.gkd.app.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +30,7 @@ import li.gkd.app.ui.share.LocalDarkTheme
 import li.gkd.app.ui.share.LocalMainViewModel
 import li.gkd.app.ui.style.JSON5_LARGE_TEXT_THRESHOLD
 import li.gkd.app.ui.style.getJson5AnnotatedString
+import li.gkd.app.util.copyText
 import li.gkd.app.util.throttle
 
 @Composable
@@ -37,7 +42,8 @@ fun RuleGroupDialog(
     onClickEdit: (() -> Unit) = {},
     onClickEditExclude: () -> Unit,
     onClickResetSwitch: (() -> Unit)?,
-    onClickDelete: () -> Unit = {}
+    onClickDelete: () -> Unit = {},
+    onClickAddRule: () -> Unit = {},
 ) {
     val mainVm = LocalMainViewModel.current
     val source = group.cacheStr
@@ -63,47 +69,87 @@ fun RuleGroupDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(text = "Rule details") },
         text = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                val maxHeight = 300.dp
-                val textModifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 100.dp, max = maxHeight)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                val contentPadding = PaddingValues(4.dp)
-                if (source.length > JSON5_LARGE_TEXT_THRESHOLD) {
-                    LazyCopyableText(
-                        text = annotatedText,
-                        modifier = textModifier,
-                        contentPadding = contentPadding,
-                        textStyle = MaterialTheme.typography.bodySmall,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textContentDescription = "Rule content",
+            Column {
+                if (group.rules.size > 1) {
+                    Text(
+                        text = "Rules in this group",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                } else {
-                    CopyableText(
-                        text = annotatedText,
-                        textToCopy = source,
-                        modifier = textModifier,
-                        contentPadding = contentPadding,
-                        textStyle = MaterialTheme.typography.bodySmall,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        textContentDescription = "Rule content",
+                    Spacer(modifier = Modifier.height(4.dp))
+                    group.rules.forEachIndexed { index, rule ->
+                        val ruleLabel = rule.name?.takeIf { it.isNotBlank() } ?: "Rule ${index + 1}"
+                        val predecessorLabel = rule.preKeys?.firstOrNull()?.let { preKey ->
+                            val predecessorIndex = group.rules.indexOfFirst { it.key == preKey }
+                            val predecessor = group.rules.getOrNull(predecessorIndex)
+                            val name = predecessor?.name?.takeIf { it.isNotBlank() }
+                                ?: predecessorIndex.takeIf { it >= 0 }?.let { "Rule ${it + 1}" }
+                            name?.let { "after $it" }
+                        }
+                        Text(
+                            text = if (predecessorLabel != null) "$ruleLabel ($predecessorLabel)" else ruleLabel,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(vertical = 2.dp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                if (subs.isLocal) {
+                    Text(
+                        text = "+ Add rule to this group",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable(onClick = throttle {
+                                onDismissRequest()
+                                onClickAddRule()
+                            })
+                            .padding(vertical = 4.dp),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    val maxHeight = 300.dp
+                    val textModifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 100.dp, max = maxHeight)
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                    val contentPadding = PaddingValues(4.dp)
+                    if (source.length > JSON5_LARGE_TEXT_THRESHOLD) {
+                        LazyCopyableText(
+                            text = annotatedText,
+                            modifier = textModifier,
+                            contentPadding = contentPadding,
+                            textStyle = MaterialTheme.typography.bodySmall,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textContentDescription = "Rule content",
+                        )
+                    } else {
+                        CopyableText(
+                            text = annotatedText,
+                            textToCopy = source,
+                            modifier = textModifier,
+                            contentPadding = contentPadding,
+                            textStyle = MaterialTheme.typography.bodySmall,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textContentDescription = "Rule content",
+                        )
+                    }
+                    Text(
+                        text = source.length.toString(),
+                        modifier = Modifier
+                            .padding(end = 4.dp, bottom = 4.dp)
+                            .align(Alignment.BottomEnd)
+                            .clip(MaterialTheme.shapes.extraSmall)
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .padding(horizontal = 2.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary,
                     )
                 }
-                Text(
-                    text = source.length.toString(),
-                    modifier = Modifier
-                        .padding(end = 4.dp, bottom = 4.dp)
-                        .align(Alignment.BottomEnd)
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(horizontal = 2.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.tertiary,
-                )
             }
         },
         confirmButton = {
@@ -129,6 +175,11 @@ fun RuleGroupDialog(
                 if (subs.isLocal) {
                     PerfIconButton(imageVector = PerfIcon.Edit, onClick = throttle(onClickEdit))
                 }
+                PerfIconButton(
+                    imageVector = PerfIcon.ContentCopy,
+                    onClickLabel = "Copy this rule's JSON5 text",
+                    onClick = throttle { copyText(source) },
+                )
                 PerfIconButton(
                     imageVector = PerfIcon.Block,
                     onClickLabel = "Edit the rule exclusion list",

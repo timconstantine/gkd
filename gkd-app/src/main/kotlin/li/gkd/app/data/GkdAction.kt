@@ -2,6 +2,7 @@ package li.gkd.app.data
 
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
+import android.os.Bundle
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityNodeInfo
 import kotlinx.coroutines.delay
@@ -21,6 +22,7 @@ data class GkdAction(
     val action: String? = null,
     override val position: RawSubscription.Position? = null,
     override val swipeArg: RawSubscription.SwipeArg? = null,
+    override val text: String? = null,
 ) : RawSubscription.LocationProps
 
 @Serializable
@@ -189,6 +191,33 @@ sealed class ActionPerformer(val action: String) {
         }
     }
 
+    data object SetText : ActionPerformer("setText") {
+        override suspend fun perform(
+            node: AccessibilityNodeInfo,
+            locationProps: RawSubscription.LocationProps,
+        ): ActionResult {
+            val rawText = locationProps.text
+            // Same tier as ACTION_CLICK/ACTION_LONG_CLICK above: a direct
+            // node action via the accessibility service, no root/Shizuku
+            // needed. There's no coordinate-based fallback for typing, so
+            // this just fails cleanly if the node can't take text.
+            if (rawText == null || !node.isEditable) {
+                return ActionResult(action = action, result = false)
+            }
+            TrackService.addA11yNodePosition(node)
+            val arguments = Bundle().apply {
+                putCharSequence(
+                    AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+                    expandTextTemplate(rawText),
+                )
+            }
+            return ActionResult(
+                action = action,
+                result = node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments),
+            )
+        }
+    }
+
     data object Back : ActionPerformer("back") {
         override suspend fun perform(
             node: AccessibilityNodeInfo,
@@ -294,6 +323,7 @@ sealed class ActionPerformer(val action: String) {
                 LongClickNode,
                 LongClickCenter,
                 LongClick,
+                SetText,
                 Back,
                 None,
                 Swipe,

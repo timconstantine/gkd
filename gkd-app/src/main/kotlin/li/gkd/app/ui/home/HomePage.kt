@@ -30,7 +30,7 @@ sealed class BottomNavItem(
 
     object SubsManage : BottomNavItem(
         key = 1,
-        label = "Subscriptions",
+        label = "Rules",
         icon = PerfIcon.FormatListBulleted,
     )
 

@@ -139,4 +139,7 @@ class SubsManageVm : BaseViewModel() {
         url: String,
         oldItem: SubsItem? = null,
     ): SubscriptionResult = SubscriptionStore.addOrModifyRemote(url, oldItem)
+
+    suspend fun createLocalSubscription(name: String): SubscriptionResult =
+        SubscriptionStore.createLocalSubscription(name)
 }

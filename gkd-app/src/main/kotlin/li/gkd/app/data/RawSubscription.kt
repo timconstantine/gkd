@@ -23,7 +23,6 @@ import li.gkd.app.util.filterIfNotAll
 import li.gkd.app.util.json
 import li.gkd.app.util.toJson5String
 import li.gkd.app.util.toast
-import li.gkd.db.LOCAL_SUBS_IDS
 import li.gkd.db.SubsConfig
 import li.songe.json5.Json5
 import li.gkd.selector.Selector
@@ -59,8 +58,14 @@ data class RawSubscription(
     val isEmpty: Boolean
         get() = globalGroups.isEmpty() && apps.all { it.groups.isEmpty() } && categories.isEmpty()
 
+    // Not "one of the two fixed built-in ids" — any subscription with no
+    // update source is locally authored/edited, whether that's the one
+    // built-in local subscription or one the user created by name (see
+    // SubscriptionStore.createLocalSubscription). LOCAL_SUBS_IDS still
+    // covers the two built-in ones specifically wherever that (and only
+    // that) distinction matters, e.g. "cannot be deleted".
     val isLocal: Boolean
-        get() = LOCAL_SUBS_IDS.contains(id)
+        get() = updateUrl == null
 
     val hasRule get() = globalGroups.isNotEmpty() || apps.any { it.groups.isNotEmpty() }
 
@@ -342,6 +347,9 @@ data class RawSubscription(
 
         // swipe
         val swipeArg: SwipeArg?
+
+        // setText
+        val text: String?
     }
 
     sealed interface RawRuleProps : RawCommonProps, LocationProps {
@@ -509,6 +517,7 @@ data class RawSubscription(
         override val action: String?,
         override val position: Position?,
         override val swipeArg: SwipeArg?,
+        override val text: String?,
         override val matches: List<String>?,
         override val excludeMatches: List<String>?,
         override val excludeAllMatches: List<String>?,
@@ -570,6 +579,7 @@ data class RawSubscription(
         override val action: String?,
         override val position: Position?,
         override val swipeArg: SwipeArg?,
+        override val text: String?,
         override val matches: List<String>?,
         override val excludeMatches: List<String>?,
         override val excludeAllMatches: List<String>?,
@@ -879,6 +889,7 @@ data class RawSubscription(
                 versionName = getCompatVersionName(jsonObject),
                 position = getPosition(jsonObject),
                 swipeArg = getSwipeArg(jsonObject),
+                text = getString(jsonObject, "text"),
                 forcedTime = getLong(jsonObject, "forcedTime"),
                 priorityTime = getLong(jsonObject, "priorityTime"),
                 priorityActionMaximum = getInt(jsonObject, "priorityActionMaximum"),
@@ -997,6 +1008,7 @@ data class RawSubscription(
                 forcedTime = getLong(jsonObject, "forcedTime"),
                 position = getPosition(jsonObject),
                 swipeArg = getSwipeArg(jsonObject),
+                text = getString(jsonObject, "text"),
                 priorityTime = getLong(jsonObject, "priorityTime"),
                 priorityActionMaximum = getInt(jsonObject, "priorityActionMaximum"),
             )

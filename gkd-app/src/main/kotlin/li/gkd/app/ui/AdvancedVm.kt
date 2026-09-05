@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import li.gkd.app.store.storeFlow
 import li.gkd.app.ui.share.BaseViewModel
+import li.gkd.app.util.Option
 import li.gkd.app.util.toast
 
 class AdvancedVm : BaseViewModel() {
@@ -38,5 +39,9 @@ class AdvancedVm : BaseViewModel() {
 
     fun setAutoClearMemorySubs(enabled: Boolean) {
         storeFlow.update { it.copy(autoClearMemorySubs = enabled) }
+    }
+
+    fun setDefaultCaptureTrigger(option: Option<Int>) {
+        storeFlow.update { it.copy(defaultCaptureTrigger = option.value) }
     }
 }
