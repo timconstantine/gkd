@@ -29,7 +29,7 @@ heuristic and more prone to false positives — enable only what you want.
 
 ### How to use it
 
-In the GKD app: **Subscriptions → Add subscription** and paste this URL:
+In the GKD app: **Rules → Add subscription** and paste this URL:
 
 ```
 https://raw.githubusercontent.com/timconstantine/gkd/main/subscriptions/english-ui-rules.gkd.json5
