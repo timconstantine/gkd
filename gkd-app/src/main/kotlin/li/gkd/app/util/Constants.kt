@@ -1,7 +1,10 @@
 package li.gkd.app.util
 
 const val FILE_SHORT_URL = "https://f.gkd.li/"
-const val IMPORT_SHORT_URL = "https://i.gkd.li/i/"
+// Points at this fork's translated build of the snapshot-inspector web tool
+// (same deployment as SERVER_SCRIPT_URL below) rather than upstream's
+// i.gkd.li, so a shared snapshot link opens in English.
+const val IMPORT_SHORT_URL = "https://timconstantine.github.io/inspect/i/"
 
 const val SERVER_SCRIPT_URL =
     "https://timconstantine.github.io/inspect/server.js"

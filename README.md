@@ -12,7 +12,7 @@ This is a fork of the upstream [gkd-kit/gkd](https://github.com/gkd-kit/gkd) pro
 
 Grab the newest APK from **[github.com/timconstantine/gkd/releases/tag/latest-build](https://github.com/timconstantine/gkd/releases/tag/latest-build)** (or download it directly: [gkd-latest-build.apk](https://github.com/timconstantine/gkd/releases/download/latest-build/gkd-latest-build.apk)) — these links always point to whatever build most recently passed CI (unsigned debug build, republished automatically after every successful [Build-Apk](.github/workflows/Build-Apk.yml) run).
 
-An Android app for custom screen tapping, built on [advanced selectors](https://gkd.li/guide/selector) + [subscription rules](https://gkd.li/guide/subscription) + [snapshot inspection](https://github.com/gkd-kit/inspect)
+An Android app for custom screen tapping, built on [advanced selectors](https://gkd.li/guide/selector) + [subscription rules](https://gkd.li/guide/subscription) + [snapshot inspection](https://timconstantine.github.io/inspect/) (this fork's translated build of [timconstantine/inspect](https://github.com/timconstantine/inspect), itself a fork of [gkd-kit/inspect](https://github.com/gkd-kit/inspect))
 
 Using custom rules, when a specified condition is met on a specified screen (e.g. specific text is present on screen), it taps a specific node or position, or performs another action
 
@@ -36,6 +36,10 @@ Upstream GKD expects you to hand-write rules as JSON5 (see [Selector](#selector)
 **Multi-step rules:** open an existing rule group's details and choose "Add rule to this group" to add another rule alongside it, and pick a **predecessor rule** from a dropdown of the other rules already in that group. The new rule only becomes eligible once the predecessor has already matched — useful for rules that need to fire in sequence (e.g. dismiss a dialog, *then* tap the button it was covering).
 
 You can also **copy** any existing rule's JSON5 to the clipboard and **paste** it back in as a new rule (in the same subscription or a different one) from the same "Add rule" menu used to start a capture or type one in by hand.
+
+### When to use the web inspector instead
+
+The in-app builder above covers the common case end to end without a computer. Reach for the [web inspector](https://timconstantine.github.io/inspect/) when you need something it doesn't do: **sharing** a captured snapshot with someone else (the "Copy link"/"Generate link" action on a snapshot produces a link that opens there), a saved **selector library** you can reuse across rules, **live** selector testing/clicking against a connected device rather than a static snapshot, or its **log viewer** for GKD's internal logs.
 
 ### The Rules tab
 
