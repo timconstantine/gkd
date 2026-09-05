@@ -401,6 +401,17 @@ class RuleGroupState(
                 onClickEditExclude = {
                     openExcludeEditor(showGroupState)
                 },
+                onClickAddRule = {
+                    dismissGroupShow()
+                    mainVm.navigatePage(
+                        RuleBuilderRoute(
+                            subsId = showGroupState.subsId,
+                            appId = showGroupState.appId,
+                            isGlobal = group is RawSubscription.RawGlobalGroup,
+                            appendToGroupKey = requireNotNull(showGroupState.groupKey),
+                        )
+                    )
+                },
                 onClickResetSwitch = subsConfig?.let {
                     if (showGroup is RawSubscription.RawGlobalGroup) {
                         if (showGroupState.pageAppId != null) {

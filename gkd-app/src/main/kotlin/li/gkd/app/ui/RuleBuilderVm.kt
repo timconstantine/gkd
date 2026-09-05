@@ -25,12 +25,20 @@ data class RuleBuilderRoute(
     val isGlobal: Boolean,
     // Non-null means "edit this existing rule" instead of creating a new one.
     val groupKey: Int? = null,
+    // Non-null means "add a new rule into this existing group" instead of
+    // creating a new group or editing an existing rule. Mutually exclusive
+    // with groupKey.
+    val appendToGroupKey: Int? = null,
 ) : NavKey
+
+/** One other rule already in the target group, offered as a predecessor. */
+data class SiblingRuleOption(val index: Int, val label: String)
 
 /**
  * The guided "essentials, then advanced" form shown after a screen capture,
  * and reused (see [li.gkd.app.ui.component.RuleGroupState]) to edit an
- * existing rule when it's simple enough for the form to represent. Saves
+ * existing rule, or to add an additional rule into an existing multi-rule
+ * group, when either is simple enough for the form to represent. Saves
  * into [RuleBuilderRoute.subsId] — the user's own local subscription
  * ([LOCAL_SUBS_ID]) by default, matching whichever editable subscription the
  * entry point that started the capture was already showing.
@@ -44,12 +52,13 @@ data class RuleBuilderRoute(
  * [RuleBuilderRoute.isGlobal]/[RuleBuilderRoute.appId] are only the *initial*
  * scope for a new rule — [isGlobalFlow]/[selectedAppIdFlow] let the user
  * change either before saving (see [setIsGlobal]/[setSelectedAppId]); both
- * stay fixed on an edit, since flipping scope for an existing rule would
- * move it between subscription lists entirely.
+ * stay fixed on an edit or an append, since flipping scope would move the
+ * rule between subscription lists (or groups) entirely.
  */
 class RuleBuilderVm(private val route: RuleBuilderRoute) : BaseViewModel() {
     private val requiredSubscription = requiredSubscription(route.subsId)
     val isEdit = route.groupKey != null
+    val isAppendToGroup = route.appendToGroupKey != null
 
     private val initialGroup: RawSubscription.RawGroupProps? = route.groupKey?.let { groupKey ->
         val subscription = requiredSubscription.state.value.value?.value ?: return@let null
@@ -60,26 +69,54 @@ class RuleBuilderVm(private val route: RuleBuilderRoute) : BaseViewModel() {
         }
     }
 
+    // The existing group a new rule is being added into — read once, same
+    // as initialGroup above; trySave() re-reads the live value before
+    // actually persisting, so a stale read here can't lose concurrent edits.
+    private val appendTargetGroup: RawSubscription.RawGroupProps? = route.appendToGroupKey?.let { groupKey ->
+        val subscription = requiredSubscription.state.value.value?.value ?: return@let null
+        if (route.isGlobal) {
+            subscription.globalGroups.find { it.key == groupKey }
+        } else {
+            subscription.getAppGroups(route.appId.orEmpty()).find { it.key == groupKey }
+        }
+    }
+
+    // Existing rules in the target group, offered as predecessors — shown by
+    // name, falling back to a positional label for rules that don't have one
+    // (e.g. any rule the guided form itself created before this feature).
+    val siblingRuleOptions: List<SiblingRuleOption> =
+        appendTargetGroup?.rules.orEmpty().mapIndexed { index, r ->
+            SiblingRuleOption(index, r.name?.takeIf { it.isNotBlank() } ?: "Rule ${index + 1}")
+        }
+
+    val predecessorIndexFlow: StateFlow<Int?>
+        field = MutableStateFlow(null)
+
+    fun setPredecessorIndex(value: Int?) {
+        predecessorIndexFlow.value = value
+    }
+
     // For editing a global rule, the scoped app (if any) is read back from
     // the rule itself rather than from wherever the edit was opened from.
     private val editForm = initialGroup?.toRuleEditFormOrNull(route.appId)
 
-    // Global-vs-app-specific is only choosable when creating a new rule —
-    // changing it for an existing one is a structural change (which
-    // subscription list the rule lives in) better done via delete + recreate,
-    // so these flows just stay fixed at the route's original values on edit.
+    // Global-vs-app-specific is only choosable when creating a brand new
+    // group — changing it for an existing rule, or for one being added into
+    // an existing group, is a structural change (which subscription list /
+    // group the rule lives in) better done via delete + recreate, so these
+    // flows just stay fixed at the route's original values otherwise.
     val isGlobalFlow: StateFlow<Boolean>
         field = MutableStateFlow(route.isGlobal)
     val selectedAppIdFlow: StateFlow<String?>
         field = MutableStateFlow(if (isEdit && route.isGlobal) editForm?.appId else route.appId)
 
     fun setIsGlobal(value: Boolean) {
-        if (isEdit) return
+        if (isEdit || isAppendToGroup) return
         isGlobalFlow.value = value
     }
 
     fun setSelectedAppId(value: String?) {
-        if (isEdit) return
+        if (isEdit || isAppendToGroup) return
         selectedAppIdFlow.value = value
     }
 
@@ -115,6 +152,73 @@ class RuleBuilderVm(private val route: RuleBuilderRoute) : BaseViewModel() {
     fun setFastQuery(value: Boolean) = update { it.copy(fastQuery = value) }
     fun setMatchRoot(value: Boolean) = update { it.copy(matchRoot = value) }
 
+    private fun backfillAppRuleKeys(rules: List<RawSubscription.RawAppRule>): List<RawSubscription.RawAppRule> {
+        var nextKey = (rules.mapNotNull { it.key }.maxOrNull() ?: -1) + 1
+        return rules.map { r -> if (r.key != null) r else r.copy(key = nextKey++) }
+    }
+
+    private fun backfillGlobalRuleKeys(rules: List<RawSubscription.RawGlobalRule>): List<RawSubscription.RawGlobalRule> {
+        var nextKey = (rules.mapNotNull { it.key }.maxOrNull() ?: -1) + 1
+        return rules.map { r -> if (r.key != null) r else r.copy(key = nextKey++) }
+    }
+
+    /**
+     * Adds this form's rule into the existing group identified by
+     * [appendToGroupKey], instead of creating a new group. Any sibling rule
+     * that doesn't have a `key` yet (every rule the guided form made before
+     * this feature existed) gets one backfilled first, so it can actually be
+     * referenced as a predecessor — by this new rule, or a future one.
+     */
+    private suspend fun trySaveAppend(appendToGroupKey: Int, state: RuleFormState): String? {
+        val isGlobal = isGlobalFlow.value
+        val appId = selectedAppIdFlow.value
+        val ruleName = state.name.trim()
+        val predecessorIndex = predecessorIndexFlow.value
+        return try {
+            requiredSubscription.update { subscription ->
+                subscription.edit {
+                    if (isGlobal) {
+                        val original = subscription.globalGroups.find { it.key == appendToGroupKey }
+                            ?: error("The rule group no longer exists")
+                        val backfilled = backfillGlobalRuleKeys(original.rules)
+                        val preKey = predecessorIndex?.let { backfilled.getOrNull(it)?.key }
+                        val text = RuleComposer.composeGroupText(
+                            state, appId = null, isGlobal = true, ruleName = ruleName, preKey = preKey,
+                        )
+                        val parsedRule = SubscriptionInputParser.parse(text, 0).parseGlobalGroup().rules.single()
+                        val newKey = (backfilled.mapNotNull { it.key }.maxOrNull() ?: -1) + 1
+                        replaceGlobalGroup(
+                            appendToGroupKey,
+                            original,
+                            original.copy(rules = backfilled + parsedRule.copy(key = newKey)),
+                        )
+                    } else {
+                        val targetAppId = appId ?: error("Missing app id")
+                        val original = subscription.getAppGroups(targetAppId).find { it.key == appendToGroupKey }
+                            ?: error("The rule group no longer exists")
+                        val backfilled = backfillAppRuleKeys(original.rules)
+                        val preKey = predecessorIndex?.let { backfilled.getOrNull(it)?.key }
+                        val text = RuleComposer.composeGroupText(
+                            state, appId = targetAppId, isGlobal = false, ruleName = ruleName, preKey = preKey,
+                        )
+                        val parsedRule =
+                            SubscriptionInputParser.parse(text, 0).parseAppGroup(targetAppId).rules.single()
+                        val newKey = (backfilled.mapNotNull { it.key }.maxOrNull() ?: -1) + 1
+                        replaceAppGroup(
+                            targetApp = subscription.getApp(targetAppId),
+                            groupKey = appendToGroupKey,
+                            expectedGroup = original,
+                            newGroup = original.copy(rules = backfilled + parsedRule.copy(key = newKey)),
+                        )
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            e.message ?: "Failed to save the rule"
+        }
+    }
+
     /**
      * Returns a user-facing error message on failure, or null on success
      * (the rule has been persisted by the time this returns).
@@ -133,6 +237,13 @@ class RuleBuilderVm(private val route: RuleBuilderRoute) : BaseViewModel() {
         }
         if (!isGlobal && appId.isNullOrBlank()) {
             return "Choose which app this rule applies to"
+        }
+        val appendToGroupKey = route.appendToGroupKey
+        if (appendToGroupKey != null) {
+            // A rule added to an already-existing group just inherits that
+            // group's own enabled state — there's no separate "enable this
+            // one rule" concept, so no extra enable step is needed here.
+            return trySaveAppend(appendToGroupKey, state)
         }
         val text = try {
             RuleComposer.composeGroupText(state, appId = appId, isGlobal = isGlobal)

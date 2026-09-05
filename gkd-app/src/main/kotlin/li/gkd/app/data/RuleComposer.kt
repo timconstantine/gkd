@@ -50,9 +50,24 @@ object RuleComposer {
      *
      * [appId] scopes an activity for a global rule (via `apps`); it's ignored
      * for app rules, which scope activities directly on the rule.
+     *
+     * [ruleName]/[preKey] are only used when appending this rule into an
+     * *existing* multi-rule group (see [li.gkd.app.ui.RuleBuilderVm]) — a
+     * plain new group's sole rule leaves both unset, since setting `name` on
+     * that rule would make [toRuleEditFormOrNull] refuse to edit it later
+     * through the guided form. The wrapping "group" object built below is
+     * discarded in that case; only the composed rule itself is kept.
      */
-    fun composeGroupText(formState: RuleFormState, appId: String?, isGlobal: Boolean): String {
+    fun composeGroupText(
+        formState: RuleFormState,
+        appId: String?,
+        isGlobal: Boolean,
+        ruleName: String? = null,
+        preKey: Int? = null,
+    ): String {
         val rule = buildJsonObject {
+            if (ruleName != null) put("name", ruleName)
+            if (preKey != null) putJsonArray("preKeys") { add(preKey) }
             put("matches", formState.selector)
             if (formState.action.isNotBlank() && formState.action != "click") {
                 put("action", formState.action)

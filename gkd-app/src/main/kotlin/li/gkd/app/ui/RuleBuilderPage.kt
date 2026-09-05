@@ -2,6 +2,7 @@ package li.gkd.app.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -134,6 +137,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
     val selectorError by vm.selectorErrorFlow.collectAsStateWithLifecycle()
     val isGlobal by vm.isGlobalFlow.collectAsStateWithLifecycle()
     val selectedAppId by vm.selectedAppIdFlow.collectAsStateWithLifecycle()
+    val predecessorIndex by vm.predecessorIndexFlow.collectAsStateWithLifecycle()
     val appInfoMap by appInfoMapFlow.collectAsStateWithLifecycle()
     var advancedExpanded by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
@@ -153,7 +157,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             return@launchAsFn
         }
         errorText = null
-        if (vm.isEdit) {
+        if (vm.isEdit || vm.isAppendToGroup) {
             mainVm.popPage()
         } else if (isGlobal) {
             mainVm.navigatePage(
@@ -173,7 +177,15 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
             navigationIcon = {
                 PerfIconButton(imageVector = PerfIcon.ArrowBack, onClick = mainVm::popPage)
             },
-            title = { Text(text = if (vm.isEdit) "Edit rule" else "Build a rule") },
+            title = {
+                Text(
+                    text = when {
+                        vm.isEdit -> "Edit rule"
+                        vm.isAppendToGroup -> "Add rule"
+                        else -> "Build a rule"
+                    },
+                )
+            },
         )
     }) { contentPadding ->
         Column(
@@ -183,7 +195,7 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = itemHorizontalPadding, vertical = 4.dp),
         ) {
-            if (!vm.isEdit) {
+            if (!vm.isEdit && !vm.isAppendToGroup) {
                 SectionLabel(text = "Rule type", showTop = false)
                 OptionRow(
                     title = "Global",
@@ -220,17 +232,35 @@ fun RuleBuilderPage(route: RuleBuilderRoute) {
                 onValueChange = vm::setName,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = "Name") },
-                supportingText = { Text(text = "Shown in your rule list") },
+                supportingText = {
+                    Text(
+                        text = if (vm.isAppendToGroup) {
+                            "Identifies this rule if a later rule needs to wait for it"
+                        } else {
+                            "Shown in your rule list"
+                        },
+                    )
+                },
                 singleLine = true,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = form.desc,
-                onValueChange = vm::setDesc,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = "Description (optional)") },
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            if (!vm.isAppendToGroup) {
+                OutlinedTextField(
+                    value = form.desc,
+                    onValueChange = vm::setDesc,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = "Description (optional)") },
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            if (vm.isAppendToGroup) {
+                PredecessorField(
+                    options = vm.siblingRuleOptions,
+                    selectedIndex = predecessorIndex,
+                    onSelect = vm::setPredecessorIndex,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             OutlinedTextField(
                 value = form.selector,
                 onValueChange = vm::setSelector,
@@ -515,6 +545,54 @@ private fun SwipeFields(
         label = "Swipe duration (ms)",
         helper = "How long the swipe gesture takes",
     )
+}
+
+/**
+ * A dropdown for picking which other rule in the same group must already
+ * have matched before this new one becomes eligible — the guided-form
+ * equivalent of hand-writing `preKeys`. Only shown when adding a rule into
+ * an existing group, since a brand-new group's first rule has no siblings
+ * yet to depend on.
+ */
+@Composable
+private fun PredecessorField(
+    options: List<SiblingRuleOption>,
+    selectedIndex: Int?,
+    onSelect: (Int?) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedLabel = options.find { it.index == selectedIndex }?.label ?: "None"
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = selectedLabel,
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(text = "Predecessor rule") },
+            supportingText = { Text(text = "Only match after this other rule in the group already has") },
+            trailingIcon = { Text(text = "▾", style = MaterialTheme.typography.titleMedium) },
+        )
+        // OutlinedTextField still intercepts touches for cursor placement
+        // even when read-only, so a transparent scrim on top is what
+        // actually opens the menu on tap.
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(onClick = throttle { expanded = true }),
+        )
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(text = "None") },
+                onClick = { onSelect(null); expanded = false },
+            )
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(text = option.label) },
+                    onClick = { onSelect(option.index); expanded = false },
+                )
+            }
+        }
+    }
 }
 
 /**
