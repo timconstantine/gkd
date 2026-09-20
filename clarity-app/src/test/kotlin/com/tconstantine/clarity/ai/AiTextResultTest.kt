@@ -11,7 +11,7 @@ class AiTextResultTest {
         val result = parseAiTextResult(response)
 
         assertEquals("This is the cleaned up text.\nSecond paragraph.", result.mainText)
-        assertEquals(emptyList(), result.clarifications)
+        assertEquals(emptyList<String>(), result.clarifications)
     }
 
     @Test
