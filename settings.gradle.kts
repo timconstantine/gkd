@@ -23,6 +23,7 @@ include(
     ":gkd-db",
     ":gkd-hidden-api",
     ":gkd-selector",
+    ":clarity-app",
 )
 
 dependencyResolutionManagement {
