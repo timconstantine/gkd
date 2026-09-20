@@ -71,3 +71,25 @@ jobs:
             - Commit: ${{ github.sha }}
           prerelease: true
           files: gkd-latest-build.apk
+
+  build-clarity-app:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore:') && !startsWith(github.event.head_commit.message, 'chore(') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
+
+      - run: ./gradlew :clarity-app:testDebugUnitTest :clarity-app:assembleDebug
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: clarity-app-debug-apk
+          path: clarity-app/build/outputs/apk/debug/*.apk
