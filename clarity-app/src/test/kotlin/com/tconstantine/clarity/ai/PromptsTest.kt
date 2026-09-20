@@ -1,7 +1,7 @@
 package com.tconstantine.clarity.ai
 
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class PromptsTest {
     @Test
@@ -9,7 +9,7 @@ class PromptsTest {
         val dictated = "put it at 3pm actually no make it 4pm"
         val prompt = buildCleanupPrompt(dictated)
 
-        assertTrue(prompt.endsWith(dictated), "prompt should end with the raw dictation so nothing is appended after it")
+        assertTrue("prompt should end with the raw dictation so nothing is appended after it", prompt.endsWith(dictated))
         assertTrue(prompt.contains("later, final version"))
         assertTrue(prompt.contains(NEEDS_CLARIFICATION_HEADING))
     }
@@ -21,7 +21,7 @@ class PromptsTest {
         val prompt = buildRevisionPrompt(existing, instructions)
 
         assertTrue(prompt.contains(existing))
-        assertTrue(prompt.endsWith(instructions), "prompt should end with the revision instructions so nothing is appended after them")
+        assertTrue("prompt should end with the revision instructions so nothing is appended after them", prompt.endsWith(instructions))
         assertTrue(prompt.contains("my new instruction wins"))
     }
 }
