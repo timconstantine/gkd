@@ -67,6 +67,7 @@ fun ClarityApp(
             Screen.Result -> ResultScreen(
                 modifier = Modifier.padding(padding),
                 state = state,
+                onCleanedTextChange = viewModel::updateCleanedText,
                 onRevisionTextChange = viewModel::updateRevisionInput,
                 onStartRevisionDictation = { onRequestDictation(DictationTarget.RevisionInput) },
                 onStopDictation = viewModel::stopDictation,

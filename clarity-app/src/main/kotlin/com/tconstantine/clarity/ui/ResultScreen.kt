@@ -44,6 +44,7 @@ import com.tconstantine.clarity.viewmodel.ClarityUiState
 fun ResultScreen(
     modifier: Modifier = Modifier,
     state: ClarityUiState,
+    onCleanedTextChange: (String) -> Unit,
     onRevisionTextChange: (String) -> Unit,
     onStartRevisionDictation: () -> Unit,
     onStopDictation: () -> Unit,
@@ -59,13 +60,12 @@ fun ResultScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
-        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-            Text(
-                text = state.cleanedText,
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge,
-            )
-        }
+        OutlinedTextField(
+            value = state.cleanedText,
+            onValueChange = onCleanedTextChange,
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = MaterialTheme.typography.bodyLarge,
+        )
 
         if (state.clarifications.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))

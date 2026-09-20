@@ -12,6 +12,7 @@ fun buildCleanupPrompt(dictatedText: String): String = """
     3. Remove filler, repetition, and false starts. Keep my actual meaning and tone.
     4. Organize into clear paragraphs or a list if the content is naturally list-like.
     5. Don't add information, conclusions, or content I didn't say.
+    6. Output only the cleaned-up text itself — no title, heading, preamble, or closing summary, and no notes or commentary about what you did or why. Only add the "$NEEDS_CLARIFICATION_HEADING" section when there's an actual ambiguity to flag; leave it out entirely otherwise.
 
     Here's the dictation:
     $dictatedText
@@ -27,6 +28,7 @@ fun buildRevisionPrompt(existingText: String, revisionInstructions: String): Str
     3. If it's unclear whether I'm asking for a small edit or a full rewrite of a section, make the smaller, more conservative change and flag the ambiguity at the end under "$NEEDS_CLARIFICATION_HEADING".
     4. Preserve the tone, structure, and formatting of the original unless I specifically ask you to change those.
     5. Don't add information, conclusions, or content I didn't say — either in the original or in the revision instructions.
+    6. Output only the revised text itself — no title, heading, preamble, or closing summary, and no notes or commentary about what you changed or why. Only add the "$NEEDS_CLARIFICATION_HEADING" section when there's an actual ambiguity to flag; leave it out entirely otherwise.
 
     Existing text:
     $existingText

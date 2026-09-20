@@ -80,6 +80,10 @@ class ClarityViewModel(context: Context) : ViewModel() {
         _uiState.update { it.copy(revisionInput = text) }
     }
 
+    fun updateCleanedText(text: String) {
+        _uiState.update { it.copy(cleanedText = text) }
+    }
+
     fun clearRawText() {
         _uiState.update { it.copy(rawText = "") }
     }
